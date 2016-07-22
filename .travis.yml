@@ -1,0 +1,32 @@
+language: php
+
+php:
+    - 7.0
+    - 5.6
+
+env:
+    global:
+        - COMPOSER_OPTIONS=""
+
+matrix:
+    include:
+        -
+            php: 5.6
+            env: COMPOSER_OPTIONS="--prefer-lowest"
+
+cache:
+    directories:
+        - vendor
+
+before_install:
+    - phpenv config-rm xdebug.ini || true
+
+    - composer self-update
+
+install:
+    - composer update --prefer-dist $COMPOSER_OPTIONS
+
+script:
+    - composer validate --strict
+
+    - vendor/bin/behat --strict
