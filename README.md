@@ -16,7 +16,7 @@ $ composer require friends-of-behat/symfony-extension --dev
 default:
     # ...
     extensions:
-        FriendsOfBehat\SymfonyExtension: Z
+        FriendsOfBehat\SymfonyExtension: ~
 ```
 
 3. Good luck & have fun!
