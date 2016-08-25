@@ -14,17 +14,17 @@ ensures that application behaviour will not be affected by stateful services.
 
 1. Install it:
 
-```bash
-$ composer require friends-of-behat/symfony-extension --dev
-```
+    ```bash
+    $ composer require friends-of-behat/symfony-extension --dev
+    ```
 
 2. Enable and configure in your Behat configuration:
 
-```yaml
-default:
-    # ...
-    extensions:
-        FriendsOfBehat\SymfonyExtension: ~
-```
+    ```yaml
+    default:
+        # ...
+        extensions:
+            FriendsOfBehat\SymfonyExtension: ~
+    ```
 
 3. Good luck & have fun!
