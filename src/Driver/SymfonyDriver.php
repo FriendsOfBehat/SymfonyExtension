@@ -14,9 +14,6 @@ namespace FriendsOfBehat\SymfonyExtension\Driver;
 use Behat\Mink\Driver\BrowserKitDriver;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class SymfonyDriver extends BrowserKitDriver
 {
     /**

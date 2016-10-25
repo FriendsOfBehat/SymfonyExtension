@@ -17,9 +17,6 @@ use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class SymfonyDriverFactory implements DriverFactory
 {
     /**
