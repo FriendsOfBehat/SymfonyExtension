@@ -16,9 +16,6 @@ use Behat\Behat\EventDispatcher\Event\ScenarioTested;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class KernelRebooter implements EventSubscriberInterface
 {
     /**
