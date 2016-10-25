@@ -21,6 +21,7 @@ ensures that application behaviour will not be affected by stateful services.
 2. Enable and configure in your Behat configuration:
 
     ```yaml
+    # behat.yml
     default:
         # ...
         extensions:
