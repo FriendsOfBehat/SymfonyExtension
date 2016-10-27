@@ -111,7 +111,6 @@ final class SymfonyExtension implements Extension
      */
     public function process(ContainerBuilder $container)
     {
-
     }
 
     /**
