@@ -15,9 +15,13 @@ use Behat\MinkExtension\ServiceContainer\MinkExtension;
 use Behat\Testwork\EventDispatcher\ServiceContainer\EventDispatcherExtension;
 use Behat\Testwork\ServiceContainer\Extension;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
+use FriendsOfBehat\CrossContainerExtension\CrossContainerProcessor;
+use FriendsOfBehat\CrossContainerExtension\KernelBasedContainerAccessor;
+use FriendsOfBehat\CrossContainerExtension\ServiceContainer\CrossContainerExtension;
 use FriendsOfBehat\SymfonyExtension\Driver\Factory\SymfonyDriverFactory;
 use FriendsOfBehat\SymfonyExtension\Listener\KernelRebooter;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
+use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -56,6 +60,11 @@ final class SymfonyExtension implements Extension
     const SHARED_KERNEL_CONTAINER_ID = 'sylius_symfony_extension.shared_kernel.container';
 
     /**
+     * @var CrossContainerProcessor|null
+     */
+    private $crossContainerProcessor;
+
+    /**
      * {@inheritdoc}
      */
     public function getConfigKey()
@@ -69,6 +78,7 @@ final class SymfonyExtension implements Extension
     public function initialize(ExtensionManager $extensionManager)
     {
         $this->registerSymfonyDriverFactory($extensionManager);
+        $this->initializeCrossContainerProcessor($extensionManager);
     }
 
     /**
@@ -104,6 +114,7 @@ final class SymfonyExtension implements Extension
         $this->loadSharedKernelContainer($container);
 
         $this->loadKernelRebooter($container);
+        $this->declareSymfonyContainers($container);
     }
 
     /**
@@ -183,6 +194,36 @@ final class SymfonyExtension implements Extension
         $definition->addTag(EventDispatcherExtension::SUBSCRIBER_TAG);
 
         $container->setDefinition(self::KERNEL_ID . '.rebooter', $definition);
+    }
+
+    /**
+     * @param ContainerBuilder $container
+     */
+    private function declareSymfonyContainers(ContainerBuilder $container)
+    {
+        if (null !== $this->crossContainerProcessor) {
+            $this->crossContainerProcessor->addContainerAccessor(
+                'symfony',
+                new KernelBasedContainerAccessor($container->get(self::KERNEL_ID))
+            );
+
+            $this->crossContainerProcessor->addContainerAccessor(
+                'symfony',
+                new KernelBasedContainerAccessor($container->get(self::SHARED_KERNEL_ID))
+            );
+        }
+    }
+
+    /**
+     * @param ExtensionManager $extensionManager
+     */
+    private function initializeCrossContainerProcessor(ExtensionManager $extensionManager)
+    {
+        /** @var CrossContainerExtension $extension */
+        $extension = $extensionManager->getExtension('fob_cross_container');
+        if (null !== $extension) {
+            $this->crossContainerProcessor = $extension->getCrossContainerProcessor();
+        }
     }
 
     /**

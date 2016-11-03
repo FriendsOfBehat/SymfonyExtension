@@ -28,3 +28,31 @@ Feature: Not crashing Behat
         And a feature file with passing scenario
         When I run Behat
         Then it should pass
+
+    Scenario: Not crashing Behat with CrossContainerExtension
+        Given a Behat configuration containing:
+        """
+        default:
+            extensions:
+                FriendsOfBehat\SymfonyExtension:
+                    kernel:
+                        bootstrap: ~
+
+                FriendsOfBehat\CrossContainerExtension: ~
+        """
+        And a file "app/AppKernel.php" containing:
+        """
+        <?php
+
+        use Symfony\Component\HttpKernel\Kernel;
+        use Symfony\Component\Config\Loader\LoaderInterface;
+
+        class AppKernel extends Kernel
+        {
+            public function registerBundles() { return []; }
+            public function registerContainerConfiguration(LoaderInterface $loader) {}
+        }
+        """
+        And a feature file with passing scenario
+        When I run Behat
+        Then it should pass
