@@ -1,0 +1,5 @@
+default:
+    suites:
+        default:
+            contexts:
+                - FriendsOfBehat\TestContext\Context\TestContext
