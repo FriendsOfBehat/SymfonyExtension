@@ -33,4 +33,4 @@ install:
 script:
     - composer validate --strict
 
-    - vendor/bin/behat --strict --config=test/behat.yml
+    - vendor/bin/behat --strict -vvv --no-interaction

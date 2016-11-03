@@ -123,9 +123,11 @@ final class SymfonyExtension implements Extension
             $config['debug'],
         ));
         $definition->addMethodCall('boot');
+        $definition->setFile($this->getKernelFile($container->getParameter('paths.base'), $config['path']));
+
         $container->setDefinition(self::KERNEL_ID, $definition);
-        $container->setParameter(self::KERNEL_ID . '.path', $config['path']);
-        $container->setParameter(self::KERNEL_ID . '.bootstrap', $config['bootstrap']);
+
+        $this->requireKernelBootstrapFile($container->getParameter('paths.base'), $config['bootstrap']);
     }
 
     /**
@@ -198,5 +200,55 @@ final class SymfonyExtension implements Extension
             'symfony',
             new Reference(self::DRIVER_KERNEL_ID)
         ));
+    }
+
+    /**
+     * @param string $basePath
+     * @param string $kernelPath
+     *
+     * @return string|null
+     */
+    private function getKernelFile($basePath, $kernelPath)
+    {
+        $possibleFiles = [
+            sprintf('%s/%s', $basePath, $kernelPath),
+            $kernelPath,
+        ];
+
+        foreach ($possibleFiles as $possibleFile) {
+            if (file_exists($possibleFile)) {
+                return $possibleFile;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string $basePath
+     * @param string|null $bootstrapPath
+     *
+     * @throws \DomainException
+     */
+    private function requireKernelBootstrapFile($basePath, $bootstrapPath)
+    {
+        if (null === $bootstrapPath) {
+            return;
+        }
+
+        $possiblePaths = [
+            sprintf('%s/%s', $basePath, $bootstrapPath),
+            $bootstrapPath,
+        ];
+
+        foreach ($possiblePaths as $possiblePath) {
+            if (file_exists($possiblePath)) {
+                require_once $possiblePath;
+
+                return;
+            }
+        }
+
+        throw new \DomainException('Could not load bootstrap file.');
     }
 }
