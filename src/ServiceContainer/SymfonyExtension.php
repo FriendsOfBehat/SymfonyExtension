@@ -208,7 +208,7 @@ final class SymfonyExtension implements Extension
             );
 
             $this->crossContainerProcessor->addContainerAccessor(
-                'symfony',
+                'symfony_shared',
                 new KernelBasedContainerAccessor($container->get(self::SHARED_KERNEL_ID))
             );
         }
