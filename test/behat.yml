@@ -1,3 +1,0 @@
-default:
-    extensions:
-        FriendsOfBehat\SymfonyExtension: ~
