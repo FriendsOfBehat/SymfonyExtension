@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the SymfonyExtension package.
  *
@@ -20,7 +22,7 @@ final class SymfonyDriver extends BrowserKitDriver
      * @param KernelInterface $kernel
      * @param string $baseUrl
      */
-    public function __construct(KernelInterface $kernel, $baseUrl)
+    public function __construct(KernelInterface $kernel, string $baseUrl)
     {
         parent::__construct($kernel->getContainer()->get('test.client'), $baseUrl);
     }

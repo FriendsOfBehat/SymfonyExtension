@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the SymfonyExtension package.
  *
@@ -34,7 +36,7 @@ final class KernelRebooter implements EventSubscriberInterface
     /**
      * {@inheritdoc}
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             ScenarioTested::AFTER => ['rebootKernel', -15],
@@ -42,7 +44,7 @@ final class KernelRebooter implements EventSubscriberInterface
         ];
     }
 
-    public function rebootKernel()
+    public function rebootKernel(): void
     {
         $this->kernel->shutdown();
         $this->kernel->boot();
