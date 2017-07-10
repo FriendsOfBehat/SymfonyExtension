@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the SymfonyExtension package.
  *
@@ -33,7 +35,7 @@ final class SymfonyDriverFactory implements DriverFactory
      * @param string $name
      * @param Reference $kernel
      */
-    public function __construct($name, Reference $kernel)
+    public function __construct(string $name, Reference $kernel)
     {
         $this->name = $name;
         $this->kernel = $kernel;
@@ -42,7 +44,7 @@ final class SymfonyDriverFactory implements DriverFactory
     /**
      * {@inheritdoc}
      */
-    public function getDriverName()
+    public function getDriverName(): string
     {
         return $this->name;
     }
@@ -50,7 +52,7 @@ final class SymfonyDriverFactory implements DriverFactory
     /**
      * {@inheritdoc}
      */
-    public function supportsJavascript()
+    public function supportsJavascript(): bool
     {
         return false;
     }
@@ -58,7 +60,7 @@ final class SymfonyDriverFactory implements DriverFactory
     /**
      * {@inheritdoc}
      */
-    public function configure(ArrayNodeDefinition $builder)
+    public function configure(ArrayNodeDefinition $builder): void
     {
 
     }
@@ -66,7 +68,7 @@ final class SymfonyDriverFactory implements DriverFactory
     /**
      * {@inheritdoc}
      */
-    public function buildDriver(array $config)
+    public function buildDriver(array $config): Definition
     {
         return new Definition(SymfonyDriver::class, [
             $this->kernel,

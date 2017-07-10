@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the SymfonyExtension package.
  *
@@ -67,7 +69,7 @@ final class SymfonyExtension implements Extension
     /**
      * {@inheritdoc}
      */
-    public function getConfigKey()
+    public function getConfigKey(): string
     {
         return 'fob_symfony';
     }
@@ -75,7 +77,7 @@ final class SymfonyExtension implements Extension
     /**
      * {@inheritdoc}
      */
-    public function initialize(ExtensionManager $extensionManager)
+    public function initialize(ExtensionManager $extensionManager): void
     {
         $this->registerSymfonyDriverFactory($extensionManager);
         $this->initializeCrossContainerProcessor($extensionManager);
@@ -84,7 +86,7 @@ final class SymfonyExtension implements Extension
     /**
      * {@inheritdoc}
      */
-    public function configure(ArrayNodeDefinition $builder)
+    public function configure(ArrayNodeDefinition $builder): void
     {
         $builder
             ->addDefaultsIfNotSet()
@@ -97,13 +99,17 @@ final class SymfonyExtension implements Extension
                             ->scalarNode('class')->defaultValue('AppKernel')->end()
                             ->scalarNode('env')->defaultValue('test')->end()
                             ->booleanNode('debug')->defaultTrue()->end()
+                        ->end()
+                    ->end()
+                ->end()
+            ->end()
         ;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function load(ContainerBuilder $container, array $config)
+    public function load(ContainerBuilder $container, array $config): void
     {
         $this->loadKernel($container, $config['kernel']);
         $this->loadKernelContainer($container);
@@ -120,14 +126,14 @@ final class SymfonyExtension implements Extension
     /**
      * {@inheritdoc}
      */
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
     }
 
     /**
      * @param ContainerBuilder $container
      */
-    private function loadKernel(ContainerBuilder $container, array $config)
+    private function loadKernel(ContainerBuilder $container, array $config): void
     {
         $definition = new Definition($config['class'], array(
             $config['env'],
@@ -144,7 +150,7 @@ final class SymfonyExtension implements Extension
     /**
      * @param ContainerBuilder $container
      */
-    private function loadKernelContainer(ContainerBuilder $container)
+    private function loadKernelContainer(ContainerBuilder $container): void
     {
         $containerDefinition = new Definition(Container::class);
         $containerDefinition->setFactory([
@@ -158,7 +164,7 @@ final class SymfonyExtension implements Extension
     /**
      * @param ContainerBuilder $container
      */
-    private function loadDriverKernel(ContainerBuilder $container)
+    private function loadDriverKernel(ContainerBuilder $container): void
     {
         $container->setDefinition(self::DRIVER_KERNEL_ID, $container->findDefinition(self::KERNEL_ID));
     }
@@ -166,7 +172,7 @@ final class SymfonyExtension implements Extension
     /**
      * @param ContainerBuilder $container
      */
-    private function loadSharedKernel(ContainerBuilder $container)
+    private function loadSharedKernel(ContainerBuilder $container): void
     {
         $container->setDefinition(self::SHARED_KERNEL_ID, $container->findDefinition(self::KERNEL_ID));
     }
@@ -174,7 +180,7 @@ final class SymfonyExtension implements Extension
     /**
      * @param ContainerBuilder $container
      */
-    private function loadSharedKernelContainer(ContainerBuilder $container)
+    private function loadSharedKernelContainer(ContainerBuilder $container): void
     {
         $containerDefinition = new Definition(Container::class);
         $containerDefinition->setFactory([
@@ -188,7 +194,7 @@ final class SymfonyExtension implements Extension
     /**
      * @param ContainerBuilder $container
      */
-    private function loadKernelRebooter(ContainerBuilder $container)
+    private function loadKernelRebooter(ContainerBuilder $container): void
     {
         $definition = new Definition(KernelRebooter::class, [new Reference(self::KERNEL_ID)]);
         $definition->addTag(EventDispatcherExtension::SUBSCRIBER_TAG);
@@ -199,7 +205,7 @@ final class SymfonyExtension implements Extension
     /**
      * @param ContainerBuilder $container
      */
-    private function declareSymfonyContainers(ContainerBuilder $container)
+    private function declareSymfonyContainers(ContainerBuilder $container): void
     {
         if (null !== $this->crossContainerProcessor) {
             $this->crossContainerProcessor->addContainerAccessor(
@@ -217,7 +223,7 @@ final class SymfonyExtension implements Extension
     /**
      * @param ExtensionManager $extensionManager
      */
-    private function initializeCrossContainerProcessor(ExtensionManager $extensionManager)
+    private function initializeCrossContainerProcessor(ExtensionManager $extensionManager): void
     {
         /** @var CrossContainerExtension $extension */
         $extension = $extensionManager->getExtension('fob_cross_container');
@@ -229,7 +235,7 @@ final class SymfonyExtension implements Extension
     /**
      * @param ExtensionManager $extensionManager
      */
-    private function registerSymfonyDriverFactory(ExtensionManager $extensionManager)
+    private function registerSymfonyDriverFactory(ExtensionManager $extensionManager): void
     {
         /** @var MinkExtension $minkExtension */
         $minkExtension = $extensionManager->getExtension('mink');
@@ -249,7 +255,7 @@ final class SymfonyExtension implements Extension
      *
      * @return string|null
      */
-    private function getKernelFile($basePath, $kernelPath)
+    private function getKernelFile(string $basePath, string $kernelPath): ?string
     {
         $possibleFiles = [
             sprintf('%s/%s', $basePath, $kernelPath),
@@ -271,7 +277,7 @@ final class SymfonyExtension implements Extension
      *
      * @throws \DomainException
      */
-    private function requireKernelBootstrapFile($basePath, $bootstrapPath)
+    private function requireKernelBootstrapFile(string $basePath, string $bootstrapPath): void
     {
         if (null === $bootstrapPath) {
             return;
