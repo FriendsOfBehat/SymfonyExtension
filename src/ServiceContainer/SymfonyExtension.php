@@ -277,7 +277,7 @@ final class SymfonyExtension implements Extension
      *
      * @throws \DomainException
      */
-    private function requireKernelBootstrapFile(string $basePath, string $bootstrapPath): void
+    private function requireKernelBootstrapFile(string $basePath, ?string $bootstrapPath): void
     {
         if (null === $bootstrapPath) {
             return;
