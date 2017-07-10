@@ -2,10 +2,9 @@ language: php
 
 php:
     - 7.1
+    - nightly
 
 matrix:
-    include:
-        - php: nightly
     allow_failures:
         - php: nightly
     fast_finish: true
