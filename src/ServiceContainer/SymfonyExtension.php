@@ -23,7 +23,6 @@ use FriendsOfBehat\CrossContainerExtension\ServiceContainer\CrossContainerExtens
 use FriendsOfBehat\SymfonyExtension\Driver\Factory\SymfonyDriverFactory;
 use FriendsOfBehat\SymfonyExtension\Listener\KernelRebooter;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
-use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;

@@ -62,7 +62,6 @@ final class SymfonyDriverFactory implements DriverFactory
      */
     public function configure(ArrayNodeDefinition $builder): void
     {
-
     }
 
     /**
