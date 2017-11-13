@@ -1,6 +1,6 @@
 {
     "name": "friends-of-behat/symfony-extension",
-    "description": "Integrates Behat with Symfony (both 2 and 3).",
+    "description": "Integrates Behat with Symfony.",
     "license": "MIT",
     "authors": [
         {
@@ -13,7 +13,7 @@
         "php": "^7.1",
 
         "behat/behat": "^3.1",
-        "symfony/http-kernel": "^3.0"
+        "symfony/http-kernel": "^3.3|^4.0"
     },
     "require-dev": {
         "behat/mink": "^1.7",
@@ -21,7 +21,7 @@
         "behat/mink-extension": "^2.2",
         "friends-of-behat/cross-container-extension": "^1.0",
         "friends-of-behat/test-context": "^1.0",
-        "symfony/framework-bundle": "^3.0"
+        "symfony/framework-bundle": "^3.3|^4.0"
     },
     "suggest": {
         "behat/mink-browserkit-driver": "^1.3",
