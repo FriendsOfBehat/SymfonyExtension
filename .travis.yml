@@ -2,26 +2,23 @@ language: php
 
 php:
     - 7.1
+    - 7.2
 
 env:
-    - SYMFONY_VERSION=~3.3.0
-    - SYMFONY_VERSION=~3.4.0 MINIMUM_STABILITY=beta
-    - SYMFONY_VERSION=~4.0.0 MINIMUM_STABILITY=beta
+    - SYMFONY_VERSION=3.3.*
+    - SYMFONY_VERSION=3.4.*
+    - SYMFONY_VERSION=4.0.*
 
 cache:
     directories:
-        - vendor
+        - ~/.composer/cache/files
 
 before_install:
     - phpenv config-rm xdebug.ini || true
 
-    - |
-        if [[ ! -z $MINIMUM_STABILITY ]]; then
-            composer config minimum-stability $MINIMUM_STABILITY
-        fi
-    - composer require --no-update symfony/http-kernel:$SYMFONY_VERSION symfony/framework-bundle:$SYMFONY_VERSION
-
 install:
+    - composer require symfony/http-kernel:${SYMFONY_VERSION} --no-update --no-scripts --prefer-dist
+    - composer require --dev symfony/framework-bundle:${SYMFONY_VERSION} --no-update --no-scripts --prefer-dist
     - composer update --prefer-dist
 
 script:
