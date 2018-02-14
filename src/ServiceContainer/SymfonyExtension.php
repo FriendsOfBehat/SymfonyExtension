@@ -213,6 +213,11 @@ final class SymfonyExtension implements Extension
             );
 
             $this->crossContainerProcessor->addContainerAccessor(
+                'symfony_driver',
+                new KernelBasedContainerAccessor($container->get(self::DRIVER_KERNEL_ID))
+            );
+
+            $this->crossContainerProcessor->addContainerAccessor(
                 'symfony_shared',
                 new KernelBasedContainerAccessor($container->get(self::SHARED_KERNEL_ID))
             );
