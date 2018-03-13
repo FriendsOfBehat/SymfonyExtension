@@ -67,6 +67,7 @@ Feature: Not crashing Behat
                     kernel:
                         path: src/MyKernel.php
                         class: MyKernel
+                        bootstrap: ~
         """
         And a file ".env_in_memory" containing:
         """

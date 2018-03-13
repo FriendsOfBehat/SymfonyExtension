@@ -62,6 +62,16 @@ final class SymfonyExtension implements Extension
     const SHARED_KERNEL_CONTAINER_ID = 'sylius_symfony_extension.shared_kernel.container';
 
     /**
+     * Default symfony environment used to run your suites.
+     */
+    private const DEFAULT_ENV = 'test';
+
+    /**
+     * Enable or disable the debug mode
+     */
+    private const DEBUG_MODE = false;
+
+    /**
      * @var CrossContainerProcessor|null
      */
     private $crossContainerProcessor;
@@ -115,10 +125,11 @@ final class SymfonyExtension implements Extension
         if (null !== $config['env_file']) {
             $this->loadEnvVars($container, $config['env_file']);
 
-            $environment = getenv('APP_ENV');
-            $config['kernel']['env'] = $environment ?? 'test';
-        } else {
-            $this->requireKernelBootstrapFile($container->getParameter('paths.base'), $config['bootstrap']);
+            $environment = false !== getenv('APP_ENV') ? getenv('APP_ENV') : self::DEFAULT_ENV;
+            $debugMode = false !== getenv('APP_DEBUG') ? getenv('APP_DEBUG') : self::DEBUG_MODE;
+
+            $config['kernel']['env'] = $environment;
+            $config['kernel']['kernel'] = $debugMode;
         }
 
         $this->loadKernel($container, $config['kernel']);
@@ -142,7 +153,7 @@ final class SymfonyExtension implements Extension
 
     /**
      * @param ContainerBuilder $container
-     * @param string           $fileName
+     * @param string $fileName
      */
     private function loadEnvVars(ContainerBuilder $container, string $fileName): void
     {
@@ -163,6 +174,8 @@ final class SymfonyExtension implements Extension
         $definition->setFile($this->getKernelFile($container->getParameter('paths.base'), $config['path']));
 
         $container->setDefinition(self::KERNEL_ID, $definition);
+
+        $this->requireKernelBootstrapFile($container->getParameter('paths.base'), $config['bootstrap']);
     }
 
     /**
