@@ -27,4 +27,29 @@ ensures that application behaviour will not be affected by stateful services.
             FriendsOfBehat\SymfonyExtension: ~
     ```
 
+**Symfony 3 configuration**
+
+```
+FriendsOfBehat\SymfonyExtension:
+    kernel:
+        bootstrap: 'var/bootstrap.php.cache'
+        path: app/AppKernel.php
+        class: 'AppKernel'
+        env: test
+        debug: true
+```
+
+**Symfony 4 configuration**
+
+```
+FriendsOfBehat\SymfonyExtension:
+    env_file: .env
+    kernel:
+        class: 'MyTrip\Kernel'
+        path: src/Kernel.php
+        debug: true
+```
+
+Symfony 4 does not have bootstrap file anymore and the environment is configured in the .env file.
+
 3. Good luck & have fun!

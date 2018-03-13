@@ -27,6 +27,7 @@ use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\Dotenv\Dotenv;
 
 final class SymfonyExtension implements Extension
 {
@@ -61,6 +62,16 @@ final class SymfonyExtension implements Extension
     const SHARED_KERNEL_CONTAINER_ID = 'sylius_symfony_extension.shared_kernel.container';
 
     /**
+     * Default symfony environment used to run your suites.
+     */
+    private const DEFAULT_ENV = 'test';
+
+    /**
+     * Enable or disable the debug mode
+     */
+    private const DEBUG_MODE = false;
+
+    /**
      * @var CrossContainerProcessor|null
      */
     private $crossContainerProcessor;
@@ -90,6 +101,7 @@ final class SymfonyExtension implements Extension
         $builder
             ->addDefaultsIfNotSet()
                 ->children()
+                    ->scalarNode('env_file')->defaultNull()->end()
                     ->arrayNode('kernel')
                         ->addDefaultsIfNotSet()
                         ->children()
@@ -110,6 +122,16 @@ final class SymfonyExtension implements Extension
      */
     public function load(ContainerBuilder $container, array $config): void
     {
+        if (null !== $config['env_file']) {
+            $this->loadEnvVars($container, $config['env_file']);
+
+            $environment = false !== getenv('APP_ENV') ? getenv('APP_ENV') : self::DEFAULT_ENV;
+            $debugMode = false !== getenv('APP_DEBUG') ? getenv('APP_DEBUG') : self::DEBUG_MODE;
+
+            $config['kernel']['env'] = $environment;
+            $config['kernel']['kernel'] = $debugMode;
+        }
+
         $this->loadKernel($container, $config['kernel']);
         $this->loadKernelContainer($container);
 
@@ -127,6 +149,16 @@ final class SymfonyExtension implements Extension
      */
     public function process(ContainerBuilder $container): void
     {
+    }
+
+    /**
+     * @param ContainerBuilder $container
+     * @param string $fileName
+     */
+    private function loadEnvVars(ContainerBuilder $container, string $fileName): void
+    {
+        $envFilePath = sprintf('%s/%s', $container->getParameter('paths.base'), $fileName);
+        (new Dotenv())->load($envFilePath);
     }
 
     /**
@@ -203,6 +235,8 @@ final class SymfonyExtension implements Extension
 
     /**
      * @param ContainerBuilder $container
+     *
+     * @throws \Exception
      */
     private function declareSymfonyContainers(ContainerBuilder $container): void
     {
