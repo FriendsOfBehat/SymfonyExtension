@@ -169,8 +169,8 @@ final class SymfonyExtension implements Extension
 
         $defaults = self::SYMFONY_DEFAULTS;
 
-        $symfonyFlexKernelPath = sprintf('%s/%s', $container->getParameter('paths.base'), self::SYMFONY_4_DEFAULTS['kernel']['path']);
-        if (file_exists($symfonyFlexKernelPath)) {
+        $symfony4KernelPath = sprintf('%s/%s', $container->getParameter('paths.base'), self::SYMFONY_4_DEFAULTS['kernel']['path']);
+        if (file_exists($symfony4KernelPath)) {
             $defaults = self::SYMFONY_4_DEFAULTS;
         }
 
