@@ -224,10 +224,12 @@ final class SymfonyExtension implements Extension
 
     /**
      * @param ContainerBuilder $container
+     *
+     * @throws \Exception
      */
     private function loadKernelRebooter(ContainerBuilder $container): void
     {
-        $definition = new Definition(KernelRebooter::class, [new Reference(self::KERNEL_ID)]);
+        $definition = new Definition(KernelRebooter::class, [$container->get(self::KERNEL_ID)]);
         $definition->addTag(EventDispatcherExtension::SUBSCRIBER_TAG);
 
         $container->setDefinition(self::KERNEL_ID . '.rebooter', $definition);
