@@ -25,4 +25,6 @@ install:
 script:
     - composer validate --strict
 
+    - vendor/bin/phpstan analyse -c phpstan.neon -l max src -vvv
+
     - vendor/bin/behat --strict -vvv --no-interaction
