@@ -166,10 +166,10 @@ final class SymfonyExtension implements Extension
      */
     private function loadKernel(ContainerBuilder $container, array $config): void
     {
-        $definition = new Definition($config['class'], array(
+        $definition = new Definition($config['class'], [
             $config['env'],
             $config['debug'],
-        ));
+        ]);
         $definition->addMethodCall('boot');
         $definition->setFile($this->getKernelFile($container->getParameter('paths.base'), $config['path']));
         $definition->setPublic(true);
