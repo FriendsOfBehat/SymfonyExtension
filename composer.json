@@ -22,6 +22,7 @@
         "behat/mink-extension": "^2.2",
         "friends-of-behat/cross-container-extension": "^1.0",
         "friends-of-behat/test-context": "^1.0",
+        "sylius-labs/coding-standard": "^2.0",
         "symfony/framework-bundle": "^3.4|^4.0"
     },
     "suggest": {
