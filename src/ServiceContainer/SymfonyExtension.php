@@ -172,6 +172,7 @@ final class SymfonyExtension implements Extension
         ));
         $definition->addMethodCall('boot');
         $definition->setFile($this->getKernelFile($container->getParameter('paths.base'), $config['path']));
+        $definition->setPublic(true);
 
         $container->setDefinition(self::KERNEL_ID, $definition);
 
