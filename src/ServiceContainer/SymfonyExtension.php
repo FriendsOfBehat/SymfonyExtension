@@ -19,6 +19,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Dotenv\Dotenv;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 final class SymfonyExtension implements Extension
 {
@@ -162,8 +163,12 @@ final class SymfonyExtension implements Extension
             $config['debug'],
         ]);
         $definition->addMethodCall('boot');
-        $definition->setFile($this->getKernelFile($container->getParameter('paths.base'), $config['path']));
         $definition->setPublic(true);
+
+        $file = $this->getKernelFile($container->getParameter('paths.base'), $config['path']);
+        if (null !== $file) {
+            $definition->setFile($file);
+        }
 
         $container->setDefinition(self::KERNEL_ID, $definition);
 
@@ -221,7 +226,7 @@ final class SymfonyExtension implements Extension
      */
     private function loadKernelRebooter(ContainerBuilder $container): void
     {
-        $definition = new Definition(KernelRebooter::class, [$container->get(self::KERNEL_ID)]);
+        $definition = new Definition(KernelRebooter::class, [new Reference(self::KERNEL_ID)]);
         $definition->addTag(EventDispatcherExtension::SUBSCRIBER_TAG);
 
         $container->setDefinition(self::KERNEL_ID . '.rebooter', $definition);
@@ -234,21 +239,29 @@ final class SymfonyExtension implements Extension
      */
     private function declareSymfonyContainers(ContainerBuilder $container): void
     {
-        if (null !== $this->crossContainerProcessor) {
-            $this->crossContainerProcessor->addContainerAccessor(
-                'symfony',
-                new KernelBasedContainerAccessor($container->get(self::KERNEL_ID))
-            );
+        if (null === $this->crossContainerProcessor) {
+            return;
+        }
 
-            $this->crossContainerProcessor->addContainerAccessor(
-                'symfony_driver',
-                new KernelBasedContainerAccessor($container->get(self::DRIVER_KERNEL_ID))
-            );
+        $containerAccessors = [
+            'symfony' => self::KERNEL_ID,
+            'symfony_driver' => self::DRIVER_KERNEL_ID,
+            'symfony_shared' => self::SHARED_KERNEL_ID,
+        ];
 
-            $this->crossContainerProcessor->addContainerAccessor(
-                'symfony_shared',
-                new KernelBasedContainerAccessor($container->get(self::SHARED_KERNEL_ID))
-            );
+        foreach ($containerAccessors as $containerName => $kernelIdentifier) {
+            $kernel = $container->get($kernelIdentifier);
+
+            if (!$kernel instanceof KernelInterface) {
+                throw new \RuntimeException(sprintf(
+                    'Expected service "%s" to be an instance of "%s", got "%s" instead.',
+                    $kernelIdentifier,
+                    KernelInterface::class,
+                    \is_object($kernel) ? \get_class($kernel) : \gettype($kernel)
+                ));
+            }
+
+            $this->crossContainerProcessor->addContainerAccessor($containerName, new KernelBasedContainerAccessor($kernel));
         }
     }
 
@@ -269,7 +282,7 @@ final class SymfonyExtension implements Extension
      */
     private function registerSymfonyDriverFactory(ExtensionManager $extensionManager): void
     {
-        /** @var MinkExtension $minkExtension */
+        /** @var MinkExtension|null $minkExtension */
         $minkExtension = $extensionManager->getExtension('mink');
         if (null === $minkExtension) {
             return;
