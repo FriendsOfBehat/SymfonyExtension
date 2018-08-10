@@ -8,9 +8,12 @@ Feature: Not crashing Behat
         """
         default:
             extensions:
-                FriendsOfBehat\SymfonyExtension:
-                    kernel:
-                        bootstrap: ~
+                FriendsOfBehat\SymfonyExtension: ~
+        """
+        And a file "app/autoload.php" containing:
+        """
+        <?php
+
         """
         And a file "app/AppKernel.php" containing:
         """
@@ -36,11 +39,16 @@ Feature: Not crashing Behat
             extensions:
                 FriendsOfBehat\SymfonyExtension:
                     kernel:
-                        bootstrap: ~
+                        bootstrap: app/autoload.php
                         path: app/MyKernel.php
                         class: MyKernel
                         env: test
                         debug: true
+        """
+        And a file "app/autoload.php" containing:
+        """
+        <?php
+
         """
         And a file "app/MyKernel.php" containing:
         """
@@ -163,11 +171,13 @@ Feature: Not crashing Behat
         """
         default:
             extensions:
-                FriendsOfBehat\SymfonyExtension:
-                    kernel:
-                        bootstrap: ~
-
+                FriendsOfBehat\SymfonyExtension: ~
                 FriendsOfBehat\CrossContainerExtension: ~
+        """
+        And a file "app/autoload.php" containing:
+        """
+        <?php
+
         """
         And a file "app/AppKernel.php" containing:
         """

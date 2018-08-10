@@ -122,8 +122,9 @@ final class SymfonyExtension implements Extension
             ->children()
                 ->scalarNode('env_file')->end()
                 ->arrayNode('kernel')
+                    ->addDefaultsIfNotSet()
                     ->children()
-                        ->scalarNode('bootstrap')->end()
+                        ->scalarNode('bootstrap')->defaultFalse()->end()
                         ->scalarNode('path')->end()
                         ->scalarNode('class')->end()
                         ->scalarNode('env')->end()
@@ -165,14 +166,16 @@ final class SymfonyExtension implements Extension
      * @param array $userConfig
      * @return array
      */
-    private function autoconfigure(ContainerBuilder $container, array $userConfig) {
-
+    private function autoconfigure(ContainerBuilder $container, array $userConfig): array
+    {
         $defaults = self::SYMFONY_DEFAULTS;
 
-        $symfony4KernelPath = sprintf('%s/%s', $container->getParameter('paths.base'), self::SYMFONY_4_DEFAULTS['kernel']['path']);
-        if (file_exists($symfony4KernelPath)) {
+        $symfonyFourKernelPath = sprintf('%s/%s', $container->getParameter('paths.base'), self::SYMFONY_4_DEFAULTS['kernel']['path']);
+        if ($userConfig['kernel']['bootstrap'] === null || file_exists($symfonyFourKernelPath)) {
             $defaults = self::SYMFONY_4_DEFAULTS;
         }
+
+        $userConfig['kernel']['bootstrap'] = $userConfig['kernel']['bootstrap'] === false ? null : $userConfig['kernel']['bootstrap'];
 
         $config = array_replace_recursive($defaults, $userConfig);
 
