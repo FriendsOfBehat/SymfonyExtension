@@ -34,7 +34,7 @@ ensures that application behaviour will not be affected by stateful services.
 ## Configuration
 
 SymfonyExtension provides kind of autoconfiguration feature.
-When none explicit configuration is set, we will set for You sane default that will get you running fast.
+When none explicit configuration is set, we will set for you sane default that will get you running fast.
 
 **Default Symfony 3 configuration**
 
@@ -64,7 +64,7 @@ FriendsOfBehat\SymfonyExtension:
 
 Symfony 4 is automatically detected, based on the existence of default `src/Kernel.php` kernel file.
 
-If you did not migrate to new Symfony structure yet or you are using custom paths/naming; you need to configure `kernel.boostrap` parameter, to enable default Symfony 4 configuration as shown in the example below:
+If you did not migrate to new Symfony structure yet or you are using custom paths/naming; you need to configure `kernel.bootstrap` parameter, to enable default Symfony 4 configuration as shown in the example below:
 
 ```
 FriendsOfBehat\SymfonyExtension:
