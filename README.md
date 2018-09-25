@@ -44,6 +44,7 @@ ensures that application behaviour will not be affected by stateful services.
     
     ```
     FriendsOfBehat\SymfonyExtension:
+        # .env.dist file will be used if .env file does not exist  
         env_file: .env
         kernel:
             class: 'MyTrip\Kernel'

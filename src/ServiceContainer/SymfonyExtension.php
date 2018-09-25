@@ -115,7 +115,8 @@ final class SymfonyExtension implements Extension
     public function load(ContainerBuilder $container, array $config): void
     {
         if (null !== $config['env_file']) {
-            $this->loadEnvVars($container, $config['env_file']);
+            $envFile = file_exists($config['env_file']) ? $config['env_file'] : $config['env_file'].'.dist';
+            $this->loadEnvVars($container, $envFile);
 
             $environment = false !== getenv('APP_ENV') ? getenv('APP_ENV') : self::DEFAULT_ENV;
             $debugMode = false !== getenv('APP_DEBUG') ? getenv('APP_DEBUG') : self::DEBUG_MODE;
