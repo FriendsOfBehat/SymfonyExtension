@@ -63,13 +63,13 @@ Feature: Not crashing Behat
         default:
             extensions:
                 FriendsOfBehat\SymfonyExtension:
-                    env_file: .env_in_memory
+                    env_file: ../config/.env_in_memory
                     kernel:
                         path: src/MyKernel.php
                         class: MyKernel
                         bootstrap: ~
         """
-        And a file ".env_in_memory" containing:
+        And a file "../config/.env_in_memory" containing:
         """
         APP_ENV=dev
         """
