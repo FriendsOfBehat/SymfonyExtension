@@ -73,8 +73,8 @@ final class SymfonyExtension implements Extension
             'path' => 'app/AppKernel.php',
             'class' => 'AppKernel',
             'env' => self::DEFAULT_ENV,
-            'debug' => self::DEFAULT_DEBUG_MODE
-        ]
+            'debug' => self::DEFAULT_DEBUG_MODE,
+        ],
     ];
 
     /**
@@ -87,8 +87,8 @@ final class SymfonyExtension implements Extension
             'path' => 'src/Kernel.php',
             'class' => 'App\Kernel',
             'env' => self::DEFAULT_ENV,
-            'debug' => self::DEFAULT_DEBUG_MODE
-        ]
+            'debug' => self::DEFAULT_DEBUG_MODE,
+        ],
     ];
 
     /**
@@ -161,11 +161,6 @@ final class SymfonyExtension implements Extension
     {
     }
 
-    /**
-     * @param ContainerBuilder $container
-     * @param array $userConfig
-     * @return array
-     */
     private function autoconfigure(ContainerBuilder $container, array $userConfig): array
     {
         $defaults = self::SYMFONY_DEFAULTS;
@@ -194,19 +189,13 @@ final class SymfonyExtension implements Extension
         return $config;
     }
 
-    /**
-     * @param ContainerBuilder $container
-     * @param string $fileName
-     */
     private function loadEnvVars(ContainerBuilder $container, string $fileName): void
     {
         $envFilePath = sprintf('%s/%s', $container->getParameter('paths.base'), $fileName);
+        $envFilePath = file_exists($envFilePath) ? $envFilePath : $envFilePath . '.dist';
         (new Dotenv())->load($envFilePath);
     }
 
-    /**
-     * @param ContainerBuilder $container
-     */
     private function loadKernel(ContainerBuilder $container, array $config): void
     {
         $definition = new Definition($config['class'], [
@@ -226,9 +215,6 @@ final class SymfonyExtension implements Extension
         $this->requireKernelBootstrapFile($container->getParameter('paths.base'), $config['bootstrap']);
     }
 
-    /**
-     * @param ContainerBuilder $container
-     */
     private function loadKernelContainer(ContainerBuilder $container): void
     {
         $containerDefinition = new Definition(Container::class);
@@ -240,25 +226,16 @@ final class SymfonyExtension implements Extension
         $container->setDefinition(self::KERNEL_CONTAINER_ID, $containerDefinition);
     }
 
-    /**
-     * @param ContainerBuilder $container
-     */
     private function loadDriverKernel(ContainerBuilder $container): void
     {
         $container->setDefinition(self::DRIVER_KERNEL_ID, $container->findDefinition(self::KERNEL_ID));
     }
 
-    /**
-     * @param ContainerBuilder $container
-     */
     private function loadSharedKernel(ContainerBuilder $container): void
     {
         $container->setDefinition(self::SHARED_KERNEL_ID, $container->findDefinition(self::KERNEL_ID));
     }
 
-    /**
-     * @param ContainerBuilder $container
-     */
     private function loadSharedKernelContainer(ContainerBuilder $container): void
     {
         $containerDefinition = new Definition(Container::class);
@@ -271,8 +248,6 @@ final class SymfonyExtension implements Extension
     }
 
     /**
-     * @param ContainerBuilder $container
-     *
      * @throws \Exception
      */
     private function loadKernelRebooter(ContainerBuilder $container): void
@@ -284,8 +259,6 @@ final class SymfonyExtension implements Extension
     }
 
     /**
-     * @param ContainerBuilder $container
-     *
      * @throws \Exception
      */
     private function declareSymfonyContainers(ContainerBuilder $container): void
@@ -316,9 +289,6 @@ final class SymfonyExtension implements Extension
         }
     }
 
-    /**
-     * @param ExtensionManager $extensionManager
-     */
     private function initializeCrossContainerProcessor(ExtensionManager $extensionManager): void
     {
         /** @var CrossContainerExtension $extension */
@@ -328,9 +298,6 @@ final class SymfonyExtension implements Extension
         }
     }
 
-    /**
-     * @param ExtensionManager $extensionManager
-     */
     private function registerSymfonyDriverFactory(ExtensionManager $extensionManager): void
     {
         /** @var MinkExtension|null $minkExtension */
@@ -345,12 +312,6 @@ final class SymfonyExtension implements Extension
         ));
     }
 
-    /**
-     * @param string $basePath
-     * @param string $kernelPath
-     *
-     * @return string|null
-     */
     private function getKernelFile(string $basePath, string $kernelPath): ?string
     {
         $possibleFiles = [
@@ -368,9 +329,6 @@ final class SymfonyExtension implements Extension
     }
 
     /**
-     * @param string $basePath
-     * @param string|null $bootstrapPath
-     *
      * @throws \DomainException
      */
     private function requireKernelBootstrapFile(string $basePath, ?string $bootstrapPath): void
