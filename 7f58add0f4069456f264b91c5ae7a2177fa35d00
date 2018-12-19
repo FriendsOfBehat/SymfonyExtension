@@ -1,0 +1,63 @@
+---------------------------------------------------------------------------
+
+by adiq at 2018-03-19T21:36:09Z
+
+@pamil could you spare a moment to look at this? I would prefer to use official package over my forked repo 😸
+
+---------------------------------------------------------------------------
+
+by pamil at 2018-04-04T09:46:03Z
+
+Hello, I'm just back from holiday and trying to catch up with all the things, I'll try to process this PR this week :)
+
+---------------------------------------------------------------------------
+
+by adiq at 2018-05-02T10:25:48Z
+
+@pamil any updates? I would prefer not to use forks 😬
+
+---------------------------------------------------------------------------
+
+by adiq at 2018-09-25T14:56:53Z
+
+Any updates?
+
+---------------------------------------------------------------------------
+
+by alanpoulain at 2018-11-28T15:36:44Z
+
+This PR would be very useful if merged.
+
+---------------------------------------------------------------------------
+
+by lchrusciel at 2018-11-29T11:50:13Z
+
+Hello 👋
+
+@pamil is on vacation 🌴, and won't be available on GitHub until 10th od December. I'm not sure if I will find a time to check and review it before that date. Hopefully, we may be able to work on it during SymfonyCon or something.
+
+---------------------------------------------------------------------------
+
+by adiq at 2018-12-08T00:58:45Z
+
+I heard that SymfonyCon was tremendous and the hack day is coming up shortly.
+
+Hope you had a good time there. If you anyone manage somehow to look at this PR, I would be delighted 😉
+
+---------------------------------------------------------------------------
+
+by lchrusciel at 2018-12-08T16:08:41Z
+
+Adrian, we will need a little rebase here ;)
+
+---------------------------------------------------------------------------
+
+by adiq at 2018-12-09T15:14:21Z
+
+@lchrusciel I have updated this PR. Rebased from master, removed obsolete docblocks and fixed some coding style based on ECS. Tests are green, hope everything is fine now 🕺
+
+---------------------------------------------------------------------------
+
+by pamil at 2018-12-19T14:08:18Z
+
+Thanks, Adrian! :tada:
