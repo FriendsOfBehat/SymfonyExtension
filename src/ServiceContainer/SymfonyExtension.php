@@ -61,7 +61,35 @@ final class SymfonyExtension implements Extension
     /**
      * Enable or disable the debug mode
      */
-    private const DEBUG_MODE = false;
+    private const DEFAULT_DEBUG_MODE = true;
+
+    /**
+     * Default Symfony configuration
+     */
+    private const SYMFONY_DEFAULTS = [
+        'env_file' => null,
+        'kernel' => [
+            'bootstrap' => 'app/autoload.php',
+            'path' => 'app/AppKernel.php',
+            'class' => 'AppKernel',
+            'env' => self::DEFAULT_ENV,
+            'debug' => self::DEFAULT_DEBUG_MODE,
+        ],
+    ];
+
+    /**
+     * Default Symfony 4 configuration
+     */
+    private const SYMFONY_4_DEFAULTS = [
+        'env_file' => '.env',
+        'kernel' => [
+            'bootstrap' => null,
+            'path' => 'src/Kernel.php',
+            'class' => 'App\Kernel',
+            'env' => self::DEFAULT_ENV,
+            'debug' => self::DEFAULT_DEBUG_MODE,
+        ],
+    ];
 
     /**
      * @var CrossContainerProcessor|null
@@ -91,18 +119,16 @@ final class SymfonyExtension implements Extension
     public function configure(ArrayNodeDefinition $builder): void
     {
         $builder
-            ->addDefaultsIfNotSet()
-                ->children()
-                    ->scalarNode('env_file')->defaultNull()->end()
-                    ->arrayNode('kernel')
-                        ->addDefaultsIfNotSet()
-                        ->children()
-                            ->scalarNode('bootstrap')->defaultValue('app/autoload.php')->end()
-                            ->scalarNode('path')->defaultValue('app/AppKernel.php')->end()
-                            ->scalarNode('class')->defaultValue('AppKernel')->end()
-                            ->scalarNode('env')->defaultValue('test')->end()
-                            ->booleanNode('debug')->defaultTrue()->end()
-                        ->end()
+            ->children()
+                ->scalarNode('env_file')->end()
+                ->arrayNode('kernel')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->scalarNode('bootstrap')->defaultFalse()->end()
+                        ->scalarNode('path')->end()
+                        ->scalarNode('class')->end()
+                        ->scalarNode('env')->end()
+                        ->booleanNode('debug')->end()
                     ->end()
                 ->end()
             ->end()
@@ -114,17 +140,7 @@ final class SymfonyExtension implements Extension
      */
     public function load(ContainerBuilder $container, array $config): void
     {
-        if (null !== $config['env_file']) {
-            $envFilePath = sprintf('%s/%s', $container->getParameter('paths.base'), $config['env_file']);
-            $envFilePath = file_exists($envFilePath) ? $envFilePath : $envFilePath.'.dist';
-            (new Dotenv())->load($envFilePath);
-
-            $environment = false !== getenv('APP_ENV') ? getenv('APP_ENV') : self::DEFAULT_ENV;
-            $debugMode = false !== getenv('APP_DEBUG') ? getenv('APP_DEBUG') : self::DEBUG_MODE;
-
-            $config['kernel']['env'] = $environment;
-            $config['kernel']['kernel'] = $debugMode;
-        }
+        $config = $this->autoconfigure($container, $config);
 
         $this->loadKernel($container, $config['kernel']);
         $this->loadKernelContainer($container);
@@ -145,9 +161,41 @@ final class SymfonyExtension implements Extension
     {
     }
 
-    /**
-     * @param ContainerBuilder $container
-     */
+    private function autoconfigure(ContainerBuilder $container, array $userConfig): array
+    {
+        $defaults = self::SYMFONY_DEFAULTS;
+
+        $symfonyFourKernelPath = sprintf('%s/%s', $container->getParameter('paths.base'), self::SYMFONY_4_DEFAULTS['kernel']['path']);
+        if ($userConfig['kernel']['bootstrap'] === null || file_exists($symfonyFourKernelPath)) {
+            $defaults = self::SYMFONY_4_DEFAULTS;
+        }
+
+        $userConfig['kernel']['bootstrap'] = $userConfig['kernel']['bootstrap'] === false ? null : $userConfig['kernel']['bootstrap'];
+
+        $config = array_replace_recursive($defaults, $userConfig);
+
+        if (null !== $config['env_file']) {
+            $this->loadEnvVars($container, $config['env_file']);
+
+            if (!isset($userConfig['kernel']['env']) && false !== getenv('APP_ENV')) {
+                $config['kernel']['env'] = getenv('APP_ENV');
+            }
+
+            if (!isset($userConfig['kernel']['debug']) && false !== getenv('APP_DEBUG')) {
+                $config['kernel']['debug'] = getenv('APP_DEBUG');
+            }
+        }
+
+        return $config;
+    }
+
+    private function loadEnvVars(ContainerBuilder $container, string $fileName): void
+    {
+        $envFilePath = sprintf('%s/%s', $container->getParameter('paths.base'), $fileName);
+        $envFilePath = file_exists($envFilePath) ? $envFilePath : $envFilePath . '.dist';
+        (new Dotenv())->load($envFilePath);
+    }
+
     private function loadKernel(ContainerBuilder $container, array $config): void
     {
         $definition = new Definition($config['class'], [
@@ -167,9 +215,6 @@ final class SymfonyExtension implements Extension
         $this->requireKernelBootstrapFile($container->getParameter('paths.base'), $config['bootstrap']);
     }
 
-    /**
-     * @param ContainerBuilder $container
-     */
     private function loadKernelContainer(ContainerBuilder $container): void
     {
         $containerDefinition = new Definition(Container::class);
@@ -181,25 +226,16 @@ final class SymfonyExtension implements Extension
         $container->setDefinition(self::KERNEL_CONTAINER_ID, $containerDefinition);
     }
 
-    /**
-     * @param ContainerBuilder $container
-     */
     private function loadDriverKernel(ContainerBuilder $container): void
     {
         $container->setDefinition(self::DRIVER_KERNEL_ID, $container->findDefinition(self::KERNEL_ID));
     }
 
-    /**
-     * @param ContainerBuilder $container
-     */
     private function loadSharedKernel(ContainerBuilder $container): void
     {
         $container->setDefinition(self::SHARED_KERNEL_ID, $container->findDefinition(self::KERNEL_ID));
     }
 
-    /**
-     * @param ContainerBuilder $container
-     */
     private function loadSharedKernelContainer(ContainerBuilder $container): void
     {
         $containerDefinition = new Definition(Container::class);
@@ -212,8 +248,6 @@ final class SymfonyExtension implements Extension
     }
 
     /**
-     * @param ContainerBuilder $container
-     *
      * @throws \Exception
      */
     private function loadKernelRebooter(ContainerBuilder $container): void
@@ -225,8 +259,6 @@ final class SymfonyExtension implements Extension
     }
 
     /**
-     * @param ContainerBuilder $container
-     *
      * @throws \Exception
      */
     private function declareSymfonyContainers(ContainerBuilder $container): void
@@ -257,9 +289,6 @@ final class SymfonyExtension implements Extension
         }
     }
 
-    /**
-     * @param ExtensionManager $extensionManager
-     */
     private function initializeCrossContainerProcessor(ExtensionManager $extensionManager): void
     {
         /** @var CrossContainerExtension $extension */
@@ -269,9 +298,6 @@ final class SymfonyExtension implements Extension
         }
     }
 
-    /**
-     * @param ExtensionManager $extensionManager
-     */
     private function registerSymfonyDriverFactory(ExtensionManager $extensionManager): void
     {
         /** @var MinkExtension|null $minkExtension */
@@ -286,12 +312,6 @@ final class SymfonyExtension implements Extension
         ));
     }
 
-    /**
-     * @param string $basePath
-     * @param string $kernelPath
-     *
-     * @return string|null
-     */
     private function getKernelFile(string $basePath, string $kernelPath): ?string
     {
         $possibleFiles = [
@@ -309,9 +329,6 @@ final class SymfonyExtension implements Extension
     }
 
     /**
-     * @param string $basePath
-     * @param string|null $bootstrapPath
-     *
      * @throws \DomainException
      */
     private function requireKernelBootstrapFile(string $basePath, ?string $bootstrapPath): void

@@ -28,30 +28,53 @@ ensures that application behaviour will not be affected by stateful services.
             FriendsOfBehat\SymfonyExtension: ~
     ```
 
-    **Symfony 3 configuration**
-
-    ```
-    FriendsOfBehat\SymfonyExtension:
-        kernel:
-            bootstrap: 'var/bootstrap.php.cache'
-            path: app/AppKernel.php
-            class: 'AppKernel'
-            env: test
-            debug: true
-    ```
-    
-    **Symfony 4 configuration**
-    
-    ```
-    FriendsOfBehat\SymfonyExtension:
-        # .env.dist file will be used if .env file does not exist  
-        env_file: .env
-        kernel:
-            class: 'MyTrip\Kernel'
-            path: src/Kernel.php
-            debug: true
-    ```
-    
-    Symfony 4 does not have bootstrap file anymore and the environment is configured in the .env file.
-
 3. Good luck & have fun!
+
+    
+## Configuration
+
+SymfonyExtension provides kind of autoconfiguration feature.
+When none explicit configuration is set, we will set for you sane default that will get you running fast.
+
+**Default Symfony 3 configuration**
+
+```
+FriendsOfBehat\SymfonyExtension:
+    kernel:
+        bootstrap: 'app/autoload.php' # you may want to use var/bootstrap.php.cache instead
+        path: app/AppKernel.php
+        class: 'AppKernel'
+        env: test
+        debug: true
+```
+
+**Default Symfony 4 configuration**
+
+```
+FriendsOfBehat\SymfonyExtension:
+    # .env.dist file will be used if .env file does not exist
+    env_file: .env
+    kernel:
+        bootstrap: ~
+        path: src/Kernel.php
+        class: 'App\Kernel'
+        env: test # When explicitly set, will override APP_ENV loaded from env_file file
+        debug: true  # When explicitly set, will override APP_DEBUG loaded from env_file file
+```
+
+Symfony 4 is automatically detected, based on the existence of default `src/Kernel.php` kernel file.
+
+If you did not migrate to new Symfony structure yet or you are using custom paths/naming; you need to configure `kernel.bootstrap` parameter, to enable default Symfony 4 configuration as shown in the example below:
+
+```
+FriendsOfBehat\SymfonyExtension:
+    # env_file: .env # loaded from the default configuration
+    kernel:
+        bootstrap: ~ # this enables default Symfony 4 configuration
+        path: app/AppKernel.php
+        # class: 'App\Kernel' # loaded from the default configuration
+        # env: test # loaded from the default configuration
+        # debug: true  # loaded from the default configuration
+```
+
+Of course, you can always change each of those settings.
