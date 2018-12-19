@@ -12,52 +12,32 @@ use Symfony\Component\DependencyInjection\Reference;
 
 final class SymfonyDriverFactory implements DriverFactory
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $name;
 
-    /**
-     * @var Reference
-     */
+    /** @var Reference */
     private $kernel;
 
-    /**
-     * @param string $name
-     * @param Reference $kernel
-     */
     public function __construct(string $name, Reference $kernel)
     {
         $this->name = $name;
         $this->kernel = $kernel;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getDriverName(): string
     {
         return $this->name;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function supportsJavascript(): bool
     {
         return false;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function configure(ArrayNodeDefinition $builder): void
     {
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function buildDriver(array $config): Definition
     {
         return new Definition(SymfonyDriver::class, [

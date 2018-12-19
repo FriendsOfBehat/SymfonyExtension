@@ -10,10 +10,6 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 final class SymfonyDriver extends BrowserKitDriver
 {
-    /**
-     * @param KernelInterface $kernel
-     * @param string $baseUrl
-     */
     public function __construct(KernelInterface $kernel, string $baseUrl)
     {
         $testClient = $kernel->getContainer()->get('test.client');

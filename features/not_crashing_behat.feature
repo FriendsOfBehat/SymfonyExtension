@@ -39,7 +39,6 @@ Feature: Not crashing Behat
             extensions:
                 FriendsOfBehat\SymfonyExtension:
                     kernel:
-                        bootstrap: app/autoload.php
                         path: app/MyKernel.php
                         class: MyKernel
                         env: test
@@ -108,7 +107,6 @@ Feature: Not crashing Behat
                     kernel:
                         path: src/MyKernel.php
                         class: MyKernel
-                        bootstrap: ~
         """
         And a file "../config/.env_in_memory" containing:
         """
@@ -139,7 +137,6 @@ Feature: Not crashing Behat
                 FriendsOfBehat\SymfonyExtension:
                     env_file: .env_in_memory
                     kernel:
-                        bootstrap: ~
                         path: src/MyKernel.php
                         class: MyKernel
                         env: dev
@@ -157,36 +154,6 @@ Feature: Not crashing Behat
         use Symfony\Component\Config\Loader\LoaderInterface;
 
         class MyKernel extends Kernel
-        {
-            public function registerBundles() { return []; }
-            public function registerContainerConfiguration(LoaderInterface $loader) {}
-        }
-        """
-        And a feature file with passing scenario
-        When I run Behat
-        Then it should pass
-
-    Scenario: Not crashing Behat with CrossContainerExtension
-        Given a Behat configuration containing:
-        """
-        default:
-            extensions:
-                FriendsOfBehat\SymfonyExtension: ~
-                FriendsOfBehat\CrossContainerExtension: ~
-        """
-        And a file "app/autoload.php" containing:
-        """
-        <?php
-
-        """
-        And a file "app/AppKernel.php" containing:
-        """
-        <?php
-
-        use Symfony\Component\HttpKernel\Kernel;
-        use Symfony\Component\Config\Loader\LoaderInterface;
-
-        class AppKernel extends Kernel
         {
             public function registerBundles() { return []; }
             public function registerContainerConfiguration(LoaderInterface $loader) {}
