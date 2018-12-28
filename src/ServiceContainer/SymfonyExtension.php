@@ -13,9 +13,11 @@ use Behat\Testwork\ServiceContainer\ExtensionManager;
 use FriendsOfBehat\SymfonyExtension\Context\Environment\Handler\ContextServiceEnvironmentHandler;
 use FriendsOfBehat\SymfonyExtension\Driver\Factory\SymfonyDriverFactory;
 use FriendsOfBehat\SymfonyExtension\Listener\KernelRebooter;
+use FriendsOfBehat\SymfonyExtension\Mink\MinkParameters;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Parameter;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Dotenv\Dotenv;
 
@@ -82,6 +84,11 @@ final class SymfonyExtension implements Extension
         $this->loadEnvironmentHandler($container);
 
         $this->loadKernelRebooter($container);
+
+        $minkParametersDefinition = new Definition(MinkParameters::class, [new Parameter('mink.parameters')]);
+        $minkParametersDefinition->setPublic(true);
+
+        $container->setDefinition('sylius_symfony_extension.mink_parameters', $minkParametersDefinition);
     }
 
     public function process(ContainerBuilder $container): void
