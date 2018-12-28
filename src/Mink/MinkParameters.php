@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace FriendsOfBehat\SymfonyExtension\Mink;
 
 /** @final */
-class MinkParameters
+class MinkParameters implements \Countable, \IteratorAggregate, \ArrayAccess
 {
     /** @var array */
     private $minkParameters;
@@ -15,13 +15,33 @@ class MinkParameters
         $this->minkParameters = $minkParameters;
     }
 
-    public function all(): array
+    public function getIterator(): \Traversable
     {
-        return $this->minkParameters;
+        return new \ArrayIterator($this->minkParameters);
     }
 
-    public function get(string $parameter)
+    public function offsetExists($offset): bool
     {
-        return $this->minkParameters[$parameter] ?? null;
+        return array_key_exists($offset, $this->minkParameters);
+    }
+
+    public function offsetGet($offset)
+    {
+        return $this->minkParameters[$offset] ?? null;
+    }
+
+    public function offsetSet($offset, $value): void
+    {
+        throw new \BadMethodCallException(sprintf('"%s" is immutable.', self::class));
+    }
+
+    public function offsetUnset($offset): void
+    {
+        throw new \BadMethodCallException(sprintf('"%s" is immutable.', self::class));
+    }
+
+    public function count(): int
+    {
+        return count($this->minkParameters);
     }
 }
