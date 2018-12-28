@@ -27,22 +27,21 @@ final class KernelRebooter implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            ScenarioTested::AFTER => ['rebootSymfonyKernel', -15],
-            ExampleTested::AFTER => ['rebootSymfonyKernel', -15],
-            ScenarioTested::BEFORE => ['transferBehatContainer', 15],
-            ExampleTested::BEFORE => ['transferBehatContainer', 15],
+            ScenarioTested::BEFORE => ['setUp', 15],
+            ExampleTested::BEFORE => ['setUp', 15],
+            ScenarioTested::AFTER => ['tearDown', -15],
+            ExampleTested::AFTER => ['tearDown', -15],
         ];
     }
 
-    public function transferBehatContainer(): void
+    public function setUp(): void
     {
-        $symfonyContainer = $this->symfonyKernel->getContainer();
-
-        $symfonyContainer->set('behat.service_container', $this->behatContainer);
+        $this->symfonyKernel->getContainer()->set('behat.service_container', $this->behatContainer);
     }
 
-    public function rebootSymfonyKernel(): void
+    public function tearDown(): void
     {
+        $this->symfonyKernel->getContainer()->set('behat.service_container', null);
         $this->symfonyKernel->shutdown();
         $this->symfonyKernel->boot();
     }

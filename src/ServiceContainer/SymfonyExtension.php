@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace FriendsOfBehat\SymfonyExtension\ServiceContainer;
 
 use Behat\Behat\Context\ServiceContainer\ContextExtension;
+use Behat\Mink\Mink;
+use Behat\Mink\Session;
 use Behat\MinkExtension\ServiceContainer\MinkExtension;
 use Behat\Testwork\Environment\ServiceContainer\EnvironmentExtension;
 use Behat\Testwork\EventDispatcher\ServiceContainer\EventDispatcherExtension;
@@ -85,10 +87,16 @@ final class SymfonyExtension implements Extension
 
         $this->loadKernelRebooter($container);
 
+        $minkDefaultSessionDefinition = new Definition(Session::class);
+        $minkDefaultSessionDefinition->setPublic(true);
+        $minkDefaultSessionDefinition->setFactory([new Reference('mink'), 'getSession']);
+
+        $container->setDefinition('fob_symfony_extension.mink_default_session', $minkDefaultSessionDefinition);
+
         $minkParametersDefinition = new Definition(MinkParameters::class, [new Parameter('mink.parameters')]);
         $minkParametersDefinition->setPublic(true);
 
-        $container->setDefinition('sylius_symfony_extension.mink_parameters', $minkParametersDefinition);
+        $container->setDefinition('fob_symfony_extension.mink_parameters', $minkParametersDefinition);
     }
 
     public function process(ContainerBuilder $container): void
