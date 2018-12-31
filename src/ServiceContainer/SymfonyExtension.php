@@ -29,13 +29,13 @@ final class SymfonyExtension implements Extension
      * Kernel used inside Behat contexts or to create services injected to them.
      * Container is built before every scenario.
      */
-    public const KERNEL_ID = 'sylius_symfony_extension.kernel';
+    public const KERNEL_ID = 'fob_symfony.kernel';
 
     /**
      * Kernel used by Symfony driver to isolate web container from contexts' container.
      * Container is built before every request.
      */
-    private const DRIVER_KERNEL_ID = 'sylius_symfony_extension.driver_kernel';
+    private const DRIVER_KERNEL_ID = 'fob_symfony.driver_kernel';
 
     /**
      * Default Symfony configuration
@@ -83,20 +83,12 @@ final class SymfonyExtension implements Extension
         $this->loadKernel($container, $config['kernel']);
         $this->loadDriverKernel($container);
 
-        $this->loadEnvironmentHandler($container);
-
         $this->loadKernelRebooter($container);
 
-        $minkDefaultSessionDefinition = new Definition(Session::class);
-        $minkDefaultSessionDefinition->setPublic(true);
-        $minkDefaultSessionDefinition->setFactory([new Reference('mink'), 'getSession']);
+        $this->loadEnvironmentHandler($container);
 
-        $container->setDefinition('fob_symfony_extension.mink_default_session', $minkDefaultSessionDefinition);
-
-        $minkParametersDefinition = new Definition(MinkParameters::class, [new Parameter('mink.parameters')]);
-        $minkParametersDefinition->setPublic(true);
-
-        $container->setDefinition('fob_symfony_extension.mink_parameters', $minkParametersDefinition);
+        $this->loadMinkDefaultSession($container);
+        $this->loadMinkParameters($container);
     }
 
     public function process(ContainerBuilder $container): void
@@ -168,6 +160,23 @@ final class SymfonyExtension implements Extension
         }
 
         $container->setDefinition('fob_symfony.environment_handler.context_service', $definition);
+    }
+
+    private function loadMinkDefaultSession(ContainerBuilder $container): void
+    {
+        $minkDefaultSessionDefinition = new Definition(Session::class);
+        $minkDefaultSessionDefinition->setPublic(true);
+        $minkDefaultSessionDefinition->setFactory([new Reference('mink'), 'getSession']);
+
+        $container->setDefinition('fob_symfony.mink.default_session', $minkDefaultSessionDefinition);
+    }
+
+    private function loadMinkParameters(ContainerBuilder $container): void
+    {
+        $minkParametersDefinition = new Definition(MinkParameters::class, [new Parameter('mink.parameters')]);
+        $minkParametersDefinition->setPublic(true);
+
+        $container->setDefinition('fob_symfony.mink.parameters', $minkParametersDefinition);
     }
 
     private function registerSymfonyDriverFactory(ExtensionManager $extensionManager): void
