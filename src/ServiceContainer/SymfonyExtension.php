@@ -50,12 +50,13 @@ final class SymfonyExtension implements Extension
     {
         $builder
             ->children()
-                ->scalarNode('env_file')->end()
+                ->scalarNode('env_file')->defaultNull()->end()
                 ->arrayNode('kernel')
                     ->addDefaultsIfNotSet()
                     ->children()
-                        ->scalarNode('class')->defaultValue('App\\Kernel')->end()
-                        ->scalarNode('env')->defaultValue('test')->end()
+                        ->scalarNode('path')->defaultNull()->end()
+                        ->scalarNode('class')->isRequired()->end()
+                        ->scalarNode('env')->defaultValue('test')->cannotBeEmpty()->end()
                         ->booleanNode('debug')->defaultTrue()->end()
                     ->end()
                 ->end()
@@ -114,6 +115,10 @@ final class SymfonyExtension implements Extension
         ]);
         $definition->addMethodCall('boot');
         $definition->setPublic(true);
+
+        if (null !== $config['path']) {
+            $definition->setFile($config['path']);
+        }
 
         $container->setDefinition(self::KERNEL_ID, $definition);
     }
