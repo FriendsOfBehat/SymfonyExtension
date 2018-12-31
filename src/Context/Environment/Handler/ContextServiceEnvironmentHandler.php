@@ -20,6 +20,7 @@ use Behat\Testwork\Environment\Exception\EnvironmentIsolationException;
 use Behat\Testwork\Environment\Handler\EnvironmentHandler;
 use Behat\Testwork\Suite\Exception\SuiteConfigurationException;
 use Behat\Testwork\Suite\Suite;
+use FriendsOfBehat\SymfonyExtension\Bundle\FriendsOfBehatSymfonyExtensionBundle;
 use FriendsOfBehat\SymfonyExtension\Context\Environment\InitialisedContextServiceEnvironment;
 use FriendsOfBehat\SymfonyExtension\Context\Environment\UninitialisedContextServiceEnvironment;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -155,6 +156,18 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
 
     private function getContainer(): ContainerInterface
     {
+        try {
+            $this->symfonyKernel->getBundle('FriendsOfBehatSymfonyExtensionBundle');
+        } catch (\InvalidArgumentException $exception) {
+            throw new \DomainException(sprintf(
+                'Kernel "%s" used in Behat in "%s" environment with debug %s needs to have "%s" bundle registered.',
+                get_class($this->symfonyKernel),
+                $this->symfonyKernel->getEnvironment(),
+                $this->symfonyKernel->isDebug() ? 'enabled' : 'disabled',
+                FriendsOfBehatSymfonyExtensionBundle::class
+            ), 0, $exception);
+        }
+
         return $this->symfonyKernel->getContainer();
     }
 }

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace FriendsOfBehat\SymfonyExtension\ServiceContainer;
 
 use Behat\Behat\Context\ServiceContainer\ContextExtension;
-use Behat\Mink\Mink;
 use Behat\Mink\Session;
 use Behat\MinkExtension\ServiceContainer\MinkExtension;
 use Behat\Testwork\Environment\ServiceContainer\EnvironmentExtension;
