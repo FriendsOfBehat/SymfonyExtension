@@ -12,16 +12,16 @@ final class SymfonyDriver extends BrowserKitDriver
 {
     public function __construct(KernelInterface $kernel, string $baseUrl)
     {
-        $testClient = $kernel->getContainer()->get('test.client');
-
-        if (!$testClient instanceof Client) {
+        if (!$kernel->getContainer()->has('test.client')) {
             throw new \RuntimeException(sprintf(
-                'Expected service "test.client" to be an instance of "%s", got "%s" instead.',
-                Client::class,
-                \is_object($testClient) ? \get_class($testClient) : \gettype($testClient)
+                'Kernel "%s" used by Behat with "%s" environment and debug %s does not have "test.client" service. ' . "\n" .
+                'Please make sure the kernel is using "test" environment or have "framework.test" configuration option enabled.',
+                get_class($kernel),
+                $kernel->getEnvironment(),
+                $kernel->isDebug() ? 'enabled' : 'disabled'
             ));
         }
 
-        parent::__construct($testClient, $baseUrl);
+        parent::__construct($kernel->getContainer()->get('test.client'), $baseUrl);
     }
 }

@@ -159,13 +159,13 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
         try {
             $this->symfonyKernel->getBundle('FriendsOfBehatSymfonyExtensionBundle');
         } catch (\InvalidArgumentException $exception) {
-            throw new \DomainException(sprintf(
-                'Kernel "%s" used in Behat in "%s" environment with debug %s needs to have "%s" bundle registered.',
+            throw new \RuntimeException(sprintf(
+                'Kernel "%s" used by Behat with "%s" environment and debug %s needs to have "%s" bundle registered.',
                 get_class($this->symfonyKernel),
                 $this->symfonyKernel->getEnvironment(),
                 $this->symfonyKernel->isDebug() ? 'enabled' : 'disabled',
                 FriendsOfBehatSymfonyExtensionBundle::class
-            ), 0, $exception);
+            ));
         }
 
         return $this->symfonyKernel->getContainer();
