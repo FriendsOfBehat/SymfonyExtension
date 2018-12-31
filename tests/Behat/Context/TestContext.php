@@ -8,6 +8,7 @@ use Behat\Behat\Context\Context;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
+use Symfony\Component\Yaml\Yaml;
 
 final class TestContext implements Context
 {
@@ -63,7 +64,53 @@ final class TestContext implements Context
      */
     public function thereIsConfiguration($content): void
     {
-        $this->thereIsFile('behat.yml', $content);
+        $mainConfigFile = sprintf('%s/behat.yml', self::$workingDir);
+        $newConfigFile = sprintf('%s/behat-%s.yml', self::$workingDir, md5($content));
+
+        self::$filesystem->dumpFile($newConfigFile, (string) $content);
+
+        if (!file_exists($mainConfigFile)) {
+            self::$filesystem->dumpFile($mainConfigFile, Yaml::dump(['imports' => []]));
+        }
+
+        $mainBehatConfiguration = Yaml::parseFile($mainConfigFile);
+        $mainBehatConfiguration['imports'][] = $newConfigFile;
+
+        self::$filesystem->dumpFile($mainConfigFile, Yaml::dump($mainBehatConfiguration));
+    }
+
+    /**
+     * @Given /^a Behat configuration with the minimal working configuration for SymfonyExtension$/
+     */
+    public function thereIsConfigurationWithMinimalWorkingConfigurationForSymfonyExtension(): void
+    {
+        $this->thereIsConfiguration(<<<'CON'
+default:
+    extensions:
+        FriendsOfBehat\SymfonyExtension:
+            kernel:
+                path: app/AppKernel.php
+                class: AppKernel
+CON
+        );
+    }
+
+    /**
+     * @Given /^a Behat configuration with the minimal working configuration for MinkExtension$/
+     */
+    public function thereIsConfigurationWithMinimalWorkingConfigurationForMinkExtension(): void
+    {
+        $this->thereIsConfiguration(<<<'CON'
+default:
+    extensions:
+        Behat\MinkExtension:
+            base_url: "http://localhost:8080/"
+            default_session: symfony
+            sessions:
+                symfony:
+                    symfony: ~
+CON
+        );
     }
 
     /**
@@ -72,6 +119,42 @@ final class TestContext implements Context
     public function thereIsFile($file, $content): void
     {
         self::$filesystem->dumpFile(self::$workingDir . '/' . $file, (string) $content);
+    }
+
+    /**
+     * @Given /^an application kernel with the minimal working configuration for SymfonyExtension$/
+     */
+    public function thereIsKernelWithMinimalWorkingConfiguration(): void
+    {
+        $this->thereIsFile('app/AppKernel.php', <<<'CON'
+<?php
+
+use Symfony\Component\HttpKernel\Kernel;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\Config\Loader\LoaderInterface;
+
+class AppKernel extends Kernel
+{
+    public function registerBundles()
+    {
+        return [
+            new \Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
+            new \FriendsOfBehat\SymfonyExtension\Bundle\FriendsOfBehatSymfonyExtensionBundle(),
+        ];
+    }
+
+    public function registerContainerConfiguration(LoaderInterface $loader)
+    {
+        $loader->load(function (ContainerBuilder $container): void {
+            $container->loadFromExtension('framework', [
+                'test' => $this->getEnvironment() === 'test',
+                'secret' => 'Pigeon',
+            ]);
+        });
+    }
+}
+CON
+        );
     }
 
     /**
@@ -87,7 +170,7 @@ final class TestContext implements Context
      */
     public function thereIsFeatureFileWithPassingScenario(): void
     {
-        $this->thereIsFile('features/bootstrap/FeatureContext.php', <<<CON
+        $this->thereIsFile('features/bootstrap/FeatureContext.php', <<<'CON'
 <?php
 
 declare(strict_types=1);
@@ -114,7 +197,7 @@ FEA
      */
     public function thereIsFeatureFileWithFailingScenario(): void
     {
-        $this->thereIsFile('features/bootstrap/FeatureContext.php', <<<CON
+        $this->thereIsFile('features/bootstrap/FeatureContext.php', <<<'CON'
 <?php
 
 declare(strict_types=1);
@@ -141,7 +224,7 @@ FEA
      */
     public function thereIsFeatureFileWithScenarioWithMissingStep(): void
     {
-        $this->thereIsFile('features/bootstrap/FeatureContext.php', <<<CON
+        $this->thereIsFile('features/bootstrap/FeatureContext.php', <<<'CON'
 <?php
 
 declare(strict_types=1); 
@@ -164,7 +247,7 @@ FEA
      */
     public function thereIsFeatureFileWithScenarioWithPendingStep(): void
     {
-        $this->thereIsFile('features/bootstrap/FeatureContext.php', <<<CON
+        $this->thereIsFile('features/bootstrap/FeatureContext.php', <<<'CON'
 <?php
 
 declare(strict_types=1);
