@@ -20,7 +20,6 @@
         "behat/mink": "^1.7",
         "behat/mink-browserkit-driver": "^1.3",
         "behat/mink-extension": "^2.2",
-        "friends-of-behat/test-context": "^1.0",
         "phpstan/phpstan-shim": "^0.10",
         "sylius-labs/coding-standard": "^3.0",
         "symfony/framework-bundle": "^3.4|^4.1"
@@ -30,6 +29,9 @@
     },
     "autoload": {
         "psr-4": { "FriendsOfBehat\\SymfonyExtension\\": "src/" }
+    },
+    "autoload-dev": {
+        "psr-4": { "Tests\\": "tests/" }
     },
     "config": {
         "sort-packages": true
