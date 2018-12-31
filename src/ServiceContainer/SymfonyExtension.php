@@ -36,18 +36,6 @@ final class SymfonyExtension implements Extension
      */
     private const DRIVER_KERNEL_ID = 'fob_symfony.driver_kernel';
 
-    /**
-     * Default Symfony configuration
-     */
-    private const SYMFONY_DEFAULTS = [
-        'env_file' => null,
-        'kernel' => [
-            'class' => 'AppKernel',
-            'env' => 'test',
-            'debug' => true,
-        ],
-    ];
-
     public function getConfigKey(): string
     {
         return 'fob_symfony';
@@ -66,9 +54,9 @@ final class SymfonyExtension implements Extension
                 ->arrayNode('kernel')
                     ->addDefaultsIfNotSet()
                     ->children()
-                        ->scalarNode('class')->end()
-                        ->scalarNode('env')->end()
-                        ->booleanNode('debug')->end()
+                        ->scalarNode('class')->defaultValue('App\\Kernel')->end()
+                        ->scalarNode('env')->defaultValue('test')->end()
+                        ->booleanNode('debug')->defaultTrue()->end()
                     ->end()
                 ->end()
             ->end()
@@ -94,20 +82,16 @@ final class SymfonyExtension implements Extension
     {
     }
 
-    private function autoconfigure(ContainerBuilder $container, array $userConfig): array
+    private function autoconfigure(ContainerBuilder $container, array $config): array
     {
-        $defaults = self::SYMFONY_DEFAULTS;
-
-        $config = array_replace_recursive($defaults, $userConfig);
-
         if (null !== $config['env_file']) {
             $this->loadEnvVars($container, $config['env_file']);
 
-            if (!isset($userConfig['kernel']['env']) && false !== getenv('APP_ENV')) {
+            if (!isset($config['kernel']['env']) && false !== getenv('APP_ENV')) {
                 $config['kernel']['env'] = getenv('APP_ENV');
             }
 
-            if (!isset($userConfig['kernel']['debug']) && false !== getenv('APP_DEBUG')) {
+            if (!isset($config['kernel']['debug']) && false !== getenv('APP_DEBUG')) {
                 $config['kernel']['debug'] = getenv('APP_DEBUG');
             }
         }
