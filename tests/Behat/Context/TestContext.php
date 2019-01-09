@@ -158,6 +158,48 @@ CON
     }
 
     /**
+     * @Given /^an application kernel injecting a parameter into the FeatureContext class$/
+     */
+    public function thereIsKernelInjectingParameterIntoFeatureContextClass(): void
+    {
+        $this->thereIsFile('app/AppKernel.php', <<<'CON'
+<?php
+
+use Symfony\Component\HttpKernel\Kernel;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\Config\Loader\LoaderInterface;
+use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Parameter;
+
+class AppKernel extends Kernel
+{
+    public function registerBundles()
+    {
+        return [
+            new \Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
+            new \FriendsOfBehat\SymfonyExtension\Bundle\FriendsOfBehatSymfonyExtensionBundle(),
+        ];
+    }
+
+    public function registerContainerConfiguration(LoaderInterface $loader)
+    {
+        $loader->load(function (ContainerBuilder $container): void {
+            $container->loadFromExtension('framework', [
+                'test' => $this->getEnvironment() === 'test',
+                'secret' => 'Pigeon',
+            ]);
+            
+            $contextDefinition = new Definition(FeatureContext::class, [new Parameter('kernel.environment')]);
+            $contextDefinition->setAutoconfigured(true);
+            $container->setDefinition(FeatureContext::class, $contextDefinition);
+        });
+    }
+}
+CON
+        );
+    }
+
+    /**
      * @Given /^a feature file containing(?: "([^"]+)"|:)$/
      */
     public function thereIsFeatureFile($content): void
