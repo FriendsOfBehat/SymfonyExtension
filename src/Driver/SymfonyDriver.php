@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace FriendsOfBehat\SymfonyExtension\Driver;
 
 use Behat\Mink\Driver\BrowserKitDriver;
+use Symfony\Component\BrowserKit\Client;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 final class SymfonyDriver extends BrowserKitDriver
@@ -21,6 +22,16 @@ final class SymfonyDriver extends BrowserKitDriver
             ));
         }
 
-        parent::__construct($kernel->getContainer()->get('test.client'), $baseUrl);
+        $testClient = $kernel->getContainer()->get('test.client');
+
+        if (!$testClient instanceof Client) {
+            throw new \RuntimeException(sprintf(
+                'Service "test.client" should be an instance of "%s", "%s" given.',
+                Client::class,
+                get_class($testClient)
+            ));
+        }
+
+        parent::__construct($testClient, $baseUrl);
     }
 }
