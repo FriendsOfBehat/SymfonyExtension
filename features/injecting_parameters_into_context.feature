@@ -2,52 +2,60 @@ Feature: Injecting parameters into context
 
     Background:
         Given a working Symfony application with SymfonyExtension configured
-        Given a context file "features/bootstrap/FeatureContext.php" containing:
-            """
-            <?php
+        And a Behat configuration containing:
+        """
+        default:
+            suites:
+                default:
+                    contexts:
+                        - App\Tests\SomeContext
+        """
+        And a feature file containing:
+        """
+        Feature:
+            Scenario:
+                Then the passed parameter should be "test"
+        """
+        And a context file "tests/SomeContext.php" containing:
+        """
+        <?php
 
-            use Behat\Behat\Context\Context;
-            use Symfony\Component\DependencyInjection\ContainerInterface;
+        namespace App\Tests;
 
-            class FeatureContext implements Context
-            {
-                private $parameter;
+        use Behat\Behat\Context\Context;
 
-                public function __construct(string $parameter)
-                {
-                    $this->parameter = $parameter;
-                }
+        final class SomeContext implements Context {
+            private $parameter;
 
-                /**
-                 * @Then the parameter should be injected into the context
-                 */
-                public function behatContainerShouldBeInjectedToTheContext()
-                {
-                    if (null === $this->parameter || empty($this->parameter)) {
-                        throw new \DomainException('Required parameter was not injected!');
-                    }
-                }
-            }
-            """
-        And an application kernel configured for SymfonyExtension with YAML services file containing:
+            public function __construct(?string $parameter = null) { $this->parameter = $parameter; }
+
+            /** @Then the passed parameter should be :expected */
+            public function parameterShouldBe(string $expected): void { assert($this->parameter === $expected); }
+        }
+        """
+
+    Scenario: Injecting a parameter into a context explicitly set as public
+        Given a services file "config/services.yaml" containing:
             """
             services:
-                FeatureContext:
-                    class: FeatureContext
+                App\Tests\SomeContext:
                     public: true
                     arguments:
                         - "%kernel.environment%"
             """
-        And a Behat configuration with the minimal working configuration for SymfonyExtension
-        And a Behat configuration with the minimal working configuration for MinkExtension
+        When I run Behat
+        Then it should pass
 
-
-    Scenario: Injecting parameters into context with SymfonyExtension
-        Given a feature file "features/injecting_parameter_into_context.feature" containing:
+    Scenario: Injecting a parameter into an autoconfigured context
+        Given a services file "config/services.yaml" containing:
             """
-            Feature: Injecting parameter into the context
-                Scenario:
-                    Then the parameter should be injected into the context
+            services:
+                _defaults:
+                    autoconfigure: true
+
+                App\Tests\SomeContext:
+                    arguments:
+                        - "%kernel.environment%"
             """
         When I run Behat
         Then it should pass
