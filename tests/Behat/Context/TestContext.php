@@ -119,7 +119,7 @@ class Kernel extends HttpKernel
     
     protected function configureRoutes(RouteCollectionBuilder $routes)
     {
-        $routes->add('/hello-world', 'kernel::helloWorld');
+        $routes->add('/hello-world', 'kernel:helloWorld');
     }
 }
 CON
