@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace FriendsOfBehat\SymfonyExtension\Driver;
 
 use Behat\Mink\Driver\BrowserKitDriver;
-use Symfony\Component\BrowserKit\Client;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 final class SymfonyDriver extends BrowserKitDriver

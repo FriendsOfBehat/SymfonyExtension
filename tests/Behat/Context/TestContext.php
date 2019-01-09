@@ -12,24 +12,16 @@ use Symfony\Component\Yaml\Yaml;
 
 final class TestContext implements Context
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private static $workingDir;
 
-    /**
-     * @var Filesystem
-     */
+    /** @var Filesystem */
     private static $filesystem;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private static $phpBin;
 
-    /**
-     * @var Process
-     */
+    /** @var Process */
     private $process;
 
     /**
@@ -201,7 +193,7 @@ CON
         }
 
         throw new \DomainException(
-            'Behat was expecting to pass, but failed with the following output:' . PHP_EOL . PHP_EOL . $this->getProcessOutput()
+            'Behat was expecting to pass, but failed with the following output:' . \PHP_EOL . \PHP_EOL . $this->getProcessOutput()
         );
     }
 
@@ -224,7 +216,7 @@ CON
         }
 
         throw new \DomainException(
-            'Behat was expecting to fail, but passed with the following output:' . PHP_EOL . PHP_EOL . $this->getProcessOutput()
+            'Behat was expecting to fail, but passed with the following output:' . \PHP_EOL . \PHP_EOL . $this->getProcessOutput()
         );
     }
 
@@ -260,16 +252,13 @@ CON
 
         if (0 === $result) {
             throw new \DomainException(sprintf(
-                'Pattern "%s" does not match the following output:' . PHP_EOL . PHP_EOL . '%s',
+                'Pattern "%s" does not match the following output:' . \PHP_EOL . \PHP_EOL . '%s',
                 $pattern,
                 $output
             ));
         }
     }
 
-    /**
-     * @return string
-     */
     private function getProcessOutput(): string
     {
         $this->assertProcessIsAvailable();
@@ -277,9 +266,6 @@ CON
         return $this->process->getErrorOutput() . $this->process->getOutput();
     }
 
-    /**
-     * @return int
-     */
     private function getProcessExitCode(): int
     {
         $this->assertProcessIsAvailable();
@@ -298,8 +284,6 @@ CON
     }
 
     /**
-     * @return string
-     *
      * @throws \RuntimeException
      */
     private static function findPhpBinary(): string
