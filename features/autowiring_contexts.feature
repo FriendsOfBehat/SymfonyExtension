@@ -89,3 +89,45 @@ Feature: Autowiring contexts
             """
         When I run Behat
         Then it should pass
+
+    Scenario: Autowiring and autoconfiguring context based on prototype
+        Given a feature file containing:
+        """
+        Feature:
+            Scenario:
+                Then the container should be passed
+        """
+        And a context file "tests/SomeContext.php" containing:
+        """
+        <?php
+
+        namespace App\Tests;
+
+        use Behat\Behat\Context\Context;
+        use Psr\Container\ContainerInterface;
+
+        final class SomeContext implements Context {
+            private $container;
+
+            public function __construct(?ContainerInterface $container = null) { $this->container = $container; }
+
+            /** @Then the container should be passed */
+            public function containerShouldBePassed(): void
+            {
+                assert(is_object($this->container));
+                assert($this->container instanceof ContainerInterface);
+            }
+        }
+        """
+        And a YAML services file containing:
+            """
+            services:
+                _defaults:
+                    autowire: true
+                    autoconfigure: true
+
+                App\Tests\:
+                    resource: '../tests/*'
+            """
+        When I run Behat
+        Then it should pass
