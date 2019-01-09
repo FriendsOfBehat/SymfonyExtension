@@ -35,7 +35,7 @@ Feature: Injecting parameters into context
         """
 
     Scenario: Injecting a parameter into a context explicitly set as public
-        Given a services file "config/services.yaml" containing:
+        Given a YAML services file containing:
             """
             services:
                 App\Tests\SomeContext:
@@ -47,7 +47,7 @@ Feature: Injecting parameters into context
         Then it should pass
 
     Scenario: Injecting a parameter into an autoconfigured context
-        Given a services file "config/services.yaml" containing:
+        Given a YAML services file containing:
             """
             services:
                 _defaults:

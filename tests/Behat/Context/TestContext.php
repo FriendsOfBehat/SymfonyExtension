@@ -124,6 +124,14 @@ CON
     }
 
     /**
+     * @Given /^a YAML services file containing:$/
+     */
+    public function yamlServicesFile($content): void
+    {
+        $this->thereIsFile('config/services.yaml', (string) $content);
+    }
+
+    /**
      * @Given /^a Behat configuration containing(?: "([^"]+)"|:)$/
      */
     public function thereIsConfiguration($content): void
