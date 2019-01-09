@@ -91,13 +91,23 @@ CON
 
 namespace App;
 
-use Symfony\Component\HttpKernel\Kernel as HttpKernel;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Kernel as HttpKernel;
+use Symfony\Component\Routing\RouteCollectionBuilder;
 
 class Kernel extends HttpKernel
 {
-    public function registerBundles()
+    use MicroKernelTrait;
+
+    public function helloWorld(): Response
+    {
+        return new Response('Hello world!');
+    }
+
+    public function registerBundles(): iterable
     {
         return [
             new \Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
@@ -105,16 +115,19 @@ class Kernel extends HttpKernel
         ];
     }
 
-    public function registerContainerConfiguration(LoaderInterface $loader)
+    protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
     {
-        $loader->load(function (ContainerBuilder $container): void {
-            $container->loadFromExtension('framework', [
-                'test' => $this->getEnvironment() === 'test',
-                'secret' => 'Pigeon',
-            ]);
-        });
+        $container->loadFromExtension('framework', [
+            'test' => $this->getEnvironment() === 'test',
+            'secret' => 'Pigeon',
+        ]);
         
         $loader->load(__DIR__ . '/../config/services.yaml');
+    }
+    
+    protected function configureRoutes(RouteCollectionBuilder $routes)
+    {
+        $routes->add('/hello-world', 'kernel::helloWorld');
     }
 }
 CON
@@ -149,25 +162,6 @@ CON
         $mainBehatConfiguration['imports'][] = $newConfigFile;
 
         self::$filesystem->dumpFile($mainConfigFile, Yaml::dump($mainBehatConfiguration));
-    }
-
-
-    /**
-     * @Given /^a Behat configuration with the minimal working configuration for MinkExtension$/
-     */
-    public function thereIsConfigurationWithMinimalWorkingConfigurationForMinkExtension(): void
-    {
-        $this->thereIsConfiguration(<<<'CON'
-default:
-    extensions:
-        Behat\MinkExtension:
-            base_url: "http://localhost:8080/"
-            default_session: symfony
-            sessions:
-                symfony:
-                    symfony: ~
-CON
-        );
     }
 
     /**
