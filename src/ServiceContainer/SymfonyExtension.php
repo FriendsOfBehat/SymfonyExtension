@@ -36,6 +36,9 @@ final class SymfonyExtension implements Extension
      */
     private const DRIVER_KERNEL_ID = 'fob_symfony.driver_kernel';
 
+    /** @var bool */
+    private $minkExtensionFound = false;
+
     public function getConfigKey(): string
     {
         return 'fob_symfony';
@@ -43,7 +46,14 @@ final class SymfonyExtension implements Extension
 
     public function initialize(ExtensionManager $extensionManager): void
     {
-        $this->registerSymfonyDriverFactory($extensionManager);
+        /** @var MinkExtension|null $minkExtension */
+        $minkExtension = $extensionManager->getExtension('mink');
+        if (null === $minkExtension) {
+            return;
+        }
+
+        $minkExtension->registerDriverFactory(new SymfonyDriverFactory('symfony', new Reference(self::DRIVER_KERNEL_ID)));
+        $this->minkExtensionFound = true;
     }
 
     public function configure(ArrayNodeDefinition $builder): void
@@ -75,8 +85,10 @@ final class SymfonyExtension implements Extension
 
         $this->loadEnvironmentHandler($container);
 
-        $this->loadMinkDefaultSession($container);
-        $this->loadMinkParameters($container);
+        if ($this->minkExtensionFound) {
+            $this->loadMinkDefaultSession($container);
+            $this->loadMinkParameters($container);
+        }
     }
 
     public function process(ContainerBuilder $container): void
@@ -165,16 +177,5 @@ final class SymfonyExtension implements Extension
         $minkParametersDefinition->setPublic(true);
 
         $container->setDefinition('fob_symfony.mink.parameters', $minkParametersDefinition);
-    }
-
-    private function registerSymfonyDriverFactory(ExtensionManager $extensionManager): void
-    {
-        /** @var MinkExtension|null $minkExtension */
-        $minkExtension = $extensionManager->getExtension('mink');
-        if (null === $minkExtension) {
-            return;
-        }
-
-        $minkExtension->registerDriverFactory(new SymfonyDriverFactory('symfony', new Reference(self::DRIVER_KERNEL_ID)));
     }
 }

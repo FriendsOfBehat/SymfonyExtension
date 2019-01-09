@@ -1,6 +1,7 @@
 Feature: Injecting parameters into context
 
     Background:
+        Given a working Symfony application with SymfonyExtension configured
         Given a context file "features/bootstrap/FeatureContext.php" containing:
             """
             <?php
@@ -28,7 +29,15 @@ Feature: Injecting parameters into context
                 }
             }
             """
-        And an application kernel injecting a parameter into the FeatureContext class
+        And an application kernel configured for SymfonyExtension with YAML services file containing:
+            """
+            services:
+                FeatureContext:
+                    class: FeatureContext
+                    public: true
+                    arguments:
+                        - "%kernel.environment%"
+            """
         And a Behat configuration with the minimal working configuration for SymfonyExtension
         And a Behat configuration with the minimal working configuration for MinkExtension
 
