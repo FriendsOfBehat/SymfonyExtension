@@ -20,19 +20,18 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Parameter;
 use Symfony\Component\DependencyInjection\Reference;
-use Symfony\Component\Dotenv\Dotenv;
 
 final class SymfonyExtension implements Extension
 {
     /**
      * Kernel used inside Behat contexts or to create services injected to them.
-     * Container is built before every scenario.
+     * Container is rebuilt before every scenario.
      */
     public const KERNEL_ID = 'fob_symfony.kernel';
 
     /**
      * Kernel used by Symfony driver to isolate web container from contexts' container.
-     * Container is built before every request.
+     * Container is rebuilt before every request.
      */
     private const DRIVER_KERNEL_ID = 'fob_symfony.driver_kernel';
 
@@ -60,7 +59,6 @@ final class SymfonyExtension implements Extension
     {
         $builder
             ->children()
-                ->scalarNode('env_file')->defaultNull()->end()
                 ->arrayNode('kernel')
                     ->addDefaultsIfNotSet()
                     ->children()
@@ -76,8 +74,6 @@ final class SymfonyExtension implements Extension
 
     public function load(ContainerBuilder $container, array $config): void
     {
-        $config = $this->autoconfigure($container, $config);
-
         $this->loadKernel($container, $config['kernel']);
         $this->loadDriverKernel($container);
 
@@ -93,30 +89,6 @@ final class SymfonyExtension implements Extension
 
     public function process(ContainerBuilder $container): void
     {
-    }
-
-    private function autoconfigure(ContainerBuilder $container, array $config): array
-    {
-        if (null !== $config['env_file']) {
-            $this->loadEnvVars($container, $config['env_file']);
-
-            if (!isset($config['kernel']['env']) && false !== getenv('APP_ENV')) {
-                $config['kernel']['env'] = getenv('APP_ENV');
-            }
-
-            if (!isset($config['kernel']['debug']) && false !== getenv('APP_DEBUG')) {
-                $config['kernel']['debug'] = getenv('APP_DEBUG');
-            }
-        }
-
-        return $config;
-    }
-
-    private function loadEnvVars(ContainerBuilder $container, string $fileName): void
-    {
-        $envFilePath = sprintf('%s/%s', $container->getParameter('paths.base'), $fileName);
-        $envFilePath = file_exists($envFilePath) ? $envFilePath : $envFilePath . '.dist';
-        (new Dotenv())->load($envFilePath);
     }
 
     private function loadKernel(ContainerBuilder $container, array $config): void
