@@ -86,7 +86,7 @@ final class SymfonyExtension implements Extension
 
     public function process(ContainerBuilder $container): void
     {
-        $this->processBootstrap($container->getParameter('fob_symfony.bootstrap'));
+        $this->processBootstrap($this->autodiscoverBootstrap($container->getParameter('fob_symfony.bootstrap')));
     }
 
     private function registerMinkDriver(ExtensionManager $extensionManager): void
@@ -191,6 +191,44 @@ final class SymfonyExtension implements Extension
         }
 
         return $config;
+    }
+
+    /**
+     * @param string|bool|null $bootstrap
+     */
+    private function autodiscoverBootstrap($bootstrap): ?string
+    {
+        if (is_string($bootstrap)) {
+            return $bootstrap;
+        }
+
+        if ($bootstrap === false) {
+            return null;
+        }
+
+        $autoconfigured = 0;
+
+        if (file_exists('config/bootstrap.php')) {
+            $bootstrap = 'config/bootstrap.php';
+
+            ++$autoconfigured;
+        }
+
+        if (file_exists('app/autoload.php')) {
+            $bootstrap = 'app/autoload.php';
+
+            ++$autoconfigured;
+        }
+
+        if ($autoconfigured === 2) {
+            throw new \RuntimeException(
+                'Could not autodiscover the bootstrap file. ' .
+                'Please define it manually with "FriendsOfBehat\SymfonyExtension.bootstrap" configuration option. ' .
+                'Setting that option to "false" disables autodiscovering.'
+            );
+        }
+
+        return is_string($bootstrap) ? $bootstrap : null;
     }
 
     private function processBootstrap(?string $bootstrap): void

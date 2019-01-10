@@ -49,7 +49,7 @@ Feature: Autodiscovering the application kernel
                     - "@service_container"
         """
 
-    Scenario: Autodiscovering kernel in Symfony 3 directory structure application
+    Scenario: Autodiscovering kernel in Symfony 4 directory structure application
         Given a kernel file "src/Kernel.php" containing:
         """
         <?php
@@ -91,7 +91,7 @@ Feature: Autodiscovering the application kernel
         When I run Behat
         Then it should pass
 
-    Scenario: Autodiscovering kernel in Symfony 4 directory structure application
+    Scenario: Autodiscovering kernel in Symfony 3 directory structure application
         Given a kernel file "app/AppKernel.php" containing:
         """
         <?php
