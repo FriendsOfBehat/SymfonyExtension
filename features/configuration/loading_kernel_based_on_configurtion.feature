@@ -95,3 +95,52 @@ Feature: Loading kernel based on configuration
         """
         When I run Behat
         Then it should pass
+
+    Scenario: Loading kernel from custom path
+        Given a Behat configuration containing:
+        """
+        default:
+            extensions:
+                FriendsOfBehat\SymfonyExtension:
+                    kernel:
+                        path: app/Nested/Kernel.php
+                        class: AppKernel
+        """
+        And a kernel file "app/Nested/Kernel.php" containing:
+        """
+        <?php
+
+        use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
+        use Symfony\Component\Config\Loader\LoaderInterface;
+        use Symfony\Component\DependencyInjection\ContainerBuilder;
+        use Symfony\Component\HttpFoundation\Response;
+        use Symfony\Component\HttpKernel\Kernel as HttpKernel;
+        use Symfony\Component\Routing\RouteCollectionBuilder;
+
+        class AppKernel extends HttpKernel
+        {
+            use MicroKernelTrait;
+
+            public function registerBundles(): iterable
+            {
+                return [
+                    new \Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
+                    new \FriendsOfBehat\SymfonyExtension\Bundle\FriendsOfBehatSymfonyExtensionBundle(),
+                ];
+            }
+
+            protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
+            {
+                $container->loadFromExtension('framework', [
+                    'test' => $this->getEnvironment() === 'test',
+                    'secret' => 'Pigeon',
+                ]);
+
+                $loader->load(__DIR__ . '/../../config/services.yaml');
+            }
+
+            protected function configureRoutes(RouteCollectionBuilder $routes): void {}
+        }
+        """
+        When I run Behat
+        Then it should pass

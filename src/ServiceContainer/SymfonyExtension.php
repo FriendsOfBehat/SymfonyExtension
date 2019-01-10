@@ -55,7 +55,8 @@ final class SymfonyExtension implements Extension
                 ->arrayNode('kernel')
                     ->addDefaultsIfNotSet()
                     ->children()
-                        ->scalarNode('class')->end()
+                        ->scalarNode('path')->defaultNull()->end()
+                        ->scalarNode('class')->isRequired()->end()
                     ->end()
                 ->end()
             ->end()
@@ -102,6 +103,10 @@ final class SymfonyExtension implements Extension
         ]);
         $definition->addMethodCall('boot');
         $definition->setPublic(true);
+
+        if ($config['path'] !== null) {
+            $definition->setFile($config['path']);
+        }
 
         $container->setDefinition(self::KERNEL_ID, $definition);
     }
