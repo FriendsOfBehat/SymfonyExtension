@@ -1,6 +1,7 @@
 {
     "name": "friends-of-behat/symfony-extension",
     "description": "Integrates Behat with Symfony.",
+    "type": "symfony-bundle",
     "license": "MIT",
     "authors": [
         {
