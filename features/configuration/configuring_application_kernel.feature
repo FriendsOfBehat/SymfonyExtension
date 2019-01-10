@@ -57,3 +57,21 @@ Feature: Configuring application kernel
         """
         When I run Behat
         Then it should pass
+
+    Scenario: Using configured environment
+        Given a Behat configuration containing:
+        """
+        default:
+            extensions:
+                FriendsOfBehat\SymfonyExtension:
+                    kernel:
+                        environment: custom
+        """
+        And a feature file containing:
+        """
+        Feature:
+            Scenario:
+                Then the application kernel should have environment "custom"
+        """
+        When I run Behat
+        Then it should pass

@@ -78,7 +78,7 @@ Feature: Autodiscovering the application kernel
             protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
             {
                 $container->loadFromExtension('framework', [
-                    'test' => $this->getEnvironment() === 'test',
+                    'test' => true,
                     'secret' => 'Pigeon',
                 ]);
 
@@ -118,7 +118,7 @@ Feature: Autodiscovering the application kernel
             protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
             {
                 $container->loadFromExtension('framework', [
-                    'test' => $this->getEnvironment() === 'test',
+                    'test' => true,
                     'secret' => 'Pigeon',
                 ]);
 
@@ -164,7 +164,7 @@ Feature: Autodiscovering the application kernel
             protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
             {
                 $container->loadFromExtension('framework', [
-                    'test' => $this->getEnvironment() === 'test',
+                    'test' => true,
                     'secret' => 'Pigeon',
                 ]);
 
@@ -200,7 +200,7 @@ Feature: Autodiscovering the application kernel
             protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
             {
                 $container->loadFromExtension('framework', [
-                    'test' => $this->getEnvironment() === 'test',
+                    'test' => true,
                     'secret' => 'Pigeon',
                 ]);
 
