@@ -168,22 +168,22 @@ final class SymfonyExtension implements Extension
             return $config;
         }
 
-        $autoconfigured = 0;
+        $autodiscovered = 0;
 
         if (class_exists('\App\Kernel')) {
             $config['class'] = '\App\Kernel';
 
-            ++$autoconfigured;
+            ++$autodiscovered;
         }
 
         if (file_exists('app/AppKernel.php')) {
             $config['class'] = '\AppKernel';
             $config['path'] = 'app/AppKernel.php';
 
-            ++$autoconfigured;
+            ++$autodiscovered;
         }
 
-        if ($autoconfigured !== 1) {
+        if ($autodiscovered !== 1) {
             throw new \RuntimeException(
                 'Could not autodiscover the application kernel. ' .
                 'Please define it manually with "FriendsOfBehat\SymfonyExtension.kernel" configuration option.'
@@ -206,21 +206,21 @@ final class SymfonyExtension implements Extension
             return null;
         }
 
-        $autoconfigured = 0;
+        $autodiscovered = 0;
 
         if (file_exists('config/bootstrap.php')) {
             $bootstrap = 'config/bootstrap.php';
 
-            ++$autoconfigured;
+            ++$autodiscovered;
         }
 
         if (file_exists('app/autoload.php')) {
             $bootstrap = 'app/autoload.php';
 
-            ++$autoconfigured;
+            ++$autodiscovered;
         }
 
-        if ($autoconfigured === 2) {
+        if ($autodiscovered === 2) {
             throw new \RuntimeException(
                 'Could not autodiscover the bootstrap file. ' .
                 'Please define it manually with "FriendsOfBehat\SymfonyExtension.bootstrap" configuration option. ' .
