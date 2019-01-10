@@ -60,11 +60,12 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
     }
 
     /**
+     * @param UninitialisedContextServiceEnvironment $uninitializedEnvironment
+     *
      * @throws EnvironmentIsolationException
      */
     public function isolateEnvironment(Environment $uninitializedEnvironment, $testSubject = null): Environment
     {
-        /** @var UninitialisedContextServiceEnvironment $uninitializedEnvironment */
         $this->assertEnvironmentCanBeIsolated($uninitializedEnvironment, $testSubject);
 
         $environment = new InitialisedContextServiceEnvironment($uninitializedEnvironment->getSuite());
@@ -136,22 +137,31 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
             return $class;
         }
 
-        throw new \Exception('wtf?');
+        throw new \DomainException(sprintf('There is no service or class "%s".', $contextId));
     }
 
     private function getContext(string $contextId): Context
     {
-        if ($this->getContainer()->has($contextId)) {
-            return $this->getContainer()->get($contextId);
-        }
-
         $class = '\\' . ltrim($contextId, '\\');
 
-        if (class_exists($class)) {
-            return new $class();
+        if ($this->getContainer()->has($contextId)) {
+            $context = $this->getContainer()->get($contextId);
+        } elseif (class_exists($class)) {
+            $context = new $class();
+        } else {
+            throw new \DomainException(sprintf('There is no service or class "%s".', $contextId));
         }
 
-        throw new \Exception('wtf?');
+        if (!$context instanceof Context) {
+            throw new \DomainException(sprintf(
+                'Context "%s" referenced as "%s" needs to implement "%s".',
+                get_class($context),
+                $contextId,
+                Context::class
+            ));
+        }
+
+        return $context;
     }
 
     private function getContainer(): ContainerInterface

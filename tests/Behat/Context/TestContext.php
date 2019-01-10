@@ -12,24 +12,16 @@ use Symfony\Component\Yaml\Yaml;
 
 final class TestContext implements Context
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private static $workingDir;
 
-    /**
-     * @var Filesystem
-     */
+    /** @var Filesystem */
     private static $filesystem;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private static $phpBin;
 
-    /**
-     * @var Process
-     */
+    /** @var Process */
     private $process;
 
     /**
@@ -60,12 +52,97 @@ final class TestContext implements Context
     }
 
     /**
+     * @Given a working Symfony application with SymfonyExtension configured
+     */
+    public function workingSymfonyApplicationWithExtension(): void
+    {
+        $this->thereIsConfiguration(<<<'CON'
+default:
+    extensions:
+        FriendsOfBehat\SymfonyExtension:
+            kernel:
+                class: App\Kernel
+CON
+        );
+
+        $this->thereIsFile('vendor/autoload.php', sprintf(<<<'CON'
+<?php
+
+declare(strict_types=1);
+
+$loader = require '%s';
+$loader->addPsr4('App\\', __DIR__ . '/../src/');
+$loader->addPsr4('App\\Tests\\', __DIR__ . '/../tests/');
+
+return $loader; 
+CON
+        , __DIR__ . '/../../../vendor/autoload.php'));
+
+        $this->thereIsFile('src/Kernel.php', <<<'CON'
+<?php
+
+namespace App;
+
+use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
+use Symfony\Component\Config\Loader\LoaderInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Kernel as HttpKernel;
+use Symfony\Component\Routing\RouteCollectionBuilder;
+
+class Kernel extends HttpKernel
+{
+    use MicroKernelTrait;
+
+    public function helloWorld(): Response
+    {
+        return new Response('Hello world!');
+    }
+
+    public function registerBundles(): iterable
+    {
+        return [
+            new \Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
+            new \FriendsOfBehat\SymfonyExtension\Bundle\FriendsOfBehatSymfonyExtensionBundle(),
+        ];
+    }
+
+    protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
+    {
+        $container->loadFromExtension('framework', [
+            'test' => $this->getEnvironment() === 'test',
+            'secret' => 'Pigeon',
+        ]);
+        
+        $loader->load(__DIR__ . '/../config/services.yaml');
+    }
+    
+    protected function configureRoutes(RouteCollectionBuilder $routes)
+    {
+        $routes->add('/hello-world', 'kernel:helloWorld');
+    }
+}
+CON
+        );
+
+        $this->thereIsFile('config/services.yaml', '');
+    }
+
+    /**
+     * @Given /^a YAML services file containing:$/
+     */
+    public function yamlServicesFile($content): void
+    {
+        $this->thereIsFile('config/services.yaml', (string) $content);
+    }
+
+    /**
      * @Given /^a Behat configuration containing(?: "([^"]+)"|:)$/
      */
     public function thereIsConfiguration($content): void
     {
         $mainConfigFile = sprintf('%s/behat.yml', self::$workingDir);
-        $newConfigFile = sprintf('%s/behat-%s.yml', self::$workingDir, md5($content));
+        $newConfigFile = sprintf('%s/behat-%s.yml', self::$workingDir, md5((string) $content));
 
         self::$filesystem->dumpFile($newConfigFile, (string) $content);
 
@@ -80,40 +157,6 @@ final class TestContext implements Context
     }
 
     /**
-     * @Given /^a Behat configuration with the minimal working configuration for SymfonyExtension$/
-     */
-    public function thereIsConfigurationWithMinimalWorkingConfigurationForSymfonyExtension(): void
-    {
-        $this->thereIsConfiguration(<<<'CON'
-default:
-    extensions:
-        FriendsOfBehat\SymfonyExtension:
-            kernel:
-                path: app/AppKernel.php
-                class: AppKernel
-CON
-        );
-    }
-
-    /**
-     * @Given /^a Behat configuration with the minimal working configuration for MinkExtension$/
-     */
-    public function thereIsConfigurationWithMinimalWorkingConfigurationForMinkExtension(): void
-    {
-        $this->thereIsConfiguration(<<<'CON'
-default:
-    extensions:
-        Behat\MinkExtension:
-            base_url: "http://localhost:8080/"
-            default_session: symfony
-            sessions:
-                symfony:
-                    symfony: ~
-CON
-        );
-    }
-
-    /**
      * @Given /^a (?:.+ |)file "([^"]+)" containing(?: "([^"]+)"|:)$/
      */
     public function thereIsFile($file, $content): void
@@ -122,151 +165,11 @@ CON
     }
 
     /**
-     * @Given /^an application kernel with the minimal working configuration for SymfonyExtension$/
-     */
-    public function thereIsKernelWithMinimalWorkingConfiguration(): void
-    {
-        $this->thereIsFile('app/AppKernel.php', <<<'CON'
-<?php
-
-use Symfony\Component\HttpKernel\Kernel;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\Config\Loader\LoaderInterface;
-
-class AppKernel extends Kernel
-{
-    public function registerBundles()
-    {
-        return [
-            new \Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
-            new \FriendsOfBehat\SymfonyExtension\Bundle\FriendsOfBehatSymfonyExtensionBundle(),
-        ];
-    }
-
-    public function registerContainerConfiguration(LoaderInterface $loader)
-    {
-        $loader->load(function (ContainerBuilder $container): void {
-            $container->loadFromExtension('framework', [
-                'test' => $this->getEnvironment() === 'test',
-                'secret' => 'Pigeon',
-            ]);
-        });
-    }
-}
-CON
-        );
-    }
-
-    /**
      * @Given /^a feature file containing(?: "([^"]+)"|:)$/
      */
     public function thereIsFeatureFile($content): void
     {
         $this->thereIsFile(sprintf('features/%s.feature', md5(uniqid('', true))), $content);
-    }
-
-    /**
-     * @Given /^a feature file with passing scenario$/
-     */
-    public function thereIsFeatureFileWithPassingScenario(): void
-    {
-        $this->thereIsFile('features/bootstrap/FeatureContext.php', <<<'CON'
-<?php
-
-declare(strict_types=1);
-
-class FeatureContext implements \Behat\Behat\Context\Context
-{
-    /** @Then it passes */
-    public function itPasses() {}
-}
-CON
-        );
-
-        $this->thereIsFeatureFile(<<<FEA
-Feature: Passing feature
-
-    Scenario: Passing scenario
-        Then it passes
-FEA
-        );
-    }
-
-    /**
-     * @Given /^a feature file with failing scenario$/
-     */
-    public function thereIsFeatureFileWithFailingScenario(): void
-    {
-        $this->thereIsFile('features/bootstrap/FeatureContext.php', <<<'CON'
-<?php
-
-declare(strict_types=1);
-
-class FeatureContext implements \Behat\Behat\Context\Context
-{
-    /** @Then it fails */
-    public function itFails() { throw new \RuntimeException(); }
-}
-CON
-        );
-
-        $this->thereIsFeatureFile(<<<FEA
-Feature: Failing feature
-
-    Scenario: Failing scenario
-        Then it fails
-FEA
-        );
-    }
-
-    /**
-     * @Given /^a feature file with scenario with missing step$/
-     */
-    public function thereIsFeatureFileWithScenarioWithMissingStep(): void
-    {
-        $this->thereIsFile('features/bootstrap/FeatureContext.php', <<<'CON'
-<?php
-
-declare(strict_types=1); 
-
-class FeatureContext implements \Behat\Behat\Context\Context {}
-CON
-        );
-
-        $this->thereIsFeatureFile(<<<FEA
-Feature: Feature with missing step
-
-    Scenario: Scenario with missing step
-        Then it does not have this step
-FEA
-        );
-    }
-
-    /**
-     * @Given /^a feature file with scenario with pending step$/
-     */
-    public function thereIsFeatureFileWithScenarioWithPendingStep(): void
-    {
-        $this->thereIsFile('features/bootstrap/FeatureContext.php', <<<'CON'
-<?php
-
-declare(strict_types=1);
-
-class FeatureContext implements \Behat\Behat\Context\Context 
-{
-    /** @Then it has this step as pending */
-    public function itFails() { throw new \Behat\Behat\Tester\Exception\PendingException(); }
-}
-CON
-        );
-
-        $this->thereIsFeatureFile(<<<FEA
-Feature: Feature with pending step
-
-    Scenario: Scenario with pending step
-        Then it has this step as pending
-FEA
-        );
     }
 
     /**
@@ -290,7 +193,7 @@ FEA
         }
 
         throw new \DomainException(
-            'Behat was expecting to pass, but failed with the following output:' . PHP_EOL . PHP_EOL . $this->getProcessOutput()
+            'Behat was expecting to pass, but failed with the following output:' . \PHP_EOL . \PHP_EOL . $this->getProcessOutput()
         );
     }
 
@@ -313,7 +216,7 @@ FEA
         }
 
         throw new \DomainException(
-            'Behat was expecting to fail, but passed with the following output:' . PHP_EOL . PHP_EOL . $this->getProcessOutput()
+            'Behat was expecting to fail, but passed with the following output:' . \PHP_EOL . \PHP_EOL . $this->getProcessOutput()
         );
     }
 
@@ -349,16 +252,13 @@ FEA
 
         if (0 === $result) {
             throw new \DomainException(sprintf(
-                'Pattern "%s" does not match the following output:' . PHP_EOL . PHP_EOL . '%s',
+                'Pattern "%s" does not match the following output:' . \PHP_EOL . \PHP_EOL . '%s',
                 $pattern,
                 $output
             ));
         }
     }
 
-    /**
-     * @return string
-     */
     private function getProcessOutput(): string
     {
         $this->assertProcessIsAvailable();
@@ -366,9 +266,6 @@ FEA
         return $this->process->getErrorOutput() . $this->process->getOutput();
     }
 
-    /**
-     * @return int
-     */
     private function getProcessExitCode(): int
     {
         $this->assertProcessIsAvailable();
@@ -387,8 +284,6 @@ FEA
     }
 
     /**
-     * @return string
-     *
      * @throws \RuntimeException
      */
     private static function findPhpBinary(): string

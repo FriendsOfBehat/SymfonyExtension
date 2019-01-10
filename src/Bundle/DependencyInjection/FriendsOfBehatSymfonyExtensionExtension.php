@@ -24,6 +24,9 @@ final class FriendsOfBehatSymfonyExtensionExtension extends Extension implements
         $container
             ->registerForAutoconfiguration(Context::class)
             ->addTag('fob.context')
+            ->setBindings([
+                '$minkParameters' => new Reference('behat.mink.parameters'),
+            ])
         ;
     }
 
