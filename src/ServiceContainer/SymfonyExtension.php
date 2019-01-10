@@ -45,14 +45,7 @@ final class SymfonyExtension implements Extension
 
     public function initialize(ExtensionManager $extensionManager): void
     {
-        /** @var MinkExtension|null $minkExtension */
-        $minkExtension = $extensionManager->getExtension('mink');
-        if (null === $minkExtension) {
-            return;
-        }
-
-        $minkExtension->registerDriverFactory(new SymfonyDriverFactory('symfony', new Reference(self::DRIVER_KERNEL_ID)));
-        $this->minkExtensionFound = true;
+        $this->registerMinkDriver($extensionManager);
     }
 
     public function configure(ArrayNodeDefinition $builder): void
@@ -89,6 +82,19 @@ final class SymfonyExtension implements Extension
 
     public function process(ContainerBuilder $container): void
     {
+    }
+
+    private function registerMinkDriver(ExtensionManager $extensionManager): void
+    {
+        /** @var MinkExtension|null $minkExtension */
+        $minkExtension = $extensionManager->getExtension('mink');
+        if (null === $minkExtension) {
+            return;
+        }
+
+        $minkExtension->registerDriverFactory(new SymfonyDriverFactory('symfony', new Reference(self::DRIVER_KERNEL_ID)));
+
+        $this->minkExtensionFound = true;
     }
 
     private function loadKernel(ContainerBuilder $container, array $config): void
