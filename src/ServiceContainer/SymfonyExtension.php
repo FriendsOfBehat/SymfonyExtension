@@ -55,10 +55,7 @@ final class SymfonyExtension implements Extension
                 ->arrayNode('kernel')
                     ->addDefaultsIfNotSet()
                     ->children()
-                        ->scalarNode('path')->defaultNull()->end()
-                        ->scalarNode('class')->isRequired()->end()
-                        ->scalarNode('env')->defaultValue('test')->cannotBeEmpty()->end()
-                        ->booleanNode('debug')->defaultTrue()->end()
+                        ->scalarNode('class')->end()
                     ->end()
                 ->end()
             ->end()
@@ -100,15 +97,11 @@ final class SymfonyExtension implements Extension
     private function loadKernel(ContainerBuilder $container, array $config): void
     {
         $definition = new Definition($config['class'], [
-            $config['env'],
-            (bool) $config['debug'],
+            'test',
+            true,
         ]);
         $definition->addMethodCall('boot');
         $definition->setPublic(true);
-
-        if (null !== $config['path']) {
-            $definition->setFile($config['path']);
-        }
 
         $container->setDefinition(self::KERNEL_ID, $definition);
     }
