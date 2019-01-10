@@ -51,7 +51,9 @@ final class SymfonyExtension implements Extension
     public function configure(ArrayNodeDefinition $builder): void
     {
         $builder
+            ->addDefaultsIfNotSet()
             ->children()
+                ->scalarNode('bootstrap')->defaultNull()->end()
                 ->arrayNode('kernel')
                     ->addDefaultsIfNotSet()
                     ->children()
@@ -67,7 +69,9 @@ final class SymfonyExtension implements Extension
 
     public function load(ContainerBuilder $container, array $config): void
     {
-        $this->loadKernel($container, $this->processKernelConfiguration($config['kernel']));
+        $container->setParameter('fob_symfony.bootstrap', $config['bootstrap']);
+
+        $this->loadKernel($container, $this->autodiscoverKernelConfiguration($config['kernel']));
         $this->loadDriverKernel($container);
 
         $this->loadKernelRebooter($container);
@@ -82,6 +86,7 @@ final class SymfonyExtension implements Extension
 
     public function process(ContainerBuilder $container): void
     {
+        $this->processBootstrap($container->getParameter('fob_symfony.bootstrap'));
     }
 
     private function registerMinkDriver(ExtensionManager $extensionManager): void
@@ -157,7 +162,7 @@ final class SymfonyExtension implements Extension
         $container->setDefinition('fob_symfony.mink.parameters', $minkParametersDefinition);
     }
 
-    private function processKernelConfiguration(array $config): array
+    private function autodiscoverKernelConfiguration(array $config): array
     {
         if ($config['class'] !== null) {
             return $config;
@@ -186,5 +191,14 @@ final class SymfonyExtension implements Extension
         }
 
         return $config;
+    }
+
+    private function processBootstrap(?string $bootstrap): void
+    {
+        if ($bootstrap === null) {
+            return;
+        }
+
+        require_once $bootstrap;
     }
 }
