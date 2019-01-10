@@ -52,6 +52,25 @@ final class TestContext implements Context
     }
 
     /**
+     * @Given a standard Symfony autoloader configured
+     */
+    public function standardSymfonyAutoloaderConfigured(): void
+    {
+        $this->thereIsFile('vendor/autoload.php', sprintf(<<<'CON'
+<?php
+
+declare(strict_types=1);
+
+$loader = require '%s';
+$loader->addPsr4('App\\', __DIR__ . '/../src/');
+$loader->addPsr4('App\\Tests\\', __DIR__ . '/../tests/');
+
+return $loader; 
+CON
+            , __DIR__ . '/../../../vendor/autoload.php'));
+    }
+
+    /**
      * @Given a working Symfony application with SymfonyExtension configured
      */
     public function workingSymfonyApplicationWithExtension(): void
@@ -65,18 +84,7 @@ default:
 CON
         );
 
-        $this->thereIsFile('vendor/autoload.php', sprintf(<<<'CON'
-<?php
-
-declare(strict_types=1);
-
-$loader = require '%s';
-$loader->addPsr4('App\\', __DIR__ . '/../src/');
-$loader->addPsr4('App\\Tests\\', __DIR__ . '/../tests/');
-
-return $loader; 
-CON
-        , __DIR__ . '/../../../vendor/autoload.php'));
+        $this->standardSymfonyAutoloaderConfigured();
 
         $this->thereIsFile('src/Kernel.php', <<<'CON'
 <?php
