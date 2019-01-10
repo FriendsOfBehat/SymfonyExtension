@@ -56,7 +56,7 @@ final class SymfonyExtension implements Extension
                     ->addDefaultsIfNotSet()
                     ->children()
                         ->scalarNode('path')->defaultNull()->end()
-                        ->scalarNode('class')->isRequired()->end()
+                        ->scalarNode('class')->defaultNull()->end()
                     ->end()
                 ->end()
             ->end()
@@ -65,7 +65,7 @@ final class SymfonyExtension implements Extension
 
     public function load(ContainerBuilder $container, array $config): void
     {
-        $this->loadKernel($container, $config['kernel']);
+        $this->loadKernel($container, $this->processKernelConfiguration($config['kernel']));
         $this->loadDriverKernel($container);
 
         $this->loadKernelRebooter($container);
@@ -153,5 +153,36 @@ final class SymfonyExtension implements Extension
         $minkParametersDefinition->setPublic(true);
 
         $container->setDefinition('fob_symfony.mink.parameters', $minkParametersDefinition);
+    }
+
+    private function processKernelConfiguration(array $config): array
+    {
+        if ($config['class'] !== null) {
+            return $config;
+        }
+
+        $autoconfigured = 0;
+
+        if (class_exists('\App\Kernel')) {
+            $config['class'] = '\App\Kernel';
+
+            ++$autoconfigured;
+        }
+
+        if (file_exists('app/AppKernel.php')) {
+            $config['class'] = '\AppKernel';
+            $config['path'] = 'app/AppKernel.php';
+
+            ++$autoconfigured;
+        }
+
+        if ($autoconfigured !== 1) {
+            throw new \RuntimeException(
+                'Could not autodiscover the application kernel. ' .
+                'Please define it manually with "FriendsOfBehat\SymfonyExtension.kernel" configuration option.'
+            );
+        }
+
+        return $config;
     }
 }

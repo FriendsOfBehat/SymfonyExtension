@@ -1,4 +1,4 @@
-Feature: Loading kernel based on configuration
+Feature: Autodiscovering the application kernel
 
     Background:
         Given a standard Symfony autoloader configured
@@ -11,6 +11,9 @@ Feature: Loading kernel based on configuration
         And a Behat configuration containing:
         """
         default:
+            extensions:
+                FriendsOfBehat\SymfonyExtension: ~
+
             suites:
                 default:
                     contexts:
@@ -46,20 +49,12 @@ Feature: Loading kernel based on configuration
                     - "@service_container"
         """
 
-    Scenario: Loading kernel by its classname
-        Given a Behat configuration containing:
-        """
-        default:
-            extensions:
-                FriendsOfBehat\SymfonyExtension:
-                    kernel:
-                        class: App\Custom\Kernel
-        """
-        And a kernel file "src/Custom/Kernel.php" containing:
+    Scenario: Autodiscovering kernel in Symfony 3 directory structure application
+        Given a kernel file "src/Kernel.php" containing:
         """
         <?php
 
-        namespace App\Custom;
+        namespace App;
 
         use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
         use Symfony\Component\Config\Loader\LoaderInterface;
@@ -87,7 +82,7 @@ Feature: Loading kernel based on configuration
                     'secret' => 'Pigeon',
                 ]);
 
-                $loader->load(__DIR__ . '/../../config/services.yaml');
+                $loader->load(__DIR__ . '/../config/services.yaml');
             }
 
             protected function configureRoutes(RouteCollectionBuilder $routes): void {}
@@ -96,17 +91,8 @@ Feature: Loading kernel based on configuration
         When I run Behat
         Then it should pass
 
-    Scenario: Loading kernel from custom path
-        Given a Behat configuration containing:
-        """
-        default:
-            extensions:
-                FriendsOfBehat\SymfonyExtension:
-                    kernel:
-                        path: app/Nested/Kernel.php
-                        class: AppKernel
-        """
-        And a kernel file "app/Nested/Kernel.php" containing:
+    Scenario: Autodiscovering kernel in Symfony 4 directory structure application
+        Given a kernel file "app/AppKernel.php" containing:
         """
         <?php
 
@@ -136,7 +122,7 @@ Feature: Loading kernel based on configuration
                     'secret' => 'Pigeon',
                 ]);
 
-                $loader->load(__DIR__ . '/../../config/services.yaml');
+                $loader->load(__DIR__ . '/../config/services.yaml');
             }
 
             protected function configureRoutes(RouteCollectionBuilder $routes): void {}
@@ -144,3 +130,85 @@ Feature: Loading kernel based on configuration
         """
         When I run Behat
         Then it should pass
+
+    Scenario: Failing to autodiscover the kernel
+        When I run Behat
+        Then it should fail with "Could not autodiscover the application kernel"
+
+    Scenario: Failing to autodiscover the kernel
+        Given a kernel file "src/Kernel.php" containing:
+        """
+        <?php
+
+        namespace App;
+
+        use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
+        use Symfony\Component\Config\Loader\LoaderInterface;
+        use Symfony\Component\DependencyInjection\ContainerBuilder;
+        use Symfony\Component\HttpFoundation\Response;
+        use Symfony\Component\HttpKernel\Kernel as HttpKernel;
+        use Symfony\Component\Routing\RouteCollectionBuilder;
+
+        class Kernel extends HttpKernel
+        {
+            use MicroKernelTrait;
+
+            public function registerBundles(): iterable
+            {
+                return [
+                    new \Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
+                    new \FriendsOfBehat\SymfonyExtension\Bundle\FriendsOfBehatSymfonyExtensionBundle(),
+                ];
+            }
+
+            protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
+            {
+                $container->loadFromExtension('framework', [
+                    'test' => $this->getEnvironment() === 'test',
+                    'secret' => 'Pigeon',
+                ]);
+
+                $loader->load(__DIR__ . '/../config/services.yaml');
+            }
+
+            protected function configureRoutes(RouteCollectionBuilder $routes): void {}
+        }
+        """
+        And a kernel file "app/AppKernel.php" containing:
+        """
+        <?php
+
+        use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
+        use Symfony\Component\Config\Loader\LoaderInterface;
+        use Symfony\Component\DependencyInjection\ContainerBuilder;
+        use Symfony\Component\HttpFoundation\Response;
+        use Symfony\Component\HttpKernel\Kernel as HttpKernel;
+        use Symfony\Component\Routing\RouteCollectionBuilder;
+
+        class AppKernel extends HttpKernel
+        {
+            use MicroKernelTrait;
+
+            public function registerBundles(): iterable
+            {
+                return [
+                    new \Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
+                    new \FriendsOfBehat\SymfonyExtension\Bundle\FriendsOfBehatSymfonyExtensionBundle(),
+                ];
+            }
+
+            protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
+            {
+                $container->loadFromExtension('framework', [
+                    'test' => $this->getEnvironment() === 'test',
+                    'secret' => 'Pigeon',
+                ]);
+
+                $loader->load(__DIR__ . '/../config/services.yaml');
+            }
+
+            protected function configureRoutes(RouteCollectionBuilder $routes): void {}
+        }
+        """
+        When I run Behat
+        Then it should fail with "Could not autodiscover the application kernel"
