@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-final class KernelRebooter implements EventSubscriberInterface
+final class KernelOrchestrator implements EventSubscriberInterface
 {
     /** @var KernelInterface */
     private $symfonyKernel;

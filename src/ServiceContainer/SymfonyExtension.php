@@ -13,7 +13,7 @@ use Behat\Testwork\ServiceContainer\Extension;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
 use FriendsOfBehat\SymfonyExtension\Context\Environment\Handler\ContextServiceEnvironmentHandler;
 use FriendsOfBehat\SymfonyExtension\Driver\Factory\SymfonyDriverFactory;
-use FriendsOfBehat\SymfonyExtension\Listener\KernelRebooter;
+use FriendsOfBehat\SymfonyExtension\Listener\KernelOrchestrator;
 use FriendsOfBehat\SymfonyExtension\Mink\MinkParameters;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -113,10 +113,10 @@ final class SymfonyExtension implements Extension
 
     private function loadKernelRebooter(ContainerBuilder $container): void
     {
-        $definition = new Definition(KernelRebooter::class, [new Reference(self::KERNEL_ID), $container]);
+        $definition = new Definition(KernelOrchestrator::class, [new Reference(self::KERNEL_ID), $container]);
         $definition->addTag(EventDispatcherExtension::SUBSCRIBER_TAG);
 
-        $container->setDefinition(self::KERNEL_ID . '.rebooter', $definition);
+        $container->setDefinition('fob_symfony.kernel_orchestrator', $definition);
     }
 
     private function loadEnvironmentHandler(ContainerBuilder $container): void
