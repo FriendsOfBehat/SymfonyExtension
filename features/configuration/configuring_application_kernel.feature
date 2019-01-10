@@ -75,3 +75,21 @@ Feature: Configuring application kernel
         """
         When I run Behat
         Then it should pass
+
+    Scenario: Using configured debug setting
+        Given a Behat configuration containing:
+        """
+        default:
+            extensions:
+                FriendsOfBehat\SymfonyExtension:
+                    kernel:
+                        debug: false
+        """
+        And a feature file containing:
+        """
+        Feature:
+            Scenario:
+                And the application kernel should have debug disabled
+        """
+        When I run Behat
+        Then it should pass

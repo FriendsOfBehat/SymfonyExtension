@@ -58,6 +58,7 @@ final class SymfonyExtension implements Extension
                         ->scalarNode('path')->defaultNull()->end()
                         ->scalarNode('class')->defaultNull()->end()
                         ->scalarNode('environment')->defaultValue('test')->end()
+                        ->booleanNode('debug')->defaultTrue()->end()
                     ->end()
                 ->end()
             ->end()
@@ -100,7 +101,7 @@ final class SymfonyExtension implements Extension
     {
         $definition = new Definition($config['class'], [
             $config['environment'],
-            true,
+            $config['debug'],
         ]);
         $definition->addMethodCall('boot');
         $definition->setPublic(true);
