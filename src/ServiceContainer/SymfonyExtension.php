@@ -51,11 +51,16 @@ final class SymfonyExtension implements Extension
     public function configure(ArrayNodeDefinition $builder): void
     {
         $builder
+            ->addDefaultsIfNotSet()
             ->children()
+                ->scalarNode('bootstrap')->defaultNull()->end()
                 ->arrayNode('kernel')
                     ->addDefaultsIfNotSet()
                     ->children()
-                        ->scalarNode('class')->end()
+                        ->scalarNode('path')->defaultNull()->end()
+                        ->scalarNode('class')->defaultNull()->end()
+                        ->scalarNode('environment')->defaultValue('test')->end()
+                        ->booleanNode('debug')->defaultTrue()->end()
                     ->end()
                 ->end()
             ->end()
@@ -64,7 +69,9 @@ final class SymfonyExtension implements Extension
 
     public function load(ContainerBuilder $container, array $config): void
     {
-        $this->loadKernel($container, $config['kernel']);
+        $container->setParameter('fob_symfony.bootstrap', $config['bootstrap']);
+
+        $this->loadKernel($container, $this->autodiscoverKernelConfiguration($config['kernel']));
         $this->loadDriverKernel($container);
 
         $this->loadKernelRebooter($container);
@@ -79,6 +86,7 @@ final class SymfonyExtension implements Extension
 
     public function process(ContainerBuilder $container): void
     {
+        $this->processBootstrap($this->autodiscoverBootstrap($container->getParameter('fob_symfony.bootstrap')));
     }
 
     private function registerMinkDriver(ExtensionManager $extensionManager): void
@@ -97,11 +105,15 @@ final class SymfonyExtension implements Extension
     private function loadKernel(ContainerBuilder $container, array $config): void
     {
         $definition = new Definition($config['class'], [
-            'test',
-            true,
+            $config['environment'],
+            $config['debug'],
         ]);
         $definition->addMethodCall('boot');
         $definition->setPublic(true);
+
+        if ($config['path'] !== null) {
+            $definition->setFile($config['path']);
+        }
 
         $container->setDefinition(self::KERNEL_ID, $definition);
     }
@@ -148,5 +160,83 @@ final class SymfonyExtension implements Extension
         $minkParametersDefinition->setPublic(true);
 
         $container->setDefinition('fob_symfony.mink.parameters', $minkParametersDefinition);
+    }
+
+    private function autodiscoverKernelConfiguration(array $config): array
+    {
+        if ($config['class'] !== null) {
+            return $config;
+        }
+
+        $autodiscovered = 0;
+
+        if (class_exists('\App\Kernel')) {
+            $config['class'] = '\App\Kernel';
+
+            ++$autodiscovered;
+        }
+
+        if (file_exists('app/AppKernel.php')) {
+            $config['class'] = '\AppKernel';
+            $config['path'] = 'app/AppKernel.php';
+
+            ++$autodiscovered;
+        }
+
+        if ($autodiscovered !== 1) {
+            throw new \RuntimeException(
+                'Could not autodiscover the application kernel. ' .
+                'Please define it manually with "FriendsOfBehat\SymfonyExtension.kernel" configuration option.'
+            );
+        }
+
+        return $config;
+    }
+
+    /**
+     * @param string|bool|null $bootstrap
+     */
+    private function autodiscoverBootstrap($bootstrap): ?string
+    {
+        if (is_string($bootstrap)) {
+            return $bootstrap;
+        }
+
+        if ($bootstrap === false) {
+            return null;
+        }
+
+        $autodiscovered = 0;
+
+        if (file_exists('config/bootstrap.php')) {
+            $bootstrap = 'config/bootstrap.php';
+
+            ++$autodiscovered;
+        }
+
+        if (file_exists('app/autoload.php')) {
+            $bootstrap = 'app/autoload.php';
+
+            ++$autodiscovered;
+        }
+
+        if ($autodiscovered === 2) {
+            throw new \RuntimeException(
+                'Could not autodiscover the bootstrap file. ' .
+                'Please define it manually with "FriendsOfBehat\SymfonyExtension.bootstrap" configuration option. ' .
+                'Setting that option to "false" disables autodiscovering.'
+            );
+        }
+
+        return is_string($bootstrap) ? $bootstrap : null;
+    }
+
+    private function processBootstrap(?string $bootstrap): void
+    {
+        if ($bootstrap === null) {
+            return;
+        }
+
+        require_once $bootstrap;
     }
 }
