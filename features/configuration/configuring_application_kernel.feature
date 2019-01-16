@@ -58,7 +58,7 @@ Feature: Configuring application kernel
         When I run Behat
         Then it should pass
 
-    Scenario: Using configured environment
+    Scenario: Using environment based on Behat configuration
         Given a Behat configuration containing:
         """
         default:
@@ -76,7 +76,61 @@ Feature: Configuring application kernel
         When I run Behat
         Then it should pass
 
-    Scenario: Using configured debug setting
+    Scenario: Using environment based on a server variable
+        Given a feature file containing:
+        """
+        Feature:
+            Scenario:
+                And the application kernel should have environment "custom"
+        """
+        And a server variable "APP_ENV" set to "custom"
+        When I run Behat
+        Then it should pass
+
+    Scenario: Using environment based on an environment variable
+        Given a feature file containing:
+        """
+        Feature:
+            Scenario:
+                And the application kernel should have environment "custom"
+        """
+        And an environment variable "APP_ENV" set to "custom"
+        When I run Behat
+        Then it should pass
+
+    Scenario: Using environment based on a server variable over an environment variable is also found
+        Given a feature file containing:
+        """
+        Feature:
+            Scenario:
+                And the application kernel should have environment "custom_ser"
+        """
+        And a server variable "APP_ENV" set to "custom_ser"
+        And an environment variable "APP_ENV" set to "custom_env"
+        When I run Behat
+        Then it should pass
+
+    Scenario: Using environment based on Behat configuration over server or environment variable
+        Given a feature file containing:
+        """
+        Feature:
+            Scenario:
+                And the application kernel should have environment "custom_conf"
+        """
+        And a Behat configuration containing:
+        """
+        default:
+            extensions:
+                FriendsOfBehat\SymfonyExtension:
+                    kernel:
+                        environment: custom_conf
+        """
+        And a server variable "APP_ENV" set to "custom_ser"
+        And an environment variable "APP_ENV" set to "custom_env"
+        When I run Behat
+        Then it should pass
+
+    Scenario: Using debug based on Behat configuration
         Given a Behat configuration containing:
         """
         default:
@@ -91,5 +145,59 @@ Feature: Configuring application kernel
             Scenario:
                 And the application kernel should have debug disabled
         """
+        When I run Behat
+        Then it should pass
+
+    Scenario: Using debug based on a server variable
+        Given a feature file containing:
+        """
+        Feature:
+            Scenario:
+                And the application kernel should have debug disabled
+        """
+        And a server variable "APP_DEBUG" set to "0"
+        When I run Behat
+        Then it should pass
+
+    Scenario: Using debug based on an environment variable
+        Given a feature file containing:
+        """
+        Feature:
+            Scenario:
+                And the application kernel should have debug disabled
+        """
+        And an environment variable "APP_DEBUG" set to "0"
+        When I run Behat
+        Then it should pass
+
+    Scenario: Using debug based on a server variable over an environment variable is also found
+        Given a feature file containing:
+        """
+        Feature:
+            Scenario:
+                And the application kernel should have debug disabled
+        """
+        And a server variable "APP_DEBUG" set to "0"
+        And an environment variable "APP_DEBUG" set to "1"
+        When I run Behat
+        Then it should pass
+
+    Scenario: Using debug based on Behat configuration over server or environment variable
+        Given a feature file containing:
+        """
+        Feature:
+            Scenario:
+                And the application kernel should have debug disabled
+        """
+        And a Behat configuration containing:
+        """
+        default:
+            extensions:
+                FriendsOfBehat\SymfonyExtension:
+                    kernel:
+                        debug: false
+        """
+        And a server variable "APP_DEBUG" set to "1"
+        And an environment variable "APP_DEBUG" set to "1"
         When I run Behat
         Then it should pass

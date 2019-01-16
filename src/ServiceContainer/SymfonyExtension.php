@@ -59,8 +59,8 @@ final class SymfonyExtension implements Extension
                     ->children()
                         ->scalarNode('path')->defaultNull()->end()
                         ->scalarNode('class')->defaultNull()->end()
-                        ->scalarNode('environment')->defaultValue('test')->end()
-                        ->booleanNode('debug')->defaultTrue()->end()
+                        ->scalarNode('environment')->defaultNull()->end()
+                        ->booleanNode('debug')->defaultNull()->end()
                     ->end()
                 ->end()
             ->end()
@@ -105,8 +105,8 @@ final class SymfonyExtension implements Extension
     private function loadKernel(ContainerBuilder $container, array $config): void
     {
         $definition = new Definition($config['class'], [
-            $config['environment'],
-            $config['debug'],
+            $config['environment'] ?? $_SERVER['APP_ENV'] ?? $_ENV['APP_ENV'] ?? 'test',
+            (bool) ($config['debug'] ?? $_SERVER['APP_DEBUG'] ?? $_ENV['APP_DEBUG'] ?? true),
         ]);
         $definition->addMethodCall('boot');
         $definition->setPublic(true);

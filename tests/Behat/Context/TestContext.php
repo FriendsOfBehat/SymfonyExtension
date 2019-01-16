@@ -24,6 +24,9 @@ final class TestContext implements Context
     /** @var Process */
     private $process;
 
+    /** @var array */
+    private $variables = [];
+
     /**
      * @BeforeFeature
      */
@@ -137,6 +140,14 @@ CON
     }
 
     /**
+     * @Given /^an? (server|environment) variable "([^"]++)" set to "([^"]++)"$/
+     */
+    public function variableSetTo(string $type, string $name, string $value): void
+    {
+        $this->variables[$type][$name] = $value;
+    }
+
+    /**
      * @Given /^a YAML services file containing:$/
      */
     public function yamlServicesFile($content): void
@@ -167,9 +178,13 @@ CON
     /**
      * @Given /^a (?:.+ |)file "([^"]+)" containing(?: "([^"]+)"|:)$/
      */
-    public function thereIsFile($file, $content): void
+    public function thereIsFile($file, $content): string
     {
-        self::$filesystem->dumpFile(self::$workingDir . '/' . $file, (string) $content);
+        $path = self::$workingDir . '/' . $file;
+
+        self::$filesystem->dumpFile($path, (string) $content);
+
+        return $path;
     }
 
     /**
@@ -185,7 +200,25 @@ CON
      */
     public function iRunBehat(): void
     {
-        $this->process = new Process(sprintf('%s %s --strict -vvv --no-interaction --lang=en', self::$phpBin, escapeshellarg(BEHAT_BIN_PATH)));
+        $executablePath = BEHAT_BIN_PATH;
+
+        if ($this->variables !== []) {
+            $content = '<?php ';
+
+            foreach ($this->variables['server'] ?? [] as $name => $value) {
+                $content .= sprintf('$_SERVER["%s"] = "%s"; ', $name, $value);
+            }
+
+            foreach ($this->variables['environment'] ?? [] as $name => $value) {
+                $content .= sprintf('$_ENV["%s"] = "%s"; ', $name, $value);
+            }
+
+            $content .= sprintf('require_once("%s"); ', $executablePath);
+
+            $executablePath = $this->thereIsFile('__executable.php', $content);
+        }
+
+        $this->process = new Process(sprintf('%s %s --strict -vvv --no-interaction --lang=en', self::$phpBin, escapeshellarg($executablePath)));
         $this->process->setWorkingDirectory(self::$workingDir);
         $this->process->start();
         $this->process->wait();
