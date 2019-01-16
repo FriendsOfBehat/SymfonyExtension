@@ -130,6 +130,29 @@ Feature: Configuring application kernel
         When I run Behat
         Then it should pass
 
+    Scenario: Using environment based on a server variable set in the bootstrap file
+        Given a feature file containing:
+        """
+        Feature:
+            Scenario:
+                And the application kernel should have environment "custom"
+        """
+        And a Behat configuration containing:
+        """
+        default:
+            extensions:
+                FriendsOfBehat\SymfonyExtension:
+                    bootstrap: config/bootstrap.php
+        """
+        And a bootstrap file "config/bootstrap.php" containing:
+        """
+        <?php
+
+        $_SERVER['APP_ENV'] = 'custom';
+        """
+        When I run Behat
+        Then it should pass
+
     Scenario: Using debug based on Behat configuration
         Given a Behat configuration containing:
         """
@@ -199,5 +222,28 @@ Feature: Configuring application kernel
         """
         And a server variable "APP_DEBUG" set to "1"
         And an environment variable "APP_DEBUG" set to "1"
+        When I run Behat
+        Then it should pass
+
+    Scenario: Using debug based on a server variable set in the bootstrap file
+        Given a feature file containing:
+        """
+        Feature:
+            Scenario:
+                And the application kernel should have debug disabled
+        """
+        And a Behat configuration containing:
+        """
+        default:
+            extensions:
+                FriendsOfBehat\SymfonyExtension:
+                    bootstrap: config/bootstrap.php
+        """
+        And a bootstrap file "config/bootstrap.php" containing:
+        """
+        <?php
+
+        $_SERVER['APP_DEBUG'] = '0';
+        """
         When I run Behat
         Then it should pass
