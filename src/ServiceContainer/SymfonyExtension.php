@@ -175,7 +175,7 @@ final class SymfonyExtension implements Extension
     private function fallbackToTestEnvironment(): void
     {
         // If there's no defined server / environment variable with an environment, default to test
-        if (($_SERVER['APP_ENV'] ?? $_ENV['APP_ENV']) === null) {
+        if (($_SERVER['APP_ENV'] ?? $_ENV['APP_ENV'] ?? null) === null) {
             putenv('APP_ENV=' . $_SERVER['APP_ENV'] = $_ENV['APP_ENV'] = 'test');
         }
     }
