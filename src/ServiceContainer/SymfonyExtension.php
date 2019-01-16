@@ -69,7 +69,7 @@ final class SymfonyExtension implements Extension
 
     public function load(ContainerBuilder $container, array $config): void
     {
-        $container->setParameter('fob_symfony.bootstrap', $config['bootstrap']);
+        $this->processBootstrap($this->autodiscoverBootstrap($config['bootstrap']));
 
         $this->loadKernel($container, $this->autodiscoverKernelConfiguration($config['kernel']));
         $this->loadDriverKernel($container);
@@ -86,7 +86,6 @@ final class SymfonyExtension implements Extension
 
     public function process(ContainerBuilder $container): void
     {
-        $this->processBootstrap($this->autodiscoverBootstrap($container->getParameter('fob_symfony.bootstrap')));
     }
 
     private function registerMinkDriver(ExtensionManager $extensionManager): void
