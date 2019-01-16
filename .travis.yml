@@ -27,4 +27,4 @@ script:
 
     - vendor/bin/phpstan analyse -c phpstan.neon -l max src -vvv
 
-    - vendor/bin/behat --strict -vvv --no-interaction
+    - vendor/bin/behat -f progress --strict -vvv --no-interaction
