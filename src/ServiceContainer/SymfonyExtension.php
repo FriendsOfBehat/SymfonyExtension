@@ -69,7 +69,9 @@ final class SymfonyExtension implements Extension
 
     public function load(ContainerBuilder $container, array $config): void
     {
-        $this->processBootstrap($this->autodiscoverBootstrap($config['bootstrap']));
+        $this->fallbackToTestEnvironment();
+
+        $this->loadBootstrap($this->autodiscoverBootstrap($config['bootstrap']));
 
         $this->loadKernel($container, $this->autodiscoverKernelConfiguration($config['kernel']));
         $this->loadDriverKernel($container);
@@ -161,6 +163,23 @@ final class SymfonyExtension implements Extension
         $container->setDefinition('fob_symfony.mink.parameters', $minkParametersDefinition);
     }
 
+    private function loadBootstrap(?string $bootstrap): void
+    {
+        if ($bootstrap === null) {
+            return;
+        }
+
+        require_once $bootstrap;
+    }
+
+    private function fallbackToTestEnvironment(): void
+    {
+        // If there's no defined server / environment variable with an environment, default to test
+        if (($_SERVER['APP_ENV'] ?? $_ENV['APP_ENV']) === null) {
+            putenv('APP_ENV=' . $_SERVER['APP_ENV'] = $_ENV['APP_ENV'] = 'test');
+        }
+    }
+
     private function autodiscoverKernelConfiguration(array $config): array
     {
         if ($config['class'] !== null) {
@@ -228,14 +247,5 @@ final class SymfonyExtension implements Extension
         }
 
         return is_string($bootstrap) ? $bootstrap : null;
-    }
-
-    private function processBootstrap(?string $bootstrap): void
-    {
-        if ($bootstrap === null) {
-            return;
-        }
-
-        require_once $bootstrap;
     }
 }

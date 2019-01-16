@@ -36,6 +36,14 @@ Feature: Configuring application kernel
 
                 assert($this->kernel->isDebug() === $map[$state]);
             }
+
+            /** @Then the server and environment variable :variable is :value */
+            public function environmentVariableIs(string $variable, string $value): void
+            {
+                assert($_SERVER[$variable] === $value);
+                assert($_ENV[$variable] === $value);
+                assert(getenv($variable) === $value);
+            }
         }
         """
         And a YAML services file containing:
@@ -53,6 +61,7 @@ Feature: Configuring application kernel
         Feature:
             Scenario:
                 Then the application kernel should have environment "test"
+                And the server and environment variable "APP_ENV" is "test"
                 And the application kernel should have debug enabled
         """
         When I run Behat
