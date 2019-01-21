@@ -22,6 +22,14 @@ It allows for:
  * [Behat/Symfony2Extension differences](docs/04_bs2e_differences.md)
  * [Configuration reference](docs/05_configuration_reference.md)
  
+## Versioning
+
+This package follows [semantic versioning](https://semver.org/) - public API is defined as configuration and behaviour
+defined in form of testable scenarios in the [`features`](features) directory. This means once your application is
+configured to use Behat with SymfonyExtension, it shall continue to work flawlessly within the same major version.
+PHP classes, apart from `FriendsOfBehat\SymfonyExtension\Bundle\FriendsOfBehatSymfonyExtensionBundle`, are not covered
+by this backwards compatibility promise.
+ 
 ## License
 
 This extension is completely free and released under permissive [MIT license](LICENSE).
@@ -29,4 +37,4 @@ This extension is completely free and released under permissive [MIT license](LI
 ## Authors
 
 It is originally created by [Kamil Kokot](https://github.com/pamil). 
-See the list of [all contributors](https://github.com/FriendsOfBehat/SymfonyExtension/graphs/contributors).
+See the list of [all contributors](https://github.com/FriendsOfBehat/SymfonyExtension/graphs/contributors). 

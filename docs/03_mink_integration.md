@@ -33,10 +33,3 @@ This integration provides two services to use inside Symfony container:
  
  * **`behat.mink.parameters`** (autoconfigured by `$minkParameters`) - an array (`\ArrayAccess` object) containing the 
  configuration parameters of `MinkExtension`
-
-### Caveats
-
-This driver behaviour differs from the one provided with [`Behat/Symfony2Extension`](https://github.com/Behat/Symfony2Extension),
-as it uses an isolated application kernel instance, so that services state changes within your contexts does not affect 
-the driver results. With that limitation, changing the driver to a different one is seamless. For more information, look
-at [this issue](https://github.com/Behat/Symfony2Extension/issues/112). 
