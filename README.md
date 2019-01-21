@@ -16,11 +16,11 @@ It allows for:
  
 ## Documentation
 
- * [Installation](docs/installation.md)
- * [Usage](docs/usage.md)
- * [Mink integration](docs/mink_integration.md)
- * [Behat/Symfony2Extension differences](docs/bs2e_differences.md)
- * [Configuration reference](docs/configuration_reference.md)
+ * [Installation](docs/01_installation.md)
+ * [Usage](docs/02_usage.md)
+ * [Mink integration](docs/03_mink_integration.md)
+ * [Behat/Symfony2Extension differences](docs/04_bs2e_differences.md)
+ * [Configuration reference](docs/05_configuration_reference.md)
  
 ## License
 
