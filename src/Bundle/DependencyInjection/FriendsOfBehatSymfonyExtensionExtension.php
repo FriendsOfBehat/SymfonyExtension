@@ -18,22 +18,19 @@ final class FriendsOfBehatSymfonyExtensionExtension extends Extension implements
 {
     public function load(array $configs, ContainerBuilder $container): void
     {
-        $this->registerBehatContainer($container);
         $this->provideMinkIntegration($container);
+        $this->registerBehatContainer($container);
 
-        $container
-            ->registerForAutoconfiguration(Context::class)
-            ->addTag('fob.context')
-            ->setBindings([
-                '$minkParameters' => new Reference('behat.mink.parameters'),
-            ])
-        ;
+        $container->registerForAutoconfiguration(Context::class)->addTag('fob.context');
     }
 
     public function process(ContainerBuilder $container): void
     {
         foreach ($container->findTaggedServiceIds('fob.context') as $serviceId => $attributes) {
-            $container->findDefinition($serviceId)->setPublic(true);
+            $serviceDefinition = $container->findDefinition($serviceId);
+
+            $serviceDefinition->setPublic(true);
+            $serviceDefinition->clearTag('fob.context');
         }
     }
 
@@ -48,6 +45,18 @@ final class FriendsOfBehatSymfonyExtensionExtension extends Extension implements
 
     private function provideMinkIntegration(ContainerBuilder $container): void
     {
+        $this->registerMinkDefaultSession($container);
+        $this->registerMinkParameters($container);
+
+        $autoconfiguredContextPrototype = $container->registerForAutoconfiguration(Context::class);
+        $autoconfiguredContextPrototype->setBindings(array_merge(
+            $autoconfiguredContextPrototype->getBindings(),
+            ['$minkParameters' => new Reference('behat.mink.parameters')]
+        ));
+    }
+
+    private function registerMinkDefaultSession(ContainerBuilder $container): void
+    {
         $minkDefaultSessionDefinition = new Definition(Session::class, ['fob_symfony.mink.default_session']);
         $minkDefaultSessionDefinition->setPublic(true);
         $minkDefaultSessionDefinition->setLazy(true);
@@ -55,7 +64,10 @@ final class FriendsOfBehatSymfonyExtensionExtension extends Extension implements
 
         $container->setDefinition('behat.mink.default_session', $minkDefaultSessionDefinition);
         $container->setAlias(Session::class, 'behat.mink.default_session');
+    }
 
+    private function registerMinkParameters(ContainerBuilder $container): void
+    {
         $minkParametersDefinition = new Definition(MinkParameters::class, ['fob_symfony.mink.parameters']);
         $minkParametersDefinition->setPublic(true);
         $minkParametersDefinition->setLazy(true);
