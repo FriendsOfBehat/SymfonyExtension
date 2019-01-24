@@ -17,6 +17,7 @@ before_install:
     - phpenv config-rm xdebug.ini || true
 
 install:
+    - composer require symfony/dependency-injection:${SYMFONY_VERSION} --no-update --no-scripts --prefer-dist
     - composer require symfony/http-kernel:${SYMFONY_VERSION} --no-update --no-scripts --prefer-dist
     - composer require symfony/proxy-manager-bridge:${SYMFONY_VERSION} --no-update --no-scripts --prefer-dist
     - composer require --dev symfony/framework-bundle:${SYMFONY_VERSION} --no-update --no-scripts --prefer-dist
