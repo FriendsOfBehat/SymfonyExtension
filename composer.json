@@ -26,6 +26,9 @@
         "symfony/framework-bundle": "^3.4|^4.1",
         "symfony/yaml": "^3.4|^4.1"
     },
+    "conflict": {
+        "symfony/dependency-injection": "4.1.11"
+    },
     "suggest": {
         "behat/mink-browserkit-driver": "^1.3"
     },
