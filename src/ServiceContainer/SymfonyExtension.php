@@ -88,6 +88,7 @@ final class SymfonyExtension implements Extension
 
     public function process(ContainerBuilder $container): void
     {
+        $this->processEnvironmentHandler($container);
     }
 
     private function registerMinkDriver(ExtensionManager $extensionManager): void
@@ -138,10 +139,6 @@ final class SymfonyExtension implements Extension
             new Reference(self::KERNEL_ID),
         ]);
         $definition->addTag(EnvironmentExtension::HANDLER_TAG, ['priority' => 128]);
-
-        foreach ($container->findTaggedServiceIds(ContextExtension::INITIALIZER_TAG) as $serviceId => $tags) {
-            $definition->addMethodCall('registerContextInitializer', [$container->getDefinition($serviceId)]);
-        }
 
         $container->setDefinition('fob_symfony.environment_handler.context_service', $definition);
     }
@@ -247,5 +244,14 @@ final class SymfonyExtension implements Extension
         }
 
         return is_string($bootstrap) ? $bootstrap : null;
+    }
+
+    private function processEnvironmentHandler(ContainerBuilder $container): void
+    {
+        $definition = $container->findDefinition('fob_symfony.environment_handler.context_service');
+
+        foreach ($container->findTaggedServiceIds(ContextExtension::INITIALIZER_TAG) as $serviceId => $tags) {
+            $definition->addMethodCall('registerContextInitializer', [$container->getDefinition($serviceId)]);
+        }
     }
 }
