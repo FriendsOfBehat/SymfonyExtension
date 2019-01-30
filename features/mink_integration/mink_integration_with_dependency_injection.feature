@@ -1,4 +1,4 @@
-Feature: Mink integration
+Feature: Mink integration with dependency injection
 
     Background:
         Given a working Symfony application with SymfonyExtension configured
