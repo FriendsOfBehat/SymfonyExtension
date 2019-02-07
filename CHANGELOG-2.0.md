@@ -1,5 +1,12 @@
 # CHANGELOG for `2.0.x`
 
+## v2.0.3 (2019-02-07)
+
+Removed the possibility to autoconfigure `$minkParameters` without a typehint due to an instable implementation in Symfony.
+
+- [#64](https://github.com/FriendsOfBehat/SymfonyExtension/issues/64) Fix typo ([@rogamoore](https://github.com/rogamoore))
+- [#66](https://github.com/FriendsOfBehat/SymfonyExtension/issues/66) Revert mink parameters autoconfiguration ([@pamil](https://github.com/pamil))
+
 ## v2.0.2 (2019-01-30)
 
 - [#57](https://github.com/FriendsOfBehat/SymfonyExtension/issues/57) Fix support for context initializers ([@pamil](https://github.com/pamil))
