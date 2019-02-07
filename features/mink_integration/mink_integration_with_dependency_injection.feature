@@ -39,22 +39,15 @@ Feature: Mink integration with dependency injection
 
         use Behat\Behat\Context\Context;
         use Behat\Mink\Session;
+        use FriendsOfBehat\SymfonyExtension\Mink\MinkParameters;
         use Psr\Container\ContainerInterface;
 
         final class SomeContext implements Context {
             private $session;
             private $parameters;
 
-            public function __construct(Session $session, $minkParameters)
+            public function __construct(Session $session, MinkParameters $minkParameters)
             {
-                if (!is_array($minkParameters) && !$minkParameters instanceof \ArrayAccess) {
-                    throw new \InvalidArgumentException(sprintf(
-                        '"$parameters" passed to "%s" has to be an array or implement "%s".',
-                        self::class,
-                        \ArrayAccess::class
-                    ));
-                }
-
                 $this->session = $session;
                 $this->parameters = $minkParameters;
             }
