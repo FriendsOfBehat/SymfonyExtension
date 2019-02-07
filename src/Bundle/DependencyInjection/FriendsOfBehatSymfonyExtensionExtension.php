@@ -47,12 +47,6 @@ final class FriendsOfBehatSymfonyExtensionExtension extends Extension implements
     {
         $this->registerMinkDefaultSession($container);
         $this->registerMinkParameters($container);
-
-        $autoconfiguredContextPrototype = $container->registerForAutoconfiguration(Context::class);
-        $autoconfiguredContextPrototype->setBindings(array_merge(
-            $autoconfiguredContextPrototype->getBindings(),
-            ['$minkParameters' => new Reference('behat.mink.parameters')]
-        ));
     }
 
     private function registerMinkDefaultSession(ContainerBuilder $container): void

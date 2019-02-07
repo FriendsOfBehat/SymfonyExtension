@@ -13,7 +13,7 @@
     "require": {
         "php": "^7.1",
         "behat/behat": "^3.4",
-        "symfony/dependency-injection": "^3.4.10|^4.1",
+        "symfony/dependency-injection": "^3.4|^4.1",
         "symfony/http-kernel": "^3.4|^4.1",
         "symfony/proxy-manager-bridge": "^3.4|^4.1"
     },
@@ -25,9 +25,6 @@
         "sylius-labs/coding-standard": "^3.0",
         "symfony/framework-bundle": "^3.4|^4.1",
         "symfony/yaml": "^3.4|^4.1"
-    },
-    "conflict": {
-        "symfony/dependency-injection": "4.1.11"
     },
     "suggest": {
         "behat/mink-browserkit-driver": "^1.3"
