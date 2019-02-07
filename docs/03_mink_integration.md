@@ -31,5 +31,5 @@ This integration provides two services to use inside Symfony container:
 
  * **`behat.mink.default_session`** (autowired by `\Behat\Mink\Session`) - the default Mink session for the current scenario
  
- * **`behat.mink.parameters`** (autoconfigured by `$minkParameters`) - an array (`\ArrayAccess` object) containing the 
- configuration parameters of `MinkExtension`
+ * **`behat.mink.parameters`** (autowired by `\FriendsOfBehat\SymfonyExtension\Mink\MinkParameters`) - an object 
+ containing the configuration parameters of `MinkExtension` (implementing `\ArrayAccess` so that it can be treated as an array)

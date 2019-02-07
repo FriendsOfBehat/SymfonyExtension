@@ -10,7 +10,7 @@ Feature: Using SymfonyExtension
         Then the application's kernel should use "test" environment
 ``` 
 
-There are two methods to check the kernel's environment - either by calling `getEnviornment()` method on the kernel itself 
+There are two methods to check the kernel's environment - either by calling `getEnvironment()` method on the kernel itself 
 or by injecting `%kernel.environment%` parameter.
 
 We'll need also a dummy context implementation:
