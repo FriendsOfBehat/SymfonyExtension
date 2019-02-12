@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace FriendsOfBehat\SymfonyExtension\Context\Environment\Handler;
 
 use Behat\Behat\Context\Context;
+use Behat\Behat\Context\ContextClass\ClassResolver;
 use Behat\Behat\Context\Initializer\ContextInitializer;
 use Behat\Testwork\Environment\Environment;
 use Behat\Testwork\Environment\Exception\EnvironmentIsolationException;
@@ -33,6 +34,9 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
 
     /** @var ContextInitializer[] */
     private $contextInitializers = [];
+
+    /** @var ClassResolver[] */
+    private $classResolvers = [];
 
     public function __construct(KernelInterface $symfonyKernel)
     {
@@ -79,9 +83,14 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
         return $environment;
     }
 
-    public function registerContextInitializer(ContextInitializer $initializer): void
+    public function registerContextInitializer(ContextInitializer $contextInitializer): void
     {
-        $this->contextInitializers[] = $initializer;
+        $this->contextInitializers[] = $contextInitializer;
+    }
+
+    public function registerClassResolver(ClassResolver $classResolver): void
+    {
+        $this->classResolvers[] = $classResolver;
     }
 
     /**
@@ -125,8 +134,21 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
         }
     }
 
+    private function resolveContextId(string $contextId): string
+    {
+        foreach ($this->classResolvers as $resolver) {
+            if ($resolver->supportsClass($contextId)) {
+                return $resolver->resolveClass($contextId);
+            }
+        }
+
+        return $contextId;
+    }
+
     private function getContextClass(string $contextId): string
     {
+        $contextId = $this->resolveContextId($contextId);
+
         if ($this->getContainer()->has($contextId)) {
             return get_class($this->getContainer()->get($contextId));
         }
@@ -142,6 +164,8 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
 
     private function getContext(string $contextId): Context
     {
+        $contextId = $this->resolveContextId($contextId);
+
         $class = '\\' . ltrim($contextId, '\\');
 
         if ($this->getContainer()->has($contextId)) {

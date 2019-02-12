@@ -253,5 +253,9 @@ final class SymfonyExtension implements Extension
         foreach ($container->findTaggedServiceIds(ContextExtension::INITIALIZER_TAG) as $serviceId => $tags) {
             $definition->addMethodCall('registerContextInitializer', [$container->getDefinition($serviceId)]);
         }
+
+        foreach ($container->findTaggedServiceIds(ContextExtension::CLASS_RESOLVER_TAG) as $serviceId => $tags) {
+            $definition->addMethodCall('registerClassResolver', [$container->getDefinition($serviceId)]);
+        }
     }
 }
