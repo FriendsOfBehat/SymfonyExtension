@@ -19,6 +19,6 @@ use FriendsOfBehat\SymfonyExtension\Context\Environment\Handler\ContextServiceEn
 /**
  * @see ContextServiceEnvironmentHandler
  */
-interface ContextServiceEnvironment extends ContextEnvironment
+interface SymfonyExtensionEnvironment extends ContextEnvironment
 {
 }
