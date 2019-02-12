@@ -13,9 +13,13 @@ declare(strict_types=1);
 
 namespace FriendsOfBehat\SymfonyExtension\Context\Environment\Handler;
 
+use Behat\Behat\Context\Argument\ArgumentResolverFactory;
+use Behat\Behat\Context\Argument\NullFactory;
+use Behat\Behat\Context\Argument\SuiteScopedResolverFactory;
+use Behat\Behat\Context\Argument\SuiteScopedResolverFactoryAdapter;
 use Behat\Behat\Context\Context;
 use Behat\Behat\Context\ContextClass\ClassResolver;
-use Behat\Behat\Context\Initializer\ContextInitializer;
+use Behat\Behat\Context\ContextFactory;
 use Behat\Testwork\Environment\Environment;
 use Behat\Testwork\Environment\Exception\EnvironmentIsolationException;
 use Behat\Testwork\Environment\Handler\EnvironmentHandler;
@@ -32,15 +36,29 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
     /** @var KernelInterface */
     private $symfonyKernel;
 
-    /** @var ContextInitializer[] */
-    private $contextInitializers = [];
-
     /** @var ClassResolver[] */
     private $classResolvers = [];
 
-    public function __construct(KernelInterface $symfonyKernel)
+    /** @var ContextFactory */
+    private $contextFactory;
+
+    /** @var ArgumentResolverFactory */
+    private $resolverFactory;
+
+    /**
+     * @param ArgumentResolverFactory|SuiteScopedResolverFactory $resolverFactory
+     */
+    public function __construct(KernelInterface $symfonyKernel, ContextFactory $factory, $resolverFactory = null)
     {
         $this->symfonyKernel = $symfonyKernel;
+
+        $this->contextFactory = $factory;
+
+        if ($resolverFactory && !$resolverFactory instanceof ArgumentResolverFactory) {
+            $resolverFactory = new SuiteScopedResolverFactoryAdapter($resolverFactory);
+        }
+
+        $this->resolverFactory = $resolverFactory ?: new NullFactory();
     }
 
     public function supportsSuite(Suite $suite): bool
@@ -51,8 +69,8 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
     public function buildEnvironment(Suite $suite): Environment
     {
         $environment = new UninitialisedContextServiceEnvironment($suite);
-        foreach ($this->getSuiteContextsServices($suite) as $contextId) {
-            $environment->registerContextService($contextId, $this->getContextClass($contextId));
+        foreach ($this->getSuiteContextsServices($suite) as [$contextId, $contextArguments]) {
+            $environment->registerContextService($contextId, $this->getContextClass($contextId), $contextArguments);
         }
 
         return $environment;
@@ -73,19 +91,15 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
         $this->assertEnvironmentCanBeIsolated($uninitializedEnvironment, $testSubject);
 
         $environment = new InitialisedContextServiceEnvironment($uninitializedEnvironment->getSuite());
-        foreach ($uninitializedEnvironment->getContextServices() as $contextId) {
+        $resolvers = $this->resolverFactory->createArgumentResolvers($environment);
+
+        foreach ($uninitializedEnvironment->getContextServicesWithArguments() as $contextId => $arguments) {
             /** @var Context $context */
-            $context = $this->getContext($contextId);
-            $this->initializeInstance($context);
+            $context = $this->getContext($contextId, $arguments, $resolvers);
             $environment->registerContext($context);
         }
 
         return $environment;
-    }
-
-    public function registerContextInitializer(ContextInitializer $contextInitializer): void
-    {
-        $this->contextInitializers[] = $contextInitializer;
     }
 
     public function registerClassResolver(ClassResolver $classResolver): void
@@ -94,7 +108,7 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
     }
 
     /**
-     * @return string[]
+     * @return array[]
      *
      * @throws SuiteConfigurationException If "contexts" setting is not an array
      */
@@ -110,7 +124,20 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
             ), $suite->getName());
         }
 
-        return $contextsServices;
+        return array_map(
+            function ($context): array {
+                $class = $context;
+                $arguments = [];
+
+                if (is_array($context)) {
+                    $class = current(array_keys($context));
+                    $arguments = $context[$class];
+                }
+
+                return [$class, $arguments];
+            },
+            $contextsServices
+        );
     }
 
     /**
@@ -124,13 +151,6 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
                 static::class,
                 get_class($uninitializedEnvironment)
             ), $uninitializedEnvironment);
-        }
-    }
-
-    private function initializeInstance(Context $context): void
-    {
-        foreach ($this->contextInitializers as $initializer) {
-            $initializer->initializeContext($context);
         }
     }
 
@@ -162,7 +182,7 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
         throw new \DomainException(sprintf('There is no service or class "%s".', $contextId));
     }
 
-    private function getContext(string $contextId): Context
+    private function getContext(string $contextId, array $arguments = [], array $resolvers = []): Context
     {
         $contextId = $this->resolveContextId($contextId);
 
@@ -171,7 +191,7 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
         if ($this->getContainer()->has($contextId)) {
             $context = $this->getContainer()->get($contextId);
         } elseif (class_exists($class)) {
-            $context = new $class();
+            $context = $this->contextFactory->createContext($class, $arguments, $resolvers);
         } else {
             throw new \DomainException(sprintf('There is no service or class "%s".', $contextId));
         }

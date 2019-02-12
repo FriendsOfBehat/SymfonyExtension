@@ -24,9 +24,12 @@ final class UninitialisedContextServiceEnvironment extends StaticEnvironment imp
     /** @var string[] */
     private $contextServices = [];
 
-    public function registerContextService(string $serviceId, string $serviceClass): void
+    public function registerContextService(string $serviceId, string $serviceClass, array $arguments = []): void
     {
-        $this->contextServices[$serviceId] = $serviceClass;
+        $this->contextServices[$serviceId] = [
+            'class' => $serviceClass,
+            'arguments' => $arguments,
+        ];
     }
 
     public function getContextServices(): array
@@ -41,11 +44,20 @@ final class UninitialisedContextServiceEnvironment extends StaticEnvironment imp
 
     public function getContextClasses(): array
     {
-        return array_values($this->contextServices);
+        return array_map(function (array $contextDetails): string {
+                return $contextDetails['class'];
+        }, $this->contextServices);
     }
 
     public function hasContextClass($class): bool
     {
-        return in_array($class, $this->contextServices, true);
+        return in_array($class, $this->getContextClasses(), true);
+    }
+
+    public function getContextServicesWithArguments(): iterable
+    {
+        foreach ($this->contextServices as $contextDetails) {
+            yield $contextDetails['class'] => $contextDetails['arguments'];
+        }
     }
 }

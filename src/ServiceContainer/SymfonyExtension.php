@@ -137,6 +137,8 @@ final class SymfonyExtension implements Extension
     {
         $definition = new Definition(ContextServiceEnvironmentHandler::class, [
             new Reference(self::KERNEL_ID),
+            new Reference(ContextExtension::FACTORY_ID),
+            new Reference(ContextExtension::AGGREGATE_RESOLVER_FACTORY_ID)
         ]);
         $definition->addTag(EnvironmentExtension::HANDLER_TAG, ['priority' => 128]);
 
@@ -249,10 +251,6 @@ final class SymfonyExtension implements Extension
     private function processEnvironmentHandler(ContainerBuilder $container): void
     {
         $definition = $container->findDefinition('fob_symfony.environment_handler.context_service');
-
-        foreach ($container->findTaggedServiceIds(ContextExtension::INITIALIZER_TAG) as $serviceId => $tags) {
-            $definition->addMethodCall('registerContextInitializer', [$container->getDefinition($serviceId)]);
-        }
 
         foreach ($container->findTaggedServiceIds(ContextExtension::CLASS_RESOLVER_TAG) as $serviceId => $tags) {
             $definition->addMethodCall('registerClassResolver', [$container->getDefinition($serviceId)]);
