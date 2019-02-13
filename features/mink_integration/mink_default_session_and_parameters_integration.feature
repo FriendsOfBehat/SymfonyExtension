@@ -1,4 +1,4 @@
-Feature: Mink integration
+Feature: Mink default session and parameters integration
 
     Background:
         Given a working Symfony application with SymfonyExtension configured
