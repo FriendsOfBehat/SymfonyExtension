@@ -23,8 +23,8 @@ use Behat\Testwork\Suite\Exception\SuiteConfigurationException;
 use Behat\Testwork\Suite\GenericSuite;
 use Behat\Testwork\Suite\Suite;
 use FriendsOfBehat\SymfonyExtension\Bundle\FriendsOfBehatSymfonyExtensionBundle;
-use FriendsOfBehat\SymfonyExtension\Context\Environment\InitialisedSymfonyExtensionEnvironment;
-use FriendsOfBehat\SymfonyExtension\Context\Environment\UninitialisedSymfonyExtensionEnvironment;
+use FriendsOfBehat\SymfonyExtension\Context\Environment\InitializedSymfonyExtensionEnvironment;
+use FriendsOfBehat\SymfonyExtension\Context\Environment\UninitializedSymfonyExtensionEnvironment;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
@@ -61,22 +61,19 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
 
         $delegatedSuite = $this->cloneSuiteWithoutContexts($suite, array_keys($symfonyContexts));
 
+        /** @var ContextEnvironment $delegatedEnvironment */
         $delegatedEnvironment = $this->decoratedEnvironmentHandler->buildEnvironment($delegatedSuite);
 
-        if (!$delegatedEnvironment instanceof ContextEnvironment) {
-            throw new \Exception();
-        }
-
-        return new UninitialisedSymfonyExtensionEnvironment($suite, $symfonyContexts, $delegatedEnvironment);
+        return new UninitializedSymfonyExtensionEnvironment($suite, $symfonyContexts, $delegatedEnvironment);
     }
 
     public function supportsEnvironmentAndSubject(Environment $environment, $testSubject = null): bool
     {
-        return $environment instanceof UninitialisedSymfonyExtensionEnvironment;
+        return $environment instanceof UninitializedSymfonyExtensionEnvironment;
     }
 
     /**
-     * @param UninitialisedSymfonyExtensionEnvironment $uninitializedEnvironment
+     * @param UninitializedSymfonyExtensionEnvironment $uninitializedEnvironment
      *
      * @throws EnvironmentIsolationException
      */
@@ -84,7 +81,7 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
     {
         $this->assertEnvironmentCanBeIsolated($uninitializedEnvironment, $testSubject);
 
-        $environment = new InitialisedSymfonyExtensionEnvironment($uninitializedEnvironment->getSuite());
+        $environment = new InitializedSymfonyExtensionEnvironment($uninitializedEnvironment->getSuite());
 
         foreach ($uninitializedEnvironment->getServices() as $serviceId) {
             /** @var Context $context */
@@ -93,11 +90,8 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
             $environment->registerContext($context);
         }
 
+        /** @var InitializedContextEnvironment $delegatedEnvironment */
         $delegatedEnvironment = $this->decoratedEnvironmentHandler->isolateEnvironment($uninitializedEnvironment->getDelegatedEnvironment());
-
-        if (!$delegatedEnvironment instanceof InitializedContextEnvironment) {
-            throw new \Exception();
-        }
 
         foreach ($delegatedEnvironment->getContexts() as $context) {
             $environment->registerContext($context);
@@ -123,7 +117,7 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
             ), $suite->getName());
         }
 
-        return array_map([$this, 'normaliseContext'], $contexts);
+        return array_map([$this, 'normalizeContext'], $contexts);
     }
 
     private function cloneSuiteWithoutContexts(Suite $suite, array $contextsToRemove): Suite
@@ -139,13 +133,13 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
         }
 
         $contexts = array_filter($contexts, function ($context) use ($contextsToRemove): bool {
-            return !in_array($this->normaliseContext($context), $contextsToRemove, true);
+            return !in_array($this->normalizeContext($context), $contextsToRemove, true);
         });
 
         return new GenericSuite($suite->getName(), array_merge($suite->getSettings(), ['contexts' => $contexts]));
     }
 
-    private function normaliseContext($context): string
+    private function normalizeContext($context): string
     {
         if (is_array($context)) {
             return current(array_keys($context));

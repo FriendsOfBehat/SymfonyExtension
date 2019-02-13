@@ -1,6 +1,6 @@
 Feature: Context constructor dependency injection compatibility
 
-    Scenario: Using context consturctor dependency injection
+    Scenario: Using context constructor dependency injection
         Given a working Symfony application with SymfonyExtension configured
         And a Behat configuration containing:
         """

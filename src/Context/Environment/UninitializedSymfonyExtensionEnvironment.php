@@ -21,7 +21,7 @@ use FriendsOfBehat\SymfonyExtension\Context\Environment\Handler\ContextServiceEn
 /**
  * @see ContextServiceEnvironmentHandler
  */
-final class UninitialisedSymfonyExtensionEnvironment extends StaticEnvironment implements SymfonyExtensionEnvironment
+final class UninitializedSymfonyExtensionEnvironment extends StaticEnvironment implements SymfonyExtensionEnvironment
 {
     /** @var string[] */
     private $contexts;
