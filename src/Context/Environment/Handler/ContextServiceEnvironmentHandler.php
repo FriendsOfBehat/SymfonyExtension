@@ -14,15 +14,17 @@ declare(strict_types=1);
 namespace FriendsOfBehat\SymfonyExtension\Context\Environment\Handler;
 
 use Behat\Behat\Context\Context;
-use Behat\Behat\Context\Initializer\ContextInitializer;
+use Behat\Behat\Context\Environment\ContextEnvironment;
+use Behat\Behat\Context\Environment\InitializedContextEnvironment;
 use Behat\Testwork\Environment\Environment;
 use Behat\Testwork\Environment\Exception\EnvironmentIsolationException;
 use Behat\Testwork\Environment\Handler\EnvironmentHandler;
 use Behat\Testwork\Suite\Exception\SuiteConfigurationException;
+use Behat\Testwork\Suite\GenericSuite;
 use Behat\Testwork\Suite\Suite;
 use FriendsOfBehat\SymfonyExtension\Bundle\FriendsOfBehatSymfonyExtensionBundle;
-use FriendsOfBehat\SymfonyExtension\Context\Environment\InitialisedContextServiceEnvironment;
-use FriendsOfBehat\SymfonyExtension\Context\Environment\UninitialisedContextServiceEnvironment;
+use FriendsOfBehat\SymfonyExtension\Context\Environment\InitializedSymfonyExtensionEnvironment;
+use FriendsOfBehat\SymfonyExtension\Context\Environment\UninitializedSymfonyExtensionEnvironment;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
@@ -31,12 +33,13 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
     /** @var KernelInterface */
     private $symfonyKernel;
 
-    /** @var ContextInitializer[] */
-    private $contextInitializers = [];
+    /** @var EnvironmentHandler */
+    private $decoratedEnvironmentHandler;
 
-    public function __construct(KernelInterface $symfonyKernel)
+    public function __construct(KernelInterface $symfonyKernel, EnvironmentHandler $decoratedEnvironmentHandler)
     {
         $this->symfonyKernel = $symfonyKernel;
+        $this->decoratedEnvironmentHandler = $decoratedEnvironmentHandler;
     }
 
     public function supportsSuite(Suite $suite): bool
@@ -46,21 +49,31 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
 
     public function buildEnvironment(Suite $suite): Environment
     {
-        $environment = new UninitialisedContextServiceEnvironment($suite);
-        foreach ($this->getSuiteContextsServices($suite) as $contextId) {
-            $environment->registerContextService($contextId, $this->getContextClass($contextId));
+        $symfonyContexts = [];
+
+        foreach ($this->getSuiteContextsServices($suite) as $serviceId) {
+            if (!$this->getContainer()->has($serviceId)) {
+                continue;
+            }
+
+            $symfonyContexts[$serviceId] = get_class($this->getContainer()->get($serviceId));
         }
 
-        return $environment;
+        $delegatedSuite = $this->cloneSuiteWithoutContexts($suite, array_keys($symfonyContexts));
+
+        /** @var ContextEnvironment $delegatedEnvironment */
+        $delegatedEnvironment = $this->decoratedEnvironmentHandler->buildEnvironment($delegatedSuite);
+
+        return new UninitializedSymfonyExtensionEnvironment($suite, $symfonyContexts, $delegatedEnvironment);
     }
 
     public function supportsEnvironmentAndSubject(Environment $environment, $testSubject = null): bool
     {
-        return $environment instanceof UninitialisedContextServiceEnvironment;
+        return $environment instanceof UninitializedSymfonyExtensionEnvironment;
     }
 
     /**
-     * @param UninitialisedContextServiceEnvironment $uninitializedEnvironment
+     * @param UninitializedSymfonyExtensionEnvironment $uninitializedEnvironment
      *
      * @throws EnvironmentIsolationException
      */
@@ -68,20 +81,23 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
     {
         $this->assertEnvironmentCanBeIsolated($uninitializedEnvironment, $testSubject);
 
-        $environment = new InitialisedContextServiceEnvironment($uninitializedEnvironment->getSuite());
-        foreach ($uninitializedEnvironment->getContextServices() as $contextId) {
+        $environment = new InitializedSymfonyExtensionEnvironment($uninitializedEnvironment->getSuite());
+
+        foreach ($uninitializedEnvironment->getServices() as $serviceId) {
             /** @var Context $context */
-            $context = $this->getContext($contextId);
-            $this->initializeInstance($context);
+            $context = $this->getContainer()->get($serviceId);
+
+            $environment->registerContext($context);
+        }
+
+        /** @var InitializedContextEnvironment $delegatedEnvironment */
+        $delegatedEnvironment = $this->decoratedEnvironmentHandler->isolateEnvironment($uninitializedEnvironment->getDelegatedEnvironment());
+
+        foreach ($delegatedEnvironment->getContexts() as $context) {
             $environment->registerContext($context);
         }
 
         return $environment;
-    }
-
-    public function registerContextInitializer(ContextInitializer $initializer): void
-    {
-        $this->contextInitializers[] = $initializer;
     }
 
     /**
@@ -91,17 +107,49 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
      */
     private function getSuiteContextsServices(Suite $suite): array
     {
-        $contextsServices = $suite->getSetting('contexts');
+        $contexts = $suite->getSetting('contexts');
 
-        if (!is_array($contextsServices)) {
+        if (!is_array($contexts)) {
             throw new SuiteConfigurationException(sprintf(
                 '"contexts" setting of the "%s" suite is expected to be an array, %s given.',
                 $suite->getName(),
-                gettype($contextsServices)
+                gettype($contexts)
             ), $suite->getName());
         }
 
-        return $contextsServices;
+        return array_map([$this, 'normalizeContext'], $contexts);
+    }
+
+    private function cloneSuiteWithoutContexts(Suite $suite, array $contextsToRemove): Suite
+    {
+        $contexts = $suite->getSetting('contexts');
+
+        if (!is_array($contexts)) {
+            throw new SuiteConfigurationException(sprintf(
+                '"contexts" setting of the "%s" suite is expected to be an array, %s given.',
+                $suite->getName(),
+                gettype($contexts)
+            ), $suite->getName());
+        }
+
+        $contexts = array_filter($contexts, function ($context) use ($contextsToRemove): bool {
+            return !in_array($this->normalizeContext($context), $contextsToRemove, true);
+        });
+
+        return new GenericSuite($suite->getName(), array_merge($suite->getSettings(), ['contexts' => $contexts]));
+    }
+
+    private function normalizeContext($context): string
+    {
+        if (is_array($context)) {
+            return current(array_keys($context));
+        }
+
+        if (is_string($context)) {
+            return $context;
+        }
+
+        throw new \Exception();
     }
 
     /**
@@ -116,52 +164,6 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
                 get_class($uninitializedEnvironment)
             ), $uninitializedEnvironment);
         }
-    }
-
-    private function initializeInstance(Context $context): void
-    {
-        foreach ($this->contextInitializers as $initializer) {
-            $initializer->initializeContext($context);
-        }
-    }
-
-    private function getContextClass(string $contextId): string
-    {
-        if ($this->getContainer()->has($contextId)) {
-            return get_class($this->getContainer()->get($contextId));
-        }
-
-        $class = '\\' . ltrim($contextId, '\\');
-
-        if (class_exists($class)) {
-            return $class;
-        }
-
-        throw new \DomainException(sprintf('There is no service or class "%s".', $contextId));
-    }
-
-    private function getContext(string $contextId): Context
-    {
-        $class = '\\' . ltrim($contextId, '\\');
-
-        if ($this->getContainer()->has($contextId)) {
-            $context = $this->getContainer()->get($contextId);
-        } elseif (class_exists($class)) {
-            $context = new $class();
-        } else {
-            throw new \DomainException(sprintf('There is no service or class "%s".', $contextId));
-        }
-
-        if (!$context instanceof Context) {
-            throw new \DomainException(sprintf(
-                'Context "%s" referenced as "%s" needs to implement "%s".',
-                get_class($context),
-                $contextId,
-                Context::class
-            ));
-        }
-
-        return $context;
     }
 
     private function getContainer(): ContainerInterface

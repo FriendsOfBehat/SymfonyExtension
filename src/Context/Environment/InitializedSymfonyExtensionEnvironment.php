@@ -22,7 +22,7 @@ use FriendsOfBehat\SymfonyExtension\Context\Environment\Handler\ContextServiceEn
 /**
  * @see ContextServiceEnvironmentHandler
  */
-final class InitialisedContextServiceEnvironment implements ContextServiceEnvironment
+final class InitializedSymfonyExtensionEnvironment implements SymfonyExtensionEnvironment
 {
     /** @var Suite */
     private $suite;

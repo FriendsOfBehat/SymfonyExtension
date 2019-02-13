@@ -5,5 +5,5 @@ parameters:
         - '/Cannot access offset 0 on callable/'
         - '/Cannot access offset 1 on callable/'
         - '/Cannot call method [a-zA-Z0-9]+\(\) on Symfony\\Component\\Config\\Definition\\Builder\\NodeParentInterface|null\./'
-        - '/Method FriendsOfBehat\\SymfonyExtension\\Context\\Environment\\InitialisedContextServiceEnvironment::bindCallee\(\) should return callable/'
+        - '/Method FriendsOfBehat\\SymfonyExtension\\Context\\Environment\\InitializedSymfonyExtensionEnvironment::bindCallee\(\) should return callable/'
         - '/Strict comparison using === between 0\|1 and 2 will always evaluate to false\./'
