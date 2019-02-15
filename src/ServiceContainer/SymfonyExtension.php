@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace FriendsOfBehat\SymfonyExtension\ServiceContainer;
 
 use Behat\Behat\Context\ServiceContainer\ContextExtension;
+use Behat\Mink\Mink;
 use Behat\Mink\Session;
 use Behat\MinkExtension\ServiceContainer\MinkExtension;
 use Behat\Testwork\Environment\ServiceContainer\EnvironmentExtension;
@@ -16,6 +17,7 @@ use FriendsOfBehat\SymfonyExtension\Driver\Factory\SymfonyDriverFactory;
 use FriendsOfBehat\SymfonyExtension\Listener\KernelOrchestrator;
 use FriendsOfBehat\SymfonyExtension\Mink\MinkParameters;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
+use Symfony\Component\DependencyInjection\Alias;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Parameter;
@@ -81,6 +83,7 @@ final class SymfonyExtension implements Extension
         $this->loadEnvironmentHandler($container);
 
         if ($this->minkExtensionFound) {
+            $this->loadMink($container);
             $this->loadMinkDefaultSession($container);
             $this->loadMinkParameters($container);
         }
@@ -141,6 +144,11 @@ final class SymfonyExtension implements Extension
         $definition->addTag(EnvironmentExtension::HANDLER_TAG, ['priority' => 128]);
 
         $container->setDefinition('fob_symfony.environment_handler.context_service', $definition);
+    }
+
+    private function loadMink(ContainerBuilder $container): void
+    {
+        $container->setAlias('fob_symfony.mink', (new Alias('mink'))->setPublic(true));
     }
 
     private function loadMinkDefaultSession(ContainerBuilder $container): void

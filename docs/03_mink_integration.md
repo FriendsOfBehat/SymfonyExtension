@@ -29,6 +29,8 @@ default:
 
 This integration provides two services to use inside Symfony container:
 
+ * **`behat.mink`** (autowired by `\Behat\Mink\Mink`) - the Mink service
+
  * **`behat.mink.default_session`** (autowired by `\Behat\Mink\Session`) - the default Mink session for the current scenario
  
  * **`behat.mink.parameters`** (autowired by `\FriendsOfBehat\SymfonyExtension\Mink\MinkParameters`) - an object 
