@@ -1,5 +1,13 @@
 # CHANGELOG for `2.0.x`
 
+## v2.0.5 (2019-03-04)
+
+- [#72](https://github.com/FriendsOfBehat/SymfonyExtension/issues/72) Allow accessing a context in another context ([@pamil](https://github.com/pamil))
+
+## v2.0.4 (2019-02-13)
+
+- [#68](https://github.com/FriendsOfBehat/SymfonyExtension/issues/68) Better compatibility with Behat itself ([@pamil](https://github.com/pamil), [@alanpoulain](https://github.com/alanpoulain))
+
 ## v2.0.3 (2019-02-07)
 
 Removed the possibility to autoconfigure `$minkParameters` without a typehint due to an instable implementation in Symfony.

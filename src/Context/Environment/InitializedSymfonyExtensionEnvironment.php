@@ -72,9 +72,11 @@ final class InitializedSymfonyExtensionEnvironment implements SymfonyExtensionEn
     }
 
     /**
+     * @see http://behat.org/en/latest/cookbooks/accessing_contexts_from_each_other.html
+     *
      * @throws ContextNotFoundException
      */
-    private function getContext(string $class): Context
+    public function getContext(string $class): Context
     {
         if (!isset($this->contexts[$class])) {
             throw new ContextNotFoundException(sprintf(
