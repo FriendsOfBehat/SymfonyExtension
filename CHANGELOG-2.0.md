@@ -1,5 +1,9 @@
 # CHANGELOG for `2.0.x`
 
+## v2.0.6 (2019-03-15)
+
+- [#74](https://github.com/FriendsOfBehat/SymfonyExtension/issues/74) Fix bug preventing changes of Mink default session service ([@pamil](https://github.com/pamil))
+
 ## v2.0.5 (2019-03-04)
 
 - [#72](https://github.com/FriendsOfBehat/SymfonyExtension/issues/72) Allow accessing a context in another context ([@pamil](https://github.com/pamil))
