@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace FriendsOfBehat\SymfonyExtension\Bundle\DependencyInjection;
 
 use Behat\Behat\Context\Context;
+use Behat\Mink\Mink;
 use Behat\Mink\Session;
 use FriendsOfBehat\SymfonyExtension\Mink\MinkParameters;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
@@ -51,10 +52,18 @@ final class FriendsOfBehatSymfonyExtensionExtension extends Extension implements
 
     private function registerMinkDefaultSession(ContainerBuilder $container): void
     {
-        $minkDefaultSessionDefinition = new Definition(Session::class, ['fob_symfony.mink.default_session']);
+        $minkDefinition = new Definition(Mink::class, ['mink']);
+        $minkDefinition->setPublic(true);
+        $minkDefinition->setLazy(true);
+        $minkDefinition->setFactory([new Reference('behat.service_container'), 'get']);
+
+        $container->setDefinition('behat.mink', $minkDefinition);
+        $container->setAlias(Mink::class, 'behat.mink');
+
+        $minkDefaultSessionDefinition = new Definition(Session::class);
         $minkDefaultSessionDefinition->setPublic(true);
         $minkDefaultSessionDefinition->setLazy(true);
-        $minkDefaultSessionDefinition->setFactory([new Reference('behat.service_container'), 'get']);
+        $minkDefaultSessionDefinition->setFactory([new Reference('behat.mink'), 'getSession']);
 
         $container->setDefinition('behat.mink.default_session', $minkDefaultSessionDefinition);
         $container->setAlias(Session::class, 'behat.mink.default_session');
