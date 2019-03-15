@@ -21,6 +21,7 @@
         "behat/mink": "^1.7",
         "behat/mink-browserkit-driver": "^1.3",
         "behat/mink-extension": "^2.2",
+        "behat/mink-selenium2-driver": "^1.3",
         "friends-of-behat/service-container-extension": "^1.0",
         "phpstan/phpstan-shim": "^0.11",
         "sylius-labs/coding-standard": "^3.0",
