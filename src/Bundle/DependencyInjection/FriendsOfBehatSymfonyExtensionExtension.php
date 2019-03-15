@@ -53,25 +53,17 @@ final class FriendsOfBehatSymfonyExtensionExtension extends Extension implements
 
     private function registerMink(ContainerBuilder $container): void
     {
-        $minkDefaultSessionDefinition = new Definition(Mink::class, ['fob_symfony.mink']);
-        $minkDefaultSessionDefinition->setPublic(true);
-        $minkDefaultSessionDefinition->setLazy(true);
-        $minkDefaultSessionDefinition->setFactory([new Reference('behat.service_container'), 'get']);
-
-        $container->setDefinition('behat.mink', $minkDefaultSessionDefinition);
-        $container->setAlias(Mink::class, 'behat.mink');
-    }
-
-    private function registerMinkDefaultSession(ContainerBuilder $container): void
-    {
-        $minkDefinition = new Definition(Mink::class, ['mink']);
+        $minkDefinition = new Definition(Mink::class, ['fob_symfony.mink']);
         $minkDefinition->setPublic(true);
         $minkDefinition->setLazy(true);
         $minkDefinition->setFactory([new Reference('behat.service_container'), 'get']);
 
         $container->setDefinition('behat.mink', $minkDefinition);
         $container->setAlias(Mink::class, 'behat.mink');
+    }
 
+    private function registerMinkDefaultSession(ContainerBuilder $container): void
+    {
         $minkDefaultSessionDefinition = new Definition(Session::class);
         $minkDefaultSessionDefinition->setPublic(true);
         $minkDefaultSessionDefinition->setLazy(true);
