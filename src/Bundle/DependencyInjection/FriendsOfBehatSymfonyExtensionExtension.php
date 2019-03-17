@@ -54,7 +54,6 @@ final class FriendsOfBehatSymfonyExtensionExtension extends Extension implements
     {
         $minkDefinition = new Definition(Mink::class, ['mink']);
         $minkDefinition->setPublic(true);
-        $minkDefinition->setLazy(true);
         $minkDefinition->setFactory([new Reference('behat.service_container'), 'get']);
 
         $container->setDefinition('behat.mink', $minkDefinition);
