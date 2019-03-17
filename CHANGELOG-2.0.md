@@ -1,5 +1,9 @@
 # CHANGELOG for `2.0.x`
 
+## v2.0.7 (2019-03-17)
+
+- [#75](https://github.com/FriendsOfBehat/SymfonyExtension/issues/75) Hotfix for weird bug in Sylius ([@pamil](https://github.com/pamil))
+
 ## v2.0.6 (2019-03-15)
 
 - [#74](https://github.com/FriendsOfBehat/SymfonyExtension/issues/74) Fix bug preventing changes of Mink default session service ([@pamil](https://github.com/pamil))
