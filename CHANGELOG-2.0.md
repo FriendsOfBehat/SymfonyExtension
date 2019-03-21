@@ -1,5 +1,9 @@
 # CHANGELOG for `2.0.x`
 
+## v2.0.8 (2019-03-21)
+
+- [#76](https://github.com/FriendsOfBehat/SymfonyExtension/issues/76) Initialize contexts registered as services ([@pamil](https://github.com/pamil))
+
 ## v2.0.7 (2019-03-17)
 
 - [#75](https://github.com/FriendsOfBehat/SymfonyExtension/issues/75) Hotfix for weird bug in Sylius ([@pamil](https://github.com/pamil))

@@ -16,6 +16,7 @@ namespace FriendsOfBehat\SymfonyExtension\Context\Environment\Handler;
 use Behat\Behat\Context\Context;
 use Behat\Behat\Context\Environment\ContextEnvironment;
 use Behat\Behat\Context\Environment\InitializedContextEnvironment;
+use Behat\Behat\Context\Initializer\ContextInitializer;
 use Behat\Testwork\Environment\Environment;
 use Behat\Testwork\Environment\Exception\EnvironmentIsolationException;
 use Behat\Testwork\Environment\Handler\EnvironmentHandler;
@@ -36,10 +37,18 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
     /** @var EnvironmentHandler */
     private $decoratedEnvironmentHandler;
 
+    /** @var ContextInitializer[] */
+    private $contextInitializers = [];
+
     public function __construct(KernelInterface $symfonyKernel, EnvironmentHandler $decoratedEnvironmentHandler)
     {
         $this->symfonyKernel = $symfonyKernel;
         $this->decoratedEnvironmentHandler = $decoratedEnvironmentHandler;
+    }
+
+    public function registerContextInitializer(ContextInitializer $contextInitializer): void
+    {
+        $this->contextInitializers[] = $contextInitializer;
     }
 
     public function supportsSuite(Suite $suite): bool
@@ -87,6 +96,8 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
             /** @var Context $context */
             $context = $this->getContainer()->get($serviceId);
 
+            $this->initializeContext($context);
+
             $environment->registerContext($context);
         }
 
@@ -98,6 +109,13 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
         }
 
         return $environment;
+    }
+
+    private function initializeContext(Context $context): void
+    {
+        foreach ($this->contextInitializers as $contextInitializer) {
+            $contextInitializer->initializeContext($context);
+        }
     }
 
     /**

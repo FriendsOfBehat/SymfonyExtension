@@ -52,8 +52,6 @@ Feature: Switching Mink sessions
             /** @Then I should use Mink session with :driver as a driver*/
             public function shouldUseDriver(string $driverClass): void
             {
-                var_dump(get_class($this->session));
-                var_dump(get_class($this->session->getDriver()));
                 assert($this->session->getDriver() instanceof $driverClass);
             }
         }

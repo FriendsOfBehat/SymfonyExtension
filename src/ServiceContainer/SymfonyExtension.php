@@ -91,6 +91,7 @@ final class SymfonyExtension implements Extension
 
     public function process(ContainerBuilder $container): void
     {
+        $this->processEnvironmentHandler($container);
     }
 
     private function registerMinkDriver(ExtensionManager $extensionManager): void
@@ -182,6 +183,14 @@ final class SymfonyExtension implements Extension
         // If there's no defined server / environment variable with an environment, default to test
         if (($_SERVER['APP_ENV'] ?? $_ENV['APP_ENV'] ?? null) === null) {
             putenv('APP_ENV=' . $_SERVER['APP_ENV'] = $_ENV['APP_ENV'] = 'test');
+        }
+    }
+
+    private function processEnvironmentHandler(ContainerBuilder $container): void
+    {
+        $definition = $container->findDefinition('fob_symfony.environment_handler.context_service');
+        foreach ($container->findTaggedServiceIds(ContextExtension::INITIALIZER_TAG) as $serviceId => $tags) {
+            $definition->addMethodCall('registerContextInitializer', [$container->getDefinition($serviceId)]);
         }
     }
 
