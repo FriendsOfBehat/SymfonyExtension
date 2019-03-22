@@ -93,7 +93,7 @@ If you're not, you need to register your context as a public service and define 
 # app/config/config_test.yml (Symfony 3)
 
 services:
-    App\Tests\DemoContext:
+    App\Tests\Behat\DemoContext:
         public: true
         arguments:
             - "@kernel"
@@ -139,7 +139,7 @@ If you're not, you need to register your context as a public service and define 
 # app/config/config_test.yml (Symfony 3)
 
 services:
-    App\Tests\DemoContext:
+    App\Tests\Behat\DemoContext:
         public: true
         arguments:
             - "%kernel.environment%"
