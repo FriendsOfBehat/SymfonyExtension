@@ -12,7 +12,7 @@ default:
             bootstrap: ~
             kernel:
                 class: ~
-                file: ~
+                path: ~
                 environment: ~
                 debug: ~
 ```
@@ -30,7 +30,7 @@ default:
     If you do not pass any, it would look for either `App\Kernel` (Symfony 4) or `AppKernel` (Symfony 3).
     If none are found, an exception would be thrown and you would be required to specify it explicitly.
     
- * **`kernel.file`**:
+ * **`kernel.path`**:
  
     It is a path to the file containing the application kernel class. You might want to set it if your kernel is not
     autoloaded by Composer's autoloaded.
