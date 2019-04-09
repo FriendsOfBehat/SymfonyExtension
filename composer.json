@@ -15,7 +15,7 @@
         "behat/behat": "^3.4",
         "symfony/dependency-injection": "^3.4|^4.1",
         "symfony/http-kernel": "^3.4|^4.1",
-        "symfony/proxy-manager-bridge": "^3.4|^4.1"
+        "symfony/proxy-manager-bridge": "4.3.x-dev"
     },
     "require-dev": {
         "behat/mink": "^1.7",

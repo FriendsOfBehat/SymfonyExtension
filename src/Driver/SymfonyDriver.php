@@ -6,6 +6,7 @@ namespace FriendsOfBehat\SymfonyExtension\Driver;
 
 use Behat\Mink\Driver\BrowserKitDriver;
 use Symfony\Component\BrowserKit\Client;
+use Symfony\Component\BrowserKit\AbstractBrowser;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 final class SymfonyDriver extends BrowserKitDriver
@@ -24,10 +25,11 @@ final class SymfonyDriver extends BrowserKitDriver
 
         $testClient = $kernel->getContainer()->get('test.client');
 
-        if (!$testClient instanceof Client) {
+        if (!$testClient instanceof Client && !$testClient instanceof AbstractBrowser) {
             throw new \RuntimeException(sprintf(
-                'Service "test.client" should be an instance of "%s", "%s" given.',
+                'Service "test.client" should be an instance of "%s" or "%s", "%s" given.',
                 Client::class,
+                AbstractBrowser::class,
                 get_class($testClient)
             ));
         }
