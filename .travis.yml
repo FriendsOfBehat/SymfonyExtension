@@ -1,9 +1,9 @@
 language: php
 
 php:
-    - 7.1
-    - 7.2
-    - 7.3
+    - '7.1'
+    - '7.2'
+    - '7.3'
 
 env:
     - SYMFONY_VERSION=3.4.*
@@ -21,11 +21,10 @@ install:
     - composer require symfony/http-kernel:${SYMFONY_VERSION} --no-update --no-scripts --prefer-dist
     - composer require symfony/proxy-manager-bridge:${SYMFONY_VERSION} --no-update --no-scripts --prefer-dist
     - composer require --dev symfony/framework-bundle:${SYMFONY_VERSION} --no-update --no-scripts --prefer-dist
+    - composer require --dev symfony/yaml:${SYMFONY_VERSION} --no-update --no-scripts --prefer-dist
     - composer update --prefer-dist
 
 script:
-    - composer validate --strict
-
-    - vendor/bin/phpstan analyse -c phpstan.neon -l max src -vvv
+    - composer check
 
     - vendor/bin/behat -f progress --strict -vvv --no-interaction
