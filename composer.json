@@ -40,6 +40,19 @@
     "config": {
         "sort-packages": true
     },
+    "scripts": {
+        "check": [
+            "composer validate --ansi --strict",
+            "@analyse"
+        ],
+        "fix": [
+            "vendor/bin/ecs check --ansi --no-progress-bar src tests --fix"
+        ],
+        "analyse": [
+            "vendor/bin/ecs check --ansi --no-progress-bar src tests",
+            "vendor/bin/phpstan analyse --ansi --no-progress -c phpstan.neon -l max src"
+        ]
+    },
     "extra": {
         "branch-alias": {
             "dev-master": "2.0-dev"
