@@ -22,6 +22,7 @@ final class SymfonyDriver extends BrowserKitDriver
             ));
         }
 
+        /** @var object $testClient */
         $testClient = $kernel->getContainer()->get('test.client');
 
         if (!$testClient instanceof Client) {
