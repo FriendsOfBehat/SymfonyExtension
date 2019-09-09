@@ -8,6 +8,7 @@ use Behat\Behat\Context\Context;
 use Behat\Mink\Mink;
 use Behat\Mink\Session;
 use FriendsOfBehat\SymfonyExtension\Mink\MinkParameters;
+use Symfony\Component\BrowserKit\Client;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -27,6 +28,8 @@ final class FriendsOfBehatSymfonyExtensionExtension extends Extension implements
 
     public function process(ContainerBuilder $container): void
     {
+        $this->provideBrowserKitIntegration($container);
+
         foreach ($container->findTaggedServiceIds('fob.context') as $serviceId => $attributes) {
             $serviceDefinition = $container->findDefinition($serviceId);
 
@@ -44,8 +47,21 @@ final class FriendsOfBehatSymfonyExtensionExtension extends Extension implements
         $container->setDefinition('behat.service_container', $behatServiceContainerDefinition);
     }
 
+    private function provideBrowserKitIntegration(ContainerBuilder $container): void
+    {
+        if (!class_exists(Client::class) || !$container->has('test.client')) {
+            return;
+        }
+
+        $container->setAlias(Client::class, 'test.client');
+    }
+
     private function provideMinkIntegration(ContainerBuilder $container): void
     {
+        if (!class_exists(Mink::class)) {
+            return;
+        }
+
         $this->registerMink($container);
         $this->registerMinkDefaultSession($container);
         $this->registerMinkParameters($container);
