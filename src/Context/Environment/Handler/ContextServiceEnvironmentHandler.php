@@ -65,7 +65,10 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
                 continue;
             }
 
-            $symfonyContexts[$serviceId] = get_class($this->getContainer()->get($serviceId));
+            /** @var object $service */
+            $service = $this->getContainer()->get($serviceId);
+
+            $symfonyContexts[$serviceId] = get_class($service);
         }
 
         $delegatedSuite = $this->cloneSuiteWithoutContexts($suite, array_keys($symfonyContexts));
