@@ -1,5 +1,15 @@
 # CHANGELOG for `2.0.x`
 
+## v2.0.9 (2019-10-10)
+
+- [#77](https://github.com/FriendsOfBehat/SymfonyExtension/issues/77) Fix docs: change 'kernel.file' to 'kernel.path' ([@mkilmanas](https://github.com/mkilmanas))
+- [#78](https://github.com/FriendsOfBehat/SymfonyExtension/issues/78) Use right namespace for service definition ([@alanpoulain](https://github.com/alanpoulain))
+- [#84](https://github.com/FriendsOfBehat/SymfonyExtension/issues/84) Minor improvements to CI config ([@pamil](https://github.com/pamil))
+- [#92](https://github.com/FriendsOfBehat/SymfonyExtension/issues/92) Improve Mink installation docs ([@pamil](https://github.com/pamil))
+- [#93](https://github.com/FriendsOfBehat/SymfonyExtension/issues/93) [HotFix] Force object typehint ([@lchrusciel](https://github.com/lchrusciel))
+- [#96](https://github.com/FriendsOfBehat/SymfonyExtension/issues/96) Add base_url to docs for configuring Mink ([@liquorvicar](https://github.com/liquorvicar))
+- [#97](https://github.com/FriendsOfBehat/SymfonyExtension/issues/97) Do not require base URL set with Mink ([@pamil](https://github.com/pamil))
+
 ## v2.0.8 (2019-03-21)
 
 - [#76](https://github.com/FriendsOfBehat/SymfonyExtension/issues/76) Initialize contexts registered as services ([@pamil](https://github.com/pamil))
