@@ -20,7 +20,6 @@ default:
     extensions:
         # ...
         Behat\MinkExtension:
-            base_url: 'http://example.com'
             sessions:
                 symfony:
                     symfony: ~

@@ -10,7 +10,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 final class SymfonyDriver extends BrowserKitDriver
 {
-    public function __construct(KernelInterface $kernel, string $baseUrl)
+    public function __construct(KernelInterface $kernel, ?string $baseUrl)
     {
         if (!$kernel->getContainer()->has('test.client')) {
             throw new \RuntimeException(sprintf(
