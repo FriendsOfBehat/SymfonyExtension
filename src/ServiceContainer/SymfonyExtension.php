@@ -182,7 +182,7 @@ final class SymfonyExtension implements Extension
     {
         $definition = $container->findDefinition('fob_symfony.environment_handler.context_service');
         foreach ($container->findTaggedServiceIds(ContextExtension::INITIALIZER_TAG) as $serviceId => $tags) {
-            $definition->addMethodCall('registerContextInitializer', [$container->getDefinition($serviceId)]);
+            $definition->addMethodCall('registerContextInitializer', [new Reference($serviceId)]);
         }
     }
 
