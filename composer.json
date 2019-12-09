@@ -27,7 +27,11 @@
         "sylius-labs/coding-standard": "^3.0",
         "symfony/browser-kit": "^3.4|^4.2",
         "symfony/framework-bundle": "^3.4|^4.2",
+        "symfony/process": "^3.4|^4.2",
         "symfony/yaml": "^3.4|^4.2"
+    },
+    "conflict": {
+        "symfony/stopwatch": "^5.0"
     },
     "suggest": {
         "behat/mink-browserkit-driver": "^1.3"

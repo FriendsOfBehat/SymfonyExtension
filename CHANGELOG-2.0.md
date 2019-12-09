@@ -1,5 +1,10 @@
 # CHANGELOG for `2.0.x`
 
+## v2.0.10 (2019-12-09)
+
+- [#101](https://github.com/FriendsOfBehat/SymfonyExtension/issues/101) Fix referencing context initializers ([@kamazee](https://github.com/kamazee))
+- [#102](https://github.com/FriendsOfBehat/SymfonyExtension/issues/102) Fix the build & add tests for Symfony 4.3 and 4.4 ([@pamil](https://github.com/pamil))
+
 ## v2.0.9 (2019-10-10)
 
 - [#77](https://github.com/FriendsOfBehat/SymfonyExtension/issues/77) Fix docs: change 'kernel.file' to 'kernel.path' ([@mkilmanas](https://github.com/mkilmanas))
