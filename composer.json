@@ -29,6 +29,9 @@
         "symfony/process": "^3.4|^4.1",
         "symfony/yaml": "^3.4|^4.1"
     },
+    "conflict": {
+        "symfony/stopwatch": "^5.0"
+    },
     "suggest": {
         "behat/mink-browserkit-driver": "^1.3"
     },
