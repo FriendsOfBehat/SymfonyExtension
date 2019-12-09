@@ -26,6 +26,7 @@
         "phpstan/phpstan-shim": "^0.11",
         "sylius-labs/coding-standard": "^3.0",
         "symfony/framework-bundle": "^3.4|^4.1",
+        "symfony/process": "^3.4|^4.1",
         "symfony/yaml": "^3.4|^4.1"
     },
     "suggest": {
