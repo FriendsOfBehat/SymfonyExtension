@@ -4,7 +4,7 @@
 
 <h1 align="center">SymfonyExtension</h1>
 
-This Behat extension provides an integration with Symfony (both `^3.4`, `^4.3` and `^5.0`) and Mink driver for Symfony application.
+This Behat extension provides an integration with Symfony (both `^3.4`, `^4.4` and `^5.0`) and Mink driver for Symfony application.
 
 It allows for:
 
@@ -21,6 +21,8 @@ It allows for:
  * [Mink integration](docs/03_mink_integration.md)
  * [Behat/Symfony2Extension differences](docs/04_bs2e_differences.md)
  * [Configuration reference](docs/05_configuration_reference.md)
+ 
+For a bit of backstory, take a look at the [SymfonyExtension v2.0.0 release blogpost](https://kamilkokot.com/tame-behat-with-the-brand-new-symfony-extension/?utm_source=github&utm_medium=referral&utm_campaign=readme).
  
 ## Versioning
 
