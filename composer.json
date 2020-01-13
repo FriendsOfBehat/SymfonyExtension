@@ -30,7 +30,9 @@
         "symfony/yaml": "^3.4|^4.1"
     },
     "conflict": {
-        "symfony/stopwatch": "^5.0"
+        "symfony/stopwatch": "^5.0",
+        "symplify/package-builder": "^7.2",
+        "symplify/smart-file-system": "^7.2"
     },
     "suggest": {
         "behat/mink-browserkit-driver": "^1.3"
