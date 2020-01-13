@@ -218,8 +218,7 @@ CON
             $executablePath = $this->thereIsFile('__executable.php', $content);
         }
 
-        $this->process = new Process(sprintf('%s %s --strict -vvv --no-interaction --lang=en', self::$phpBin, escapeshellarg($executablePath)));
-        $this->process->setWorkingDirectory(self::$workingDir);
+        $this->process = new Process([self::$phpBin, $executablePath, '--strict', '-vvv', '--no-interaction', '--lang=en'], self::$workingDir);
         $this->process->start();
         $this->process->wait();
     }
