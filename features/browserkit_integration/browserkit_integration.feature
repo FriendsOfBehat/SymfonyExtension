@@ -31,12 +31,14 @@ Feature: BrowserKit integration
         use Behat\Behat\Context\Context;
         use FriendsOfBehat\SymfonyExtension\Mink\MinkParameters;
         use Psr\Container\ContainerInterface;
+        use Symfony\Component\BrowserKit\AbstractBrowser;
         use Symfony\Component\BrowserKit\Client;
 
         final class SomeContext implements Context {
+            /** @var Client|AbstractBrowser */
             private $client;
 
-            public function __construct(Client $client)
+            public function __construct($client)
             {
                 $this->client = $client;
             }
@@ -74,6 +76,9 @@ Feature: BrowserKit integration
                 _defaults:
                     autowire: true
                     autoconfigure: true
+
+                    bind:
+                        $client: "@test.client"
 
                 App\Tests\SomeContext: ~
             """

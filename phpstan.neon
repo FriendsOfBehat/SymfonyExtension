@@ -7,3 +7,6 @@ parameters:
         - '/Cannot call method [a-zA-Z0-9]+\(\) on Symfony\\Component\\Config\\Definition\\Builder\\NodeParentInterface|null\./'
         - '/Method FriendsOfBehat\\SymfonyExtension\\Context\\Environment\\InitializedSymfonyExtensionEnvironment::bindCallee\(\) should return callable/'
         - '/Strict comparison using === between 0\|1 and 2 will always evaluate to false\./'
+        - '/Class Symfony\\Component\\BrowserKit\\Client not found\./'
+        - '/Class Symfony\\Component\\BrowserKit\\AbstractBrowser not found\./'
+        - '/Parameter \#1 \$client of method Behat\\Mink\\Driver\\BrowserKitDriver::__construct\(\) expects/'
