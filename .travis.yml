@@ -15,10 +15,6 @@ jobs:
         -
             php: '7.1'
             env: SYMFONY_VERSION=5.0.*
-    allow_failures:
-        -
-            env: SYMFONY_VERSION=5.0.*
-    fast_finish: true
 
 cache:
     directories:
@@ -31,10 +27,14 @@ install:
     - composer require symfony/dependency-injection:${SYMFONY_VERSION} --no-update --no-scripts --prefer-dist
     - composer require symfony/http-kernel:${SYMFONY_VERSION} --no-update --no-scripts --prefer-dist
     - composer require symfony/proxy-manager-bridge:${SYMFONY_VERSION} --no-update --no-scripts --prefer-dist
+
     - composer require --dev symfony/browser-kit:${SYMFONY_VERSION} --no-update --no-scripts --prefer-dist
     - composer require --dev symfony/framework-bundle:${SYMFONY_VERSION} --no-update --no-scripts --prefer-dist
     - composer require --dev symfony/process:${SYMFONY_VERSION} --no-update --no-scripts --prefer-dist
     - composer require --dev symfony/yaml:${SYMFONY_VERSION} --no-update --no-scripts --prefer-dist
+
+    - if [ "$SYMFONY_VERSION" = "5.0.*" ]; then composer require --dev behat/behat:dev-master --no-update --no-scripts --prefer-dist; fi
+
     - composer update --prefer-dist
 
 script:
