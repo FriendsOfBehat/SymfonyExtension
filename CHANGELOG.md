@@ -1,4 +1,19 @@
-# CHANGELOG for `2.0.x`
+# CHANGELOG FOR `2.1.x`
+
+## v2.1.0-BETA.1 (2020-01-15)
+
+- [#60](https://github.com/FriendsOfBehat/SymfonyExtension/issues/60) Remove support for Symfony 4.1 as it's EOLed ([@pamil](https://github.com/pamil))
+- [#69](https://github.com/FriendsOfBehat/SymfonyExtension/issues/69) Expose the Mink service ([@pamil](https://github.com/pamil))
+- [#82](https://github.com/FriendsOfBehat/SymfonyExtension/issues/82) Provide simple BrowserKit integration ([@pamil](https://github.com/pamil))
+- [#83](https://github.com/FriendsOfBehat/SymfonyExtension/issues/83) Fix master build ([@pamil](https://github.com/pamil))
+- [#87](https://github.com/FriendsOfBehat/SymfonyExtension/issues/87) Update README.md ([@DonCallisto](https://github.com/DonCallisto))
+- [#98](https://github.com/FriendsOfBehat/SymfonyExtension/issues/98) Add Symfony 4.3.* build to Travis CI ([@pamil](https://github.com/pamil))
+- [#100](https://github.com/FriendsOfBehat/SymfonyExtension/issues/100) Add support for Symfony 4.4 and 5.0; remove for 4.2 and 4.3 ([@pamil](https://github.com/pamil))
+- [#105](https://github.com/FriendsOfBehat/SymfonyExtension/issues/105) Add integration with FriendsOfBehat/PageObjectExtension ([@pamil](https://github.com/pamil))
+- [#106](https://github.com/FriendsOfBehat/SymfonyExtension/issues/106) Fix the build ([@pamil](https://github.com/pamil))
+- [#108](https://github.com/FriendsOfBehat/SymfonyExtension/issues/108) Add compatibility with Symfony 5 ([@pamil](https://github.com/pamil))
+
+# CHANGELOG FOR `2.0.x`
 
 ## v2.0.10 (2019-12-09)
 
