@@ -26,7 +26,7 @@ final class UninitializedSymfonyExtensionEnvironment extends StaticEnvironment i
     /** @var string[] */
     private $contexts;
 
-    /** @var ContextEnvironment|null */
+    /** @var ContextEnvironment */
     private $delegatedEnvironment;
 
     public function __construct(Suite $suite, array $contexts, ContextEnvironment $delegatedEnvironment)

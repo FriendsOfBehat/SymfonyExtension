@@ -36,6 +36,7 @@ final class KernelOrchestrator implements EventSubscriberInterface
 
     public function setUp(): void
     {
+        /** @psalm-suppress InvalidArgument Psalm complains that ContainerInterface does not match object|null */
         $this->symfonyKernel->getContainer()->set('behat.service_container', $this->behatContainer);
     }
 

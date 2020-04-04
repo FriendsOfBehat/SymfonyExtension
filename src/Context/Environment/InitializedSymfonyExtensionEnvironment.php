@@ -49,7 +49,7 @@ final class InitializedSymfonyExtensionEnvironment implements SymfonyExtensionEn
     {
         $callable = $callee->getCallable();
 
-        if ($callee->isAnInstanceMethod()) {
+        if (is_array($callable) && $callee->isAnInstanceMethod()) {
             return [$this->getContext($callable[0]), $callable[1]];
         }
 
