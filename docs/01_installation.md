@@ -3,7 +3,7 @@
 If you're starting a new project, we recommend to use Symfony 4 with Flex as it's the most straightforward way.
 If you're adding this extension to an existing project, pick the method that fits it the best. 
 
-### Symfony 4 (with Flex)
+### Symfony 4/5 (with Flex)
 
 1. Require this extension using *Composer* and allow for using contrib recipes:
 
@@ -11,7 +11,7 @@ If you're adding this extension to an existing project, pick the method that fit
 composer require --dev friends-of-behat/symfony-extension:^2.0
 ```
 
-### Symfony 4 (new directory structure, without Flex)
+### Symfony 4/5 (new directory structure, without Flex)
 
 1. Require this extension using *Composer*:
 
@@ -22,7 +22,7 @@ composer require --dev friends-of-behat/symfony-extension:^2.0
 2. Enable it within your Behat configuration:
 
 ```yaml
-# behat.yml.dist / behat.yml
+# behat.yaml.dist / behat.yaml
 
 default:
     extensions:

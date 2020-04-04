@@ -1,10 +1,10 @@
 ## Configuration reference
 
-By default, if no confguration is passed, *SymfonyExtension* will try its best to guess it.
+By default, if no confguration is passed, _SymfonyExtension_ will try its best to guess it.
 The full configuration tree looks like that:
 
 ```yaml
-# behat.yml.dist / behat.yml
+# behat.yaml.dist / behat.yaml
 
 default:
     extensions:
@@ -21,13 +21,13 @@ default:
  
     It is a path to the file requried once while the extension is loaded. You can use this file to set up your testing 
     environment - set some enviornment variables or preload an external file.
-    If you do not pass any, it would look for either `config/bootstrap.php` (Symfony 4) or `app/autoload.php` (Symfony 3). 
+    If you do not pass any, it would look for either `config/bootstrap.php` (Symfony 4/5) or `app/autoload.php` (Symfony 3). 
     If none are found, no file would be loaded.
     
  * **`kernel.class`**:
  
     It is a fully qualified class name of the application kernel class.
-    If you do not pass any, it would look for either `App\Kernel` (Symfony 4) or `AppKernel` (Symfony 3).
+    If you do not pass any, it would look for either `App\Kernel` (Symfony 4/5) or `AppKernel` (Symfony 3).
     If none are found, an exception would be thrown and you would be required to specify it explicitly.
     
  * **`kernel.path`**:

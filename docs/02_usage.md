@@ -4,6 +4,8 @@ This tutorial assumes you're using the new directory structure with autowiring a
 Let's first create a sample feature file (which is quite useless for demo purposes):
 
 ```gherkin
+# features/using_symfony_extension.feature
+
 Feature: Using SymfonyExtension
 
     Scenario: Checking the application's kernel environment
@@ -39,7 +41,7 @@ final class DemoContext implements Context
 And also a suite defined in Behat configuration:
 
 ```yaml
-# behat.yml.dist / behat.yml
+# behat.yaml.dist / behat.yaml
 
 default:
     suites:
@@ -89,7 +91,7 @@ If you're using autowiring and autoconfiguration, that's all you need! After run
 If you're not, you need to register your context as a public service and define its dependencies:
 
 ```yaml
-# config/services_test.yaml (Symfony 4)
+# config/services_test.yaml (Symfony 4/5)
 # app/config/config_test.yml (Symfony 3)
 
 services:
@@ -135,7 +137,7 @@ If you're using autowiring and autoconfiguration, that's all you need! After run
 If you're not, you need to register your context as a public service and define its dependencies:
 
 ```yaml
-# config/services_test.yaml (Symfony 4)
+# config/services_test.yaml (Symfony 4/5)
 # app/config/config_test.yml (Symfony 3)
 
 services:
