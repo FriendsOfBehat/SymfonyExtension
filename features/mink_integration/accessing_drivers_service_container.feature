@@ -24,7 +24,6 @@ Feature: Accessing driver's service container
                 Given the counter service is zeroed
                 When I visit the page "/hello-world"
                 Then the counter service should return 1
-
         """
         And a context file "tests/SomeContext.php" containing:
         """
@@ -74,26 +73,26 @@ Feature: Accessing driver's service container
 
     Scenario: Accessing a service from driver's service container (manually injected dependencies)
         Given a YAML services file containing:
-            """
-            services:
-                App\Tests\SomeContext:
-                    public: true
-                    arguments:
-                        - '@behat.mink'
-                        - '@behat.driver.service_container'
-            """
+        """
+        services:
+            App\Tests\SomeContext:
+                public: true
+                arguments:
+                    - '@behat.mink'
+                    - '@behat.driver.service_container'
+        """
         When I run Behat
         Then it should pass
 
     Scenario: Accessing a service from driver's service container (autowired & autoconfigured dependencies)
         Given a YAML services file containing:
-            """
-            services:
-                _defaults:
-                    autowire: true
-                    autoconfigure: true
+        """
+        services:
+            _defaults:
+                autowire: true
+                autoconfigure: true
 
-                App\Tests\SomeContext: ~
-            """
+            App\Tests\SomeContext: ~
+        """
         When I run Behat
         Then it should pass
