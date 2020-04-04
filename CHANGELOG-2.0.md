@@ -1,5 +1,10 @@
 # CHANGELOG for `2.0.x`
 
+## v2.0.11 (2020-04-04)
+
+- [#106](https://github.com/FriendsOfBehat/SymfonyExtension/issues/106) Fix the build ([@pamil](https://github.com/pamil))
+- [#114](https://github.com/FriendsOfBehat/SymfonyExtension/issues/114) Remove conflict with Symplify libraries ([@pamil](https://github.com/pamil))
+
 ## v2.0.10 (2019-12-09)
 
 - [#101](https://github.com/FriendsOfBehat/SymfonyExtension/issues/101) Fix referencing context initializers ([@kamazee](https://github.com/kamazee))
