@@ -34,7 +34,7 @@ final class SymfonyExtension implements Extension
      * Kernel used by Symfony driver to isolate web container from contexts' container.
      * Container is rebuilt before every request.
      */
-    private const DRIVER_KERNEL_ID = 'fob_symfony.driver_kernel';
+    public const DRIVER_KERNEL_ID = 'fob_symfony.driver_kernel';
 
     /** @var bool */
     private $minkExtensionFound = false;

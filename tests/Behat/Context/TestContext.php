@@ -92,23 +92,19 @@ CON
         $this->thereIsFile('src/Kernel.php', <<<'CON'
 <?php
 
+declare(strict_types=1);
+
 namespace App;
 
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\RouteCollectionBuilder;
 
 class Kernel extends HttpKernel
 {
     use MicroKernelTrait;
-
-    public function helloWorld(): Response
-    {
-        return new Response('Hello world!');
-    }
 
     public function registerBundles(): iterable
     {
@@ -125,15 +121,80 @@ class Kernel extends HttpKernel
             'secret' => 'Pigeon',
         ]);
         
+        $loader->load(__DIR__ . '/../config/default.yaml');
         $loader->load(__DIR__ . '/../config/services.yaml');
     }
     
-    protected function configureRoutes(RouteCollectionBuilder $routes)
+    protected function configureRoutes(RouteCollectionBuilder $routes): void
     {
-        $routes->add('/hello-world', 'kernel:helloWorld');
+        $routes->add('/hello-world', 'App\Controller:helloWorld');
     }
 }
 CON
+        );
+
+        $this->thereIsFile('src/Controller.php', <<<'CON'
+<?php
+
+declare(strict_types=1);
+
+namespace App;
+
+use Symfony\Component\HttpFoundation\Response;
+
+final class Controller
+{
+    private $counter;
+
+    public function __construct(Counter $counter)
+    {
+        $this->counter = $counter;
+    }
+
+    public function helloWorld(): Response
+    {
+        $this->counter->increase();
+    
+        return new Response('Hello world!');
+    }
+}
+CON
+        );
+
+        $this->thereIsFile('src/Counter.php', <<<'CON'
+<?php
+
+declare(strict_types=1);
+
+namespace App;
+
+final class Counter
+{
+    private $counter = 0;
+    
+    public function increase(): void
+    {
+        $this->counter++;
+    }
+    
+    public function get(): int
+    {
+        return $this->counter;
+    }
+}
+CON
+        );
+
+        $this->thereIsFile('config/default.yaml', <<<'YML'
+services:
+    App\Controller:
+        arguments:
+            - '@App\Counter'
+        public: true
+
+    App\Counter:
+        public: false
+YML
         );
 
         $this->thereIsFile('config/services.yaml', '');
