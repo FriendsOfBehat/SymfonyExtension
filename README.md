@@ -22,7 +22,7 @@ It allows for:
  * [Behat/Symfony2Extension differences](DOCUMENTATION.md#differences-from-behatsymfony2extension)
  * [Configuration reference](DOCUMENTATION.md#configuration-reference)
  
-For a bit of backstory, take a look at the [SymfonyExtension v2.0.0 release blogpost](https://kamilkokot.com/tame-behat-with-the-brand-new-symfony-extension/?utm_source=github&utm_medium=referral&utm_campaign=readme).
+For a bit of backstory, take a look at the [SymfonyExtension v2.0.0 release blogpost](https://kamilkokot.com/tame-behat-with-the-brand-new-symfony-extension).
  
 ## Versioning and release cycle
 
