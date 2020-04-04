@@ -8,8 +8,10 @@ isolated driver to use for Symfony application testing.
 1. Require the packages needed for the driver using *Composer*:
 
 ```bash
-composer require --dev behat/mink:^1.7@dev behat/mink-extension behat/mink-browserkit-driver
+composer require --dev friends-of-behat/mink friends-of-behat/mink-extension friends-of-behat/mink-browserkit-driver
 ```
+
+_Those `friends-of-behat` packages are forks of the original ones, adding support for Symfony 5 and dropping support for Symfony <4.4._
 
 2. Enable the bundled driver:
 
