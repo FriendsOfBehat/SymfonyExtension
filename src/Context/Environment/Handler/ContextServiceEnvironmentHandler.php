@@ -85,8 +85,6 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
     }
 
     /**
-     * @param UninitializedSymfonyExtensionEnvironment $uninitializedEnvironment
-     *
      * @throws EnvironmentIsolationException
      */
     public function isolateEnvironment(Environment $uninitializedEnvironment, $testSubject = null): Environment
@@ -174,6 +172,8 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
     }
 
     /**
+     * @psalm-assert UninitializedSymfonyExtensionEnvironment $uninitializedEnvironment
+     *
      * @throws EnvironmentIsolationException
      */
     private function assertEnvironmentCanBeIsolated(Environment $uninitializedEnvironment, $testSubject): void
