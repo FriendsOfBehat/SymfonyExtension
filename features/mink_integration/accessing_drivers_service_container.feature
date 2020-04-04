@@ -39,12 +39,12 @@ Feature: Accessing driver's service container
 
         final class SomeContext implements Context {
             private $mink;
-            private $container;
+            private $driverContainer;
 
-            public function __construct(Mink $mink, ContainerInterface $container)
+            public function __construct(Mink $mink, ContainerInterface $driverContainer)
             {
                 $this->mink = $mink;
-                $this->container = $container;
+                $this->driverContainer = $driverContainer;
             }
 
             /** @Given the counter service is zeroed */
@@ -67,18 +67,12 @@ Feature: Accessing driver's service container
 
             private function getCounterService(): Counter
             {
-                return $this->container
-                    ->get('behat.service_container')
-                    ->get('fob_symfony.driver_kernel')
-                    ->getContainer()
-                    ->get('test.service_container')
-                    ->get('App\Counter')
-                ;
+                return $this->driverContainer->get('App\Counter');
             }
         }
         """
 
-    Scenario: Injecting Mink serivce
+    Scenario: Accessing a service from driver's service container (manually injected dependencies)
         Given a YAML services file containing:
             """
             services:
@@ -86,12 +80,12 @@ Feature: Accessing driver's service container
                     public: true
                     arguments:
                         - '@behat.mink'
-                        - '@service_container'
+                        - '@behat.driver.service_container'
             """
         When I run Behat
         Then it should pass
 
-    Scenario: Autowiring and autoconfiguring Mink service
+    Scenario: Accessing a service from driver's service container (autowired & autoconfigured dependencies)
         Given a YAML services file containing:
             """
             services:

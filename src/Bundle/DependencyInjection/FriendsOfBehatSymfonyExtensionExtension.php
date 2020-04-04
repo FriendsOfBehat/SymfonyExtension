@@ -8,6 +8,7 @@ use Behat\Behat\Context\Context;
 use Behat\Mink\Mink;
 use Behat\Mink\Session;
 use FriendsOfBehat\SymfonyExtension\Mink\MinkParameters;
+use FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension;
 use Symfony\Component\BrowserKit\Client;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -15,6 +16,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
+use Symfony\Component\HttpKernel\Kernel;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 final class FriendsOfBehatSymfonyExtensionExtension extends Extension implements CompilerPassInterface
 {
@@ -22,6 +25,7 @@ final class FriendsOfBehatSymfonyExtensionExtension extends Extension implements
     {
         $this->provideMinkIntegration($container);
         $this->registerBehatContainer($container);
+        $this->registerDriverBehatContainer($container);
 
         $container->registerForAutoconfiguration(Context::class)->addTag('fob.context');
     }
@@ -45,6 +49,27 @@ final class FriendsOfBehatSymfonyExtensionExtension extends Extension implements
         $behatServiceContainerDefinition->setSynthetic(true);
 
         $container->setDefinition('behat.service_container', $behatServiceContainerDefinition);
+    }
+
+    private function registerDriverBehatContainer(ContainerBuilder $container): void
+    {
+        $driverKernelDefinition = new Definition(KernelInterface::class, [SymfonyExtension::DRIVER_KERNEL_ID]);
+        $driverKernelDefinition->setFactory([new Reference('behat.service_container'), 'get']);
+        $driverKernelDefinition->setPublic(true);
+        $driverKernelDefinition->setLazy(true);
+
+        $driverServiceContainerDefinition = new Definition(ContainerInterface::class);
+        $driverServiceContainerDefinition->setFactory([$driverKernelDefinition, 'getContainer']);
+        $driverServiceContainerDefinition->setPublic(true);
+        $driverServiceContainerDefinition->setLazy(true);
+
+        $driverTestServiceContainerDefinition = new Definition(ContainerInterface::class, ['test.service_container']);
+        $driverTestServiceContainerDefinition->setFactory([$driverServiceContainerDefinition, 'get']);
+        $driverTestServiceContainerDefinition->setPublic(true);
+        $driverTestServiceContainerDefinition->setLazy(true);
+
+        $container->setDefinition('behat.driver.service_container', $driverTestServiceContainerDefinition);
+        $container->registerAliasForArgument('behat.driver.service_container', ContainerInterface::class, 'driver container');
     }
 
     private function provideBrowserKitIntegration(ContainerBuilder $container): void
