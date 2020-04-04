@@ -1,4 +1,12 @@
-## Installation
+# Table of contents
+
+ * [Installation](#installation)
+ * [Usage](#usage)
+ * [Mink integration](#mink-integration)
+ * [Behat/Symfony2Extension differences](#differences-from-behatsymfony2extension)
+ * [Configuration reference](#configuration-reference)
+
+# Installation
 
 If you're starting a new project, we recommend to use Symfony 4 with Flex as it's the most straightforward way.
 If you're adding this extension to an existing project, pick the method that fits it the best. 
@@ -117,7 +125,7 @@ services:
         resource: '../../tests/Behat/*'
 ```
 
-## Usage
+# Usage
 
 This tutorial assumes you're using the new directory structure with autowiring and autoconfiguration enabled.
 Let's first create a sample feature file (which is quite useless for demo purposes):
@@ -266,7 +274,7 @@ services:
             - "%kernel.environment%"
 ```
 
-## Mink integration
+# Mink integration
 
 _SymfonyExtension_ provides an integration with [Mink](https://github.com/minkphp/Mink) and defines a dedicated,
 isolated driver to use for Symfony application testing.
@@ -344,7 +352,7 @@ This integration provides the following services to use inside Symfony container
  * **`behat.driver.service_container`** - service container used by the `symfony` Mink driver, useful for assertions based on
   application state after a request has been handled
 
-## Differences from Behat/Symfony2Extension
+# Differences from Behat/Symfony2Extension
 
 ### Contexts as services
 
@@ -358,7 +366,7 @@ as it uses an isolated application kernel instance, so that services state chang
 the driver results. With that limitation, changing the driver to a different one is seamless. For more information, look
 at [this issue](https://github.com/Behat/Symfony2Extension/issues/112).
 
-## Configuration reference
+# Configuration reference
 
 By default, if no confguration is passed, _SymfonyExtension_ will try its best to guess it.
 The full configuration tree looks like that:
