@@ -1,5 +1,9 @@
 # CHANGELOG FOR `2.1.x`
 
+## v2.1.0-RC.1 (2020-04-04)
+
+- [#119](https://github.com/FriendsOfBehat/SymfonyExtension/issues/119) Fix a weird bug causing failures in Sylius ([@pamil](https://github.com/pamil))
+
 ## v2.1.0-BETA.2 (2020-04-04)
 
 - [#107](https://github.com/FriendsOfBehat/SymfonyExtension/issues/107) Add support for PHP 7.4 ([@pamil](https://github.com/pamil))
