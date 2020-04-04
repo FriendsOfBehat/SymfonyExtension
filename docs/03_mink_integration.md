@@ -27,7 +27,7 @@ default:
 
 ### Usage
 
-This integration provides two services to use inside Symfony container:
+This integration provides the following services to use inside Symfony container:
 
  * **`behat.mink`** (autowired by `\Behat\Mink\Mink`) - the Mink service
 
@@ -35,3 +35,6 @@ This integration provides two services to use inside Symfony container:
  
  * **`behat.mink.parameters`** (autowired by `\FriendsOfBehat\SymfonyExtension\Mink\MinkParameters`) - an object 
  containing the configuration parameters of `MinkExtension` (implementing `\ArrayAccess` so that it can be treated as an array)
+ 
+ * **`behat.driver.service_container`** - service container used by the `symfony` Mink driver, useful for assertions based on
+  application state after a request has been handled

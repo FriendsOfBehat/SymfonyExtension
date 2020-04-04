@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace FriendsOfBehat\SymfonyExtension\Driver\Factory;
 
+use Behat\Mink\Driver\BrowserKitDriver;
 use Behat\MinkExtension\ServiceContainer\Driver\DriverFactory;
 use FriendsOfBehat\SymfonyExtension\Driver\SymfonyDriver;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
@@ -40,6 +41,10 @@ final class SymfonyDriverFactory implements DriverFactory
 
     public function buildDriver(array $config): Definition
     {
+        if (!class_exists(BrowserKitDriver::class)) {
+            throw new \RuntimeException('Install "friends-of-behat/mink-browserkit-driver" (drop-in replacement for "behat/mink-browserkit-driver") in order to use the "symfony" driver.');
+        }
+
         return new Definition(SymfonyDriver::class, [
             $this->kernel,
             '%mink.base_url%',
