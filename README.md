@@ -16,11 +16,11 @@ It allows for:
  
 ## Documentation
 
- * [Installation](docs/01_installation.md)
- * [Usage](docs/02_usage.md)
- * [Mink integration](docs/03_mink_integration.md)
- * [Behat/Symfony2Extension differences](docs/04_bs2e_differences.md)
- * [Configuration reference](docs/05_configuration_reference.md)
+ * [Installation](DOCUMENTATION.md#installation)
+ * [Usage](DOCUMENTATION.md#usage)
+ * [Mink integration](DOCUMENTATION.md#mink-integration)
+ * [Behat/Symfony2Extension differences](DOCUMENTATION.md#differences-from-behatsymfony2extension)
+ * [Configuration reference](DOCUMENTATION.md#configuration-reference)
  
 For a bit of backstory, take a look at the [SymfonyExtension v2.0.0 release blogpost](https://kamilkokot.com/tame-behat-with-the-brand-new-symfony-extension/?utm_source=github&utm_medium=referral&utm_campaign=readme).
  
