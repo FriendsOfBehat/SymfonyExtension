@@ -9,6 +9,7 @@ use Behat\Mink\Mink;
 use Behat\Mink\Session;
 use FriendsOfBehat\SymfonyExtension\Mink\MinkParameters;
 use FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\BrowserKit\Client;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -16,6 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
+use Symfony\Component\HttpKernel\HttpKernelBrowser;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 final class FriendsOfBehatSymfonyExtensionExtension extends Extension implements CompilerPassInterface
@@ -73,11 +75,13 @@ final class FriendsOfBehatSymfonyExtensionExtension extends Extension implements
 
     private function provideBrowserKitIntegration(ContainerBuilder $container): void
     {
-        if (!class_exists(Client::class) || !$container->has('test.client')) {
+        if (!$container->has('test.client')) {
             return;
         }
 
-        $container->setAlias(Client::class, 'test.client');
+        foreach ([Client::class, KernelBrowser::class, HttpKernelBrowser::class] as $class) {
+            $container->setAlias($class, 'test.client');
+        }
     }
 
     private function provideMinkIntegration(ContainerBuilder $container): void
