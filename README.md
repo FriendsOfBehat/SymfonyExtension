@@ -24,13 +24,26 @@ It allows for:
  
 For a bit of backstory, take a look at the [SymfonyExtension v2.0.0 release blogpost](https://kamilkokot.com/tame-behat-with-the-brand-new-symfony-extension/?utm_source=github&utm_medium=referral&utm_campaign=readme).
  
-## Versioning
+## Versioning and release cycle
 
-This package follows [semantic versioning](https://semver.org/) - public API is defined as configuration and behaviour
-defined in form of testable scenarios in the [`features`](features) directory. This means once your application is
-configured to use Behat with SymfonyExtension, it shall continue to work flawlessly within the same major version.
-PHP classes, apart from `FriendsOfBehat\SymfonyExtension\Bundle\FriendsOfBehatSymfonyExtensionBundle`, are not covered
-by this backwards compatibility promise.
+This package follows [semantic versioning](https://semver.org/). 
+
+Public API is defined as configuration and behaviour defined in form of testable scenarios in the [`features`](features) directory.
+This means once your application is configured to use Behat with SymfonyExtension, 
+it shall continue to work flawlessly within the same major version.
+ 
+Next major releases are not planned yet. Minor and patch releases will be published as needed.
+
+Bug fixes will be provided only for the most recent minor release.
+Security fixes will be provided for one year since the release of subsequent minor release.
+
+Example (with arbitrary dates):
+
+ - `v1.0.0` is released on _23.11.2019_
+ - `v1.0.1` with a bugfix is provided on _03.02.2020_
+ - `v1.1.0` is released on _15.02.2020_:
+   - `1.0` branch will not get bugfixes anymore
+   - `1.0` security support will end on _15.02.2021_
  
 ## License
 
