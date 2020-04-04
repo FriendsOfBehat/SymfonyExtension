@@ -7,7 +7,6 @@ php:
     - '7.4'
 
 env:
-    - SYMFONY_VERSION=3.4.*
     - SYMFONY_VERSION=4.4.*
     - SYMFONY_VERSION=5.0.*
 
@@ -33,8 +32,6 @@ install:
     - composer require --dev symfony/framework-bundle:${SYMFONY_VERSION} --no-update --no-scripts --prefer-dist
     - composer require --dev symfony/process:${SYMFONY_VERSION} --no-update --no-scripts --prefer-dist
     - composer require --dev symfony/yaml:${SYMFONY_VERSION} --no-update --no-scripts --prefer-dist
-
-    - if [ "$SYMFONY_VERSION" = "5.0.*" ]; then composer require --dev behat/behat:dev-master --no-update --no-scripts --prefer-dist; fi
 
     - composer update --prefer-dist
 

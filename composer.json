@@ -13,9 +13,9 @@
     "require": {
         "php": "^7.1",
         "behat/behat": "^3.6.1",
-        "symfony/dependency-injection": "^3.4|^4.4|^5.0",
-        "symfony/http-kernel": "^3.4|^4.4|^5.0",
-        "symfony/proxy-manager-bridge": "^3.4|^4.4|^5.0"
+        "symfony/dependency-injection": "^4.4|^5.0",
+        "symfony/http-kernel": "^4.4|^5.0",
+        "symfony/proxy-manager-bridge": "^4.4|^5.0"
     },
     "require-dev": {
         "friends-of-behat/mink": "^1.7",
@@ -26,10 +26,10 @@
         "friends-of-behat/service-container-extension": "^1.0",
         "phpstan/phpstan-shim": "^0.11",
         "sylius-labs/coding-standard": "^3.0",
-        "symfony/browser-kit": "^3.4|^4.4|^5.0",
-        "symfony/framework-bundle": "^3.4|^4.4|^5.0",
-        "symfony/process": "^3.4|^4.4|^5.0",
-        "symfony/yaml": "^3.4|^4.4|^5.0"
+        "symfony/browser-kit": "^4.4|^5.0",
+        "symfony/framework-bundle": "^4.4|^5.0",
+        "symfony/process": "^4.4|^5.0",
+        "symfony/yaml": "^4.4|^5.0"
     },
     "conflict": {
         "symplify/package-builder": "^7.2",
