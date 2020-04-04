@@ -1,5 +1,13 @@
 # CHANGELOG FOR `2.1.x`
 
+## v2.1.0-BETA.2 (2020-04-04)
+
+- [#107](https://github.com/FriendsOfBehat/SymfonyExtension/issues/107) Add support for PHP 7.4 ([@pamil](https://github.com/pamil))
+- [#115](https://github.com/FriendsOfBehat/SymfonyExtension/issues/115) Add safety check for SymfonyDriverFactory to make sure BrowserKitDriver is installed ([@pamil](https://github.com/pamil))
+- [#116](https://github.com/FriendsOfBehat/SymfonyExtension/issues/116) Accessing tested application services easily via driver's service container ([@pamil](https://github.com/pamil))
+- [#117](https://github.com/FriendsOfBehat/SymfonyExtension/issues/117) Mention friends-of-behat forks of Mink-related repositories in the docs ([@pamil](https://github.com/pamil))
+- [#118](https://github.com/FriendsOfBehat/SymfonyExtension/issues/118) Remove support for Symfony 3.4 ([@pamil](https://github.com/pamil))
+
 ## v2.1.0-BETA.1 (2020-01-15)
 
 - [#60](https://github.com/FriendsOfBehat/SymfonyExtension/issues/60) Remove support for Symfony 4.1 as it's EOLed ([@pamil](https://github.com/pamil))
