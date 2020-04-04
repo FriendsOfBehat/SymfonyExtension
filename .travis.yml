@@ -1,7 +1,6 @@
 language: php
 
 php:
-    - '7.1'
     - '7.2'
     - '7.3'
     - '7.4'
@@ -9,12 +8,6 @@ php:
 env:
     - SYMFONY_VERSION=4.4.*
     - SYMFONY_VERSION=5.0.*
-
-jobs:
-    exclude:
-        -
-            php: '7.1'
-            env: SYMFONY_VERSION=5.0.*
 
 cache:
     directories:
