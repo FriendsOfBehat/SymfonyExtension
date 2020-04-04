@@ -1,5 +1,10 @@
 # CHANGELOG FOR `2.1.x`
 
+## v2.1.0-RC.2 (2020-04-04)
+
+- [#114](https://github.com/FriendsOfBehat/SymfonyExtension/issues/114) Remove conflict with Symplify libraries ([@pamil](https://github.com/pamil))
+- [#120](https://github.com/FriendsOfBehat/SymfonyExtension/issues/120) Recommend Mink forks in suggests section of composer.json ([@pamil](https://github.com/pamil))
+
 ## v2.1.0-RC.1 (2020-04-04)
 
 - [#119](https://github.com/FriendsOfBehat/SymfonyExtension/issues/119) Fix a weird bug causing failures in Sylius ([@pamil](https://github.com/pamil))
