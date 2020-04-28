@@ -81,6 +81,7 @@ Feature: Configuring application kernel
         Feature:
             Scenario:
                 Then the application kernel should have environment "custom"
+                And the server and environment variable "APP_ENV" is "custom"
         """
         When I run Behat
         Then it should pass

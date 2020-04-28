@@ -71,7 +71,7 @@ final class SymfonyExtension implements Extension
 
     public function load(ContainerBuilder $container, array $config): void
     {
-        $this->fallbackToTestEnvironment();
+        $this->setupTestEnvironment($config['kernel']['environment'] ?? 'test');
 
         $this->loadBootstrap($this->autodiscoverBootstrap($config['bootstrap']));
 
@@ -182,11 +182,11 @@ final class SymfonyExtension implements Extension
         require_once $bootstrap;
     }
 
-    private function fallbackToTestEnvironment(): void
+    private function setupTestEnvironment(string $fallback): void
     {
-        // If there's no defined server / environment variable with an environment, default to test
+        // If there's no defined server / environment variable with an environment, default to configured fallback
         if (($_SERVER['APP_ENV'] ?? $_ENV['APP_ENV'] ?? null) === null) {
-            putenv('APP_ENV=' . $_SERVER['APP_ENV'] = $_ENV['APP_ENV'] = 'test');
+            putenv('APP_ENV=' . $_SERVER['APP_ENV'] = $_ENV['APP_ENV'] = $fallback);
         }
     }
 
