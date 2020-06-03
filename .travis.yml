@@ -32,3 +32,4 @@ script:
     - composer check
 
     - vendor/bin/behat -f progress --strict -vvv --no-interaction
+    - vendor/bin/phpunit tests

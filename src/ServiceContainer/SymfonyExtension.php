@@ -2,8 +2,18 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the SymfonyExtension package.
+ *
+ * (c) Kamil Kokot <kamil@kokot.me>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace FriendsOfBehat\SymfonyExtension\ServiceContainer;
 
+use Behat\Behat\Context\Context;
 use Behat\Behat\Context\ServiceContainer\ContextExtension;
 use Behat\Mink\Session;
 use Behat\MinkExtension\ServiceContainer\MinkExtension;
@@ -37,6 +47,11 @@ final class SymfonyExtension implements Extension
      */
     public const DRIVER_KERNEL_ID = 'fob_symfony.driver_kernel';
 
+    /**
+     * Used to auto tag every context injected in the container.
+     */
+    private const CONTEXT_TAG = 'fob_symfony.context';
+
     /** @var bool */
     private $minkExtensionFound = false;
 
@@ -63,6 +78,8 @@ final class SymfonyExtension implements Extension
                         ->scalarNode('class')->defaultNull()->end()
                         ->scalarNode('environment')->defaultNull()->end()
                         ->booleanNode('debug')->defaultNull()->end()
+                        ->booleanNode('autoconfigure')->defaultFalse()->end()
+                        ->booleanNode('step_autowiring')->defaultFalse()->end()
                     ->end()
                 ->end()
             ->end()
@@ -87,6 +104,15 @@ final class SymfonyExtension implements Extension
             $this->loadMinkDefaultSession($container);
             $this->loadMinkParameters($container);
         }
+
+        if ($config['autoconfigure']) {
+            $this->handleAutoConfiguration($container);
+        }
+
+        if ($config['step_autowiring']) {
+            $this->handleAutoWiring($container);
+        }
+
     }
 
     public function process(ContainerBuilder $container): void
@@ -265,5 +291,17 @@ final class SymfonyExtension implements Extension
         }
 
         return is_string($bootstrap) ? $bootstrap : null;
+    }
+
+    private function handleAutoConfiguration(ContainerBuilder $container): void
+    {
+        $container->registerForAutoconfiguration(Context::class)->addTag(self::CONTEXT_TAG);
+    }
+
+    private function handleAutoWiring(ContainerBuilder $container): void
+    {
+        foreach ($container->findTaggedServiceIds(self::CONTEXT_TAG) as $contextId => $tags) {
+
+        }
     }
 }
