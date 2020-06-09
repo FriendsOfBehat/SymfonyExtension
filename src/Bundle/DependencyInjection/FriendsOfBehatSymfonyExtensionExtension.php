@@ -22,24 +22,29 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 final class FriendsOfBehatSymfonyExtensionExtension extends Extension implements CompilerPassInterface
 {
+    /**
+     * Used to auto tag every context injected in the container.
+     */
+    private const CONTEXT_TAG = 'fob.context';
+
     public function load(array $configs, ContainerBuilder $container): void
     {
         $this->provideMinkIntegration($container);
         $this->registerBehatContainer($container);
         $this->registerDriverBehatContainer($container);
 
-        $container->registerForAutoconfiguration(Context::class)->addTag('fob.context');
+        $container->registerForAutoconfiguration(Context::class)->addTag(self::CONTEXT_TAG);
     }
 
     public function process(ContainerBuilder $container): void
     {
         $this->provideBrowserKitIntegration($container);
 
-        foreach ($container->findTaggedServiceIds('fob.context') as $serviceId => $attributes) {
+        foreach ($container->findTaggedServiceIds(self::CONTEXT_TAG) as $serviceId => $attributes) {
             $serviceDefinition = $container->findDefinition($serviceId);
 
             $serviceDefinition->setPublic(true);
-            $serviceDefinition->clearTag('fob.context');
+            $serviceDefinition->clearTag(self::CONTEXT_TAG);
         }
     }
 
