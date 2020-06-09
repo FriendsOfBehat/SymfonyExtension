@@ -2,6 +2,15 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the SymfonyExtension package.
+ *
+ * (c) Kamil Kokot <kamil@kokot.me>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace FriendsOfBehat\SymfonyExtension\ServiceContainer;
 
 use Behat\Behat\Context\ServiceContainer\ContextExtension;
@@ -65,6 +74,8 @@ final class SymfonyExtension implements Extension
                         ->booleanNode('debug')->defaultNull()->end()
                     ->end()
                 ->end()
+                ->booleanNode('autoconfigure')->defaultFalse()->end()
+                ->booleanNode('step_autowiring')->defaultFalse()->end()
             ->end()
         ;
     }
