@@ -176,10 +176,18 @@ final class SymfonyExtension implements Extension
     private function loadBootstrap(?string $bootstrap): void
     {
         if ($bootstrap === null) {
+            $this->loadEnv();
+
             return;
         }
 
         require_once $bootstrap;
+    }
+
+    private function loadEnv()
+    {
+        $env = getenv('APP_ENV');
+        (new Dotenv())->bootEnv(basename(dirname(__DIR__)).'/../.env', $env);
     }
 
     private function fallbackToTestEnvironment(): void
