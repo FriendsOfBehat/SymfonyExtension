@@ -193,7 +193,7 @@ final class SymfonyExtension implements Extension
             (new Dotenv())->bootEnv(basename(dirname(__DIR__)).'/../.env', $env);
         }
         catch (PathException $exception) {
-            return null;
+            return;
         }
     }
 
