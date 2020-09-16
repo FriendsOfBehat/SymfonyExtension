@@ -22,6 +22,8 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Parameter;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\Dotenv\Dotenv;
+use Symfony\Component\Dotenv\Exception\PathException;
 
 final class SymfonyExtension implements Extension
 {
@@ -74,6 +76,10 @@ final class SymfonyExtension implements Extension
         $this->fallbackToTestEnvironment();
 
         $this->loadBootstrap($this->autodiscoverBootstrap($config['bootstrap']));
+
+        if (empty($config['bootstrap'])) {
+            $this->loadEnv($config);
+        }
 
         $this->loadKernel($container, $this->autodiscoverKernelConfiguration($config['kernel']));
         $this->loadDriverKernel($container);
@@ -180,6 +186,17 @@ final class SymfonyExtension implements Extension
         }
 
         require_once $bootstrap;
+    }
+
+    private function loadEnv(array $config)
+    {
+        $env = $config['environment'] ?? $_SERVER['APP_ENV'] ?? $_ENV['APP_ENV'] ?? 'test';
+
+        try {
+            (new Dotenv())->bootEnv(basename(dirname(__DIR__)) . '/../.env', $env);
+        } catch (PathException $exception) {
+            return;
+        }
     }
 
     private function fallbackToTestEnvironment(): void
