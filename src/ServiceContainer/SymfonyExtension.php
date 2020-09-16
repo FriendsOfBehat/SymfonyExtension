@@ -191,10 +191,10 @@ final class SymfonyExtension implements Extension
     private function loadEnv()
     {
         $env = $config['environment'] ?? $_SERVER['APP_ENV'] ?? $_ENV['APP_ENV'] ?? 'test';
+
         try {
-            (new Dotenv())->bootEnv(basename(dirname(__DIR__)).'/../.env', $env);
-        }
-        catch (PathException $exception) {
+            (new Dotenv())->bootEnv(basename(dirname(__DIR__)) . '/../.env', $env);
+        } catch (PathException $exception) {
             return;
         }
     }
