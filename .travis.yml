@@ -16,6 +16,7 @@ cache:
 
 before_install:
     - phpenv config-rm xdebug.ini || true
+    - composer self-update --2 # For Composer v2 for PHP 8 while it's not installed by default by Travis
 
 install:
     - composer require symfony/dependency-injection:${SYMFONY_VERSION} --no-update --no-scripts --prefer-dist
@@ -27,7 +28,7 @@ install:
     - composer require --dev symfony/process:${SYMFONY_VERSION} --no-update --no-scripts --prefer-dist
     - composer require --dev symfony/yaml:${SYMFONY_VERSION} --no-update --no-scripts --prefer-dist
 
-    - composer update --prefer-dist
+    - composer update --prefer-dist --ignore-platform-req=php # ignore-platform-req=php is necessary temporarly because some deps aren't compatible with PHP8 yet
 
 script:
     - composer check
