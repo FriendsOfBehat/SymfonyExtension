@@ -46,16 +46,16 @@
         "sort-packages": true
     },
     "scripts": {
-        "check": [
-            "composer validate --ansi --strict",
-            "@analyse"
+        "analyse": [
+            "@composer validate --ansi --strict",
+            "vendor/bin/ecs check --ansi --no-progress-bar src tests",
+            "vendor/bin/psalm src --no-progress"
         ],
         "fix": [
             "vendor/bin/ecs check --ansi --no-progress-bar src tests --fix"
         ],
-        "analyse": [
-            "vendor/bin/ecs check --ansi --no-progress-bar src tests",
-            "vendor/bin/psalm src --no-progress"
+        "test": [
+            "vendor/bin/behat -f progress --strict -vvv --no-interaction --colors"
         ]
     },
     "extra": {
