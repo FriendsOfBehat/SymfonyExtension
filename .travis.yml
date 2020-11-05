@@ -19,17 +19,16 @@ before_install:
     - composer self-update --2 # Upgrade to Compose 2 (needed for PHP 8 support), only needed while it's not installed by default
 
 install:
-    - composer require symfony/dependency-injection:${SYMFONY_VERSION} --no-update --no-scripts --prefer-dist
-    - composer require symfony/http-kernel:${SYMFONY_VERSION} --no-update --no-scripts --prefer-dist
-    - composer require symfony/proxy-manager-bridge:${SYMFONY_VERSION} --no-update --no-scripts --prefer-dist
+    - composer require symfony/dependency-injection:${SYMFONY_VERSION} --no-update --no-scripts
+    - composer require symfony/http-kernel:${SYMFONY_VERSION} --no-update --no-scripts
+    - composer require symfony/proxy-manager-bridge:${SYMFONY_VERSION} --no-update --no-scripts
 
-    - composer require --dev symfony/browser-kit:${SYMFONY_VERSION} --no-update --no-scripts --prefer-dist
-    - composer require --dev symfony/framework-bundle:${SYMFONY_VERSION} --no-update --no-scripts --prefer-dist
-    - composer require --dev symfony/process:${SYMFONY_VERSION} --no-update --no-scripts --prefer-dist
-    - composer require --dev symfony/yaml:${SYMFONY_VERSION} --no-update --no-scripts --prefer-dist
+    - composer require --dev symfony/browser-kit:${SYMFONY_VERSION} --no-update --no-scripts
+    - composer require --dev symfony/framework-bundle:${SYMFONY_VERSION} --no-update --no-scripts
+    - composer require --dev symfony/process:${SYMFONY_VERSION} --no-update --no-scripts
+    - composer require --dev symfony/yaml:${SYMFONY_VERSION} --no-update --no-scripts
 
-    # ignore-platform-req=php is necessary temporarily because PageObjectExtension isn't compatible with PHP8 yet: https://github.com/FriendsOfBehat/PageObjectExtension/pull/16
-    - if [[ ${TRAVIS_PHP_VERSION:0:3} == "8.0" ]]; then composer update --prefer-dist --ignore-platform-req=php; else composer update --prefer-dist; fi
+    - composer update
 
 script:
     - composer check
