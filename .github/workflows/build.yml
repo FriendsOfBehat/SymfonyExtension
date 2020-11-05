@@ -45,7 +45,7 @@ jobs:
 
             -
                 name: Install dependencies
-                run: composer update
+                run: composer update ${{ matrix.php == '8.0' && '--ignore-platform-req=php' || '' }}
 
             -
                 name: Run analysis
