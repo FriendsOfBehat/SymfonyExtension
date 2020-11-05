@@ -79,9 +79,12 @@ final class FriendsOfBehatSymfonyExtensionExtension extends Extension implements
             return;
         }
 
-        foreach ([Client::class, KernelBrowser::class, HttpKernelBrowser::class] as $class) {
-            $container->setAlias($class, 'test.client');
+        if (class_exists(Client::class)) {
+            $container->setAlias(Client::class, 'test.client');
         }
+
+        $container->setAlias(KernelBrowser::class, 'test.client');
+        $container->setAlias(HttpKernelBrowser::class, 'test.client');
     }
 
     private function provideMinkIntegration(ContainerBuilder $container): void
