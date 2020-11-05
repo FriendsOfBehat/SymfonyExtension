@@ -87,29 +87,29 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
     /**
      * @throws EnvironmentIsolationException
      */
-    public function isolateEnvironment(Environment $uninitializedEnvironment, $testSubject = null): Environment
+    public function isolateEnvironment(Environment $environment, $testSubject = null): Environment
     {
-        $this->assertEnvironmentCanBeIsolated($uninitializedEnvironment, $testSubject);
+        $this->assertEnvironmentCanBeIsolated($environment, $testSubject);
 
-        $environment = new InitializedSymfonyExtensionEnvironment($uninitializedEnvironment->getSuite());
+        $isolatedEnvironment = new InitializedSymfonyExtensionEnvironment($environment->getSuite());
 
-        foreach ($uninitializedEnvironment->getServices() as $serviceId) {
+        foreach ($environment->getServices() as $serviceId) {
             /** @var Context $context */
             $context = $this->getContainer()->get($serviceId);
 
             $this->initializeContext($context);
 
-            $environment->registerContext($context);
+            $isolatedEnvironment->registerContext($context);
         }
 
         /** @var InitializedContextEnvironment $delegatedEnvironment */
-        $delegatedEnvironment = $this->decoratedEnvironmentHandler->isolateEnvironment($uninitializedEnvironment->getDelegatedEnvironment());
+        $delegatedEnvironment = $this->decoratedEnvironmentHandler->isolateEnvironment($environment->getDelegatedEnvironment());
 
         foreach ($delegatedEnvironment->getContexts() as $context) {
-            $environment->registerContext($context);
+            $isolatedEnvironment->registerContext($context);
         }
 
-        return $environment;
+        return $isolatedEnvironment;
     }
 
     private function initializeContext(Context $context): void
