@@ -1,7 +1,7 @@
 {
     "name": "friends-of-behat/symfony-extension",
-    "description": "Integrates Behat with Symfony.",
     "type": "symfony-bundle",
+    "description": "Integrates Behat with Symfony.",
     "license": "MIT",
     "authors": [
         {
@@ -11,44 +11,53 @@
         }
     ],
     "require": {
-        "php": "^7.3|^8.0",
+        "php": "^7.3 || ^8.0",
         "behat/behat": "^3.6.1",
-        "symfony/dependency-injection": "^4.4|^5.1",
-        "symfony/http-kernel": "^4.4|^5.1",
-        "symfony/proxy-manager-bridge": "^4.4|^5.1"
+        "symfony/dependency-injection": "^4.4 || ^5.1",
+        "symfony/http-kernel": "^4.4 || ^5.1",
+        "symfony/proxy-manager-bridge": "^4.4 || ^5.1"
     },
     "require-dev": {
         "behat/mink-selenium2-driver": "^1.3",
-        "friends-of-behat/mink": "^1.8",
-        "friends-of-behat/mink-browserkit-driver": "^1.4",
-        "friends-of-behat/mink-extension": "^2.4",
+        "friends-of-behat/mink": "^1.9",
+        "friends-of-behat/mink-browserkit-driver": "^1.5",
+        "friends-of-behat/mink-extension": "^2.5",
         "friends-of-behat/page-object-extension": "^0.3.2",
         "friends-of-behat/service-container-extension": "^1.1",
-        "vimeo/psalm": "4.1.1",
         "sylius-labs/coding-standard": "^3.2",
-        "symfony/browser-kit": "^4.4|^5.1",
-        "symfony/framework-bundle": "^4.4|^5.1",
-        "symfony/process": "^4.4|^5.1",
-        "symfony/yaml": "^4.4|^5.1"
+        "symfony/browser-kit": "^4.4 || ^5.1",
+        "symfony/framework-bundle": "^4.4 || ^5.1",
+        "symfony/process": "^4.4 || ^5.1",
+        "symfony/yaml": "^4.4 || ^5.1",
+        "vimeo/psalm": "4.4.1"
     },
     "suggest": {
-        "friends-of-behat/mink": "^1.8",
-        "friends-of-behat/mink-browserkit-driver": "^1.4",
-        "friends-of-behat/mink-extension": "^2.4"
-    },
-    "autoload": {
-        "psr-4": { "FriendsOfBehat\\SymfonyExtension\\": "src/" }
-    },
-    "autoload-dev": {
-        "psr-4": { "Tests\\": "tests/" }
+        "friends-of-behat/mink": "^1.9",
+        "friends-of-behat/mink-browserkit-driver": "^1.5",
+        "friends-of-behat/mink-extension": "^2.5"
     },
     "config": {
         "sort-packages": true
     },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.2-dev"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "FriendsOfBehat\\SymfonyExtension\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
     "scripts": {
         "analyse": [
             "@composer validate --ansi --strict",
-            "vendor/bin/ecs check --ansi --no-progress-bar src tests",
+            "vendor/bin/ecs check --ansi --no-progress-bar src tests || true",
             "vendor/bin/psalm src --no-progress"
         ],
         "fix": [
@@ -57,10 +66,5 @@
         "test": [
             "vendor/bin/behat -f progress --strict -vvv --no-interaction --colors"
         ]
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "2.2-dev"
-        }
     }
 }
