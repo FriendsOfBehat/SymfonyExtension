@@ -1,5 +1,22 @@
 # CHANGELOG FOR `2.1.x`
 
+## v2.2.0 (2021-02-04)
+
+#### TL;DR
+
+- **Added support for PHP 8** ([#134](https://github.com/FriendsOfBehat/SymfonyExtension/issues/134))
+
+#### Details
+
+- [#121](https://github.com/FriendsOfBehat/SymfonyExtension/issues/121) Require PHP ^7.2 ([@pamil](https://github.com/pamil))
+- [#130](https://github.com/FriendsOfBehat/SymfonyExtension/issues/130) Missing class for Symfony 5 ([@cv65kr](https://github.com/cv65kr), [@pamil](https://github.com/pamil))
+- [#134](https://github.com/FriendsOfBehat/SymfonyExtension/issues/134) Add support for PHP 8 ([@dunglas](https://github.com/dunglas))
+- [#136](https://github.com/FriendsOfBehat/SymfonyExtension/issues/136) Bump dependencies to Symfony ^4.4|^5.1 ([@pamil](https://github.com/pamil))
+- [#137](https://github.com/FriendsOfBehat/SymfonyExtension/issues/137) Bump dependencies to PHP ^7.3|^8.0 ([@pamil](https://github.com/pamil))
+- [#139](https://github.com/FriendsOfBehat/SymfonyExtension/issues/139) Switch from Travis to GitHub Actions ([@pamil](https://github.com/pamil))
+- [#140](https://github.com/FriendsOfBehat/SymfonyExtension/issues/140) Upgrade to Psalm v4.1.1 ([@pamil](https://github.com/pamil))
+- [#141](https://github.com/FriendsOfBehat/SymfonyExtension/issues/141) Fix the build for PHP 8 ([@pamil](https://github.com/pamil))
+
 ## v2.1.0 (2020-04-04)
 
 #### TL;DR
