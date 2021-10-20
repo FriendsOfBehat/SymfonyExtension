@@ -413,3 +413,18 @@ default:
  
     It allows you to force enabling or disabling debug mode. If it is not set, it uses `APP_DEBUG` environment variable 
     if defined or falls back to `true`.
+
+## Enable the kernel environment **test**
+
+To configure the environment used by the kernel (`APP_ENV`) while running scenarios, configure the extension:
+
+```yaml
+# behat.yaml.dist / behat.yaml
+
+default:
+    extensions:
+        FriendsOfBehat\SymfonyExtension:
+            kernel:
+                environment: test
+            bootstrap: tests/bootstrap.php
+```
