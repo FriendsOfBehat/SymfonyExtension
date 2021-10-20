@@ -416,7 +416,7 @@ default:
 
 ## Enable the kernel environment **test**
 
-To configure the environment used by the kernel (*APP_ENV*) while running scenarios, configure the extension :
+To configure the environment used by the kernel (`APP_ENV`) while running scenarios, configure the extension:
 
 ```yaml
 # behat.yaml.dist / behat.yaml
