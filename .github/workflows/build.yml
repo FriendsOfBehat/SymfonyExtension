@@ -42,20 +42,18 @@ jobs:
                   tools: composer:v2, flex
 
             - name: Validate composer.json
-              run: composer validate --no-check-lock
-
-            - name: Remove analysis dependencies
-              run: composer remove --dev --no-update sylius-labs/coding-standard vimeo/psalm
-              if: matrix.symfony-version == '6.0.*'
+              run: composer validate --strict
 
             - name: Install dependencies
               run: composer install --prefer-dist --no-progress
               env:
                   SYMFONY_REQUIRE: "${{ matrix.symfony-version }}"
 
-            - name: Run analysis
-              run: composer analyse
-              if: matrix.symfony-version != '6.0.*'
+            - name: Run coding standard
+              run: vendor/bin/ecs check --ansi --no-progress-bar src tests
+
+            - name: Run Psalm
+              run: vendor/bin/psalm src --no-progress --php-version="${{ matrix.php-version }}"
 
             - name: Run tests
               run: composer test
