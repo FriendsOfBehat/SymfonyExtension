@@ -39,10 +39,6 @@ jobs:
             - name: Validate composer.json
               run: composer validate --strict
 
-            - name: Remove analysis dependencies
-              run: composer remove --dev --no-update sylius-labs/coding-standard
-              if: matrix.symfony-version == '6.0.*'
-
             - name: Install dependencies
               run: composer install --prefer-dist --no-progress
               env:
@@ -50,7 +46,6 @@ jobs:
 
             - name: Run coding standard
               run: vendor/bin/ecs check --ansi --no-progress-bar src tests
-              if: matrix.symfony-version != '6.0.*'
 
             - name: Run Psalm
               run: vendor/bin/psalm src --no-progress --php-version="${{ matrix.php-version }}"
