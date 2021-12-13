@@ -66,7 +66,6 @@ Feature: Loading configured application kernel
         use Symfony\Component\DependencyInjection\ContainerBuilder;
         use Symfony\Component\HttpFoundation\Response;
         use Symfony\Component\HttpKernel\Kernel as HttpKernel;
-        use Symfony\Component\Routing\RouteCollectionBuilder;
 
         class Kernel extends HttpKernel
         {
@@ -90,7 +89,7 @@ Feature: Loading configured application kernel
                 $loader->load(__DIR__ . '/../../config/services.yaml');
             }
 
-            protected function configureRoutes(RouteCollectionBuilder $routes): void {}
+            protected function configureRoutes($routes): void {}
         }
         """
         When I run Behat
@@ -115,7 +114,6 @@ Feature: Loading configured application kernel
         use Symfony\Component\DependencyInjection\ContainerBuilder;
         use Symfony\Component\HttpFoundation\Response;
         use Symfony\Component\HttpKernel\Kernel as HttpKernel;
-        use Symfony\Component\Routing\RouteCollectionBuilder;
 
         class AppKernel extends HttpKernel
         {
@@ -139,7 +137,7 @@ Feature: Loading configured application kernel
                 $loader->load(__DIR__ . '/../../config/services.yaml');
             }
 
-            protected function configureRoutes(RouteCollectionBuilder $routes): void {}
+            protected function configureRoutes($routes): void {}
         }
         """
         When I run Behat

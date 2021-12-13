@@ -19,7 +19,13 @@
             <errorLevel type="suppress">
                 <referencedClass name="Symfony\Component\BrowserKit\AbstractBrowser" />
                 <referencedClass name="Symfony\Component\BrowserKit\Client" />
+                <referencedClass name="Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator" />
             </errorLevel>
         </UndefinedClass>
+        <InvalidAttribute>
+            <errorLevel type="suppress">
+                <file name="src/Mink/MinkParameters.php" />
+            </errorLevel>
+        </InvalidAttribute>
     </issueHandlers>
 </psalm>
