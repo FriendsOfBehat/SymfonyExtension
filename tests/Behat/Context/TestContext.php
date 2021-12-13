@@ -100,7 +100,7 @@ use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
-use Symfony\Component\Routing\RouteCollectionBuilder;
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 class Kernel extends HttpKernel
 {
@@ -125,9 +125,16 @@ class Kernel extends HttpKernel
         $loader->load(__DIR__ . '/../config/services.yaml');
     }
     
-    protected function configureRoutes(RouteCollectionBuilder $routes): void
+    protected function configureRoutes($routes): void
     {
-        $routes->add('/hello-world', 'App\Controller:helloWorld');
+        if ($routes instanceof RoutingConfigurator) { // available since Symfony 5.1
+            $routes
+                ->add('app_hello', '/hello-world')
+                ->controller('App\Controller::helloWorld')
+            ;
+        } else { // support Symfony 4.4  
+            $routes->add('/hello-world', 'App\Controller:helloWorld');
+        }
     }
 }
 CON
