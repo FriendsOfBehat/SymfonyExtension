@@ -27,5 +27,12 @@
                 <file name="src/Mink/MinkParameters.php" />
             </errorLevel>
         </InvalidAttribute>
+
+        <!-- Workaround for https://github.com/vimeo/psalm/issues/7026 -->
+        <ReservedWord>
+            <errorLevel type="suppress">
+                <directory name="src" />
+            </errorLevel>
+        </ReservedWord>
     </issueHandlers>
 </psalm>
