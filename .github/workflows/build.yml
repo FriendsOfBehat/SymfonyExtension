@@ -54,8 +54,5 @@ jobs:
             - name: Install dependencies
               run: composer update
 
-            - name: Run analysis
-              run: composer analyse
-
             - name: Run tests
               run: composer test

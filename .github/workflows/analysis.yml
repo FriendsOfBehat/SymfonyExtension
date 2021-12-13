@@ -1,0 +1,23 @@
+name: analysis
+
+on:
+    pull_request:
+    push:
+        branches: [ master, develop ]
+
+jobs:
+    analysis:
+        name: PHP-CS-Fixer
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v2
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+
+            - name: Install dependencies
+              run: composer install --no-progress --no-interaction --prefer-dist
+
+            - name: Run script
+              run: composer analyse
