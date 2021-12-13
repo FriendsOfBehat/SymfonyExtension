@@ -78,7 +78,8 @@ CON
      */
     public function workingSymfonyApplicationWithExtension(): void
     {
-        $this->thereIsConfiguration(<<<'CON'
+        $this->thereIsConfiguration(
+            <<<'CON'
 default:
     extensions:
         FriendsOfBehat\SymfonyExtension:
@@ -89,7 +90,9 @@ CON
 
         $this->standardSymfonyAutoloaderConfigured();
 
-        $this->thereIsFile('src/Kernel.php', <<<'CON'
+        $this->thereIsFile(
+            'src/Kernel.php',
+            <<<'CON'
 <?php
 
 declare(strict_types=1);
@@ -140,7 +143,9 @@ class Kernel extends HttpKernel
 CON
         );
 
-        $this->thereIsFile('src/Controller.php', <<<'CON'
+        $this->thereIsFile(
+            'src/Controller.php',
+            <<<'CON'
 <?php
 
 declare(strict_types=1);
@@ -168,7 +173,9 @@ final class Controller
 CON
         );
 
-        $this->thereIsFile('src/Counter.php', <<<'CON'
+        $this->thereIsFile(
+            'src/Counter.php',
+            <<<'CON'
 <?php
 
 declare(strict_types=1);
@@ -192,7 +199,9 @@ final class Counter
 CON
         );
 
-        $this->thereIsFile('config/default.yaml', <<<'YML'
+        $this->thereIsFile(
+            'config/default.yaml',
+            <<<'YML'
 services:
     App\Controller:
         arguments:
