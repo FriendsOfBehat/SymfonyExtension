@@ -4,6 +4,11 @@ on:
     push:
     pull_request:
         types: [opened, synchronize, edited, reopened]
+    release:
+        types: [created]
+    schedule:
+        -
+            cron: "0 1 * * 6" # Run at 1am every Saturday
 
 jobs:
     test:
