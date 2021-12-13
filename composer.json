@@ -29,7 +29,7 @@
         "symfony/framework-bundle": "^4.4 || ^5.1 || ^6.0",
         "symfony/process": "^4.4 || ^5.1 || ^6.0",
         "symfony/yaml": "^4.4 || ^5.1 || ^6.0",
-        "vimeo/psalm": "4.4.1"
+        "vimeo/psalm": "4.15.0"
     },
     "suggest": {
         "friends-of-behat/mink": "^1.9",
