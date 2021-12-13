@@ -7,7 +7,7 @@ on:
 
 jobs:
     analysis:
-        name: PHP-CS-Fixer
+        name: Run analysis (Psalm, Composer Validate, ECS Stantarts)
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
