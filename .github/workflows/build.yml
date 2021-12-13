@@ -8,7 +8,7 @@ on:
 jobs:
     tests:
         runs-on: ubuntu-latest
-        name: "PHP ${{ matrix.php }}, Symfony ${{ matrix.symfony }}"
+        name: "PHP ${{ matrix.php-version }}, Symfony ${{ matrix.symfony-version }}"
         strategy:
             fail-fast: false
             matrix:
@@ -42,14 +42,14 @@ jobs:
             - name: Update Symfony version
               if: matrix.symfony != ''
               run: |
-                  composer require symfony/dependency-injection:${{ matrix.symfony }} --no-update --no-scripts
-                  composer require symfony/http-kernel:${{ matrix.symfony }} --no-update --no-scripts
-                  composer require symfony/proxy-manager-bridge:${{ matrix.symfony }} --no-update --no-scripts
+                  composer require symfony/dependency-injection:${{ matrix.symfony-version }} --no-update --no-scripts
+                  composer require symfony/http-kernel:${{ matrix.symfony-version }} --no-update --no-scripts
+                  composer require symfony/proxy-manager-bridge:${{ matrix.symfony-version }} --no-update --no-scripts
 
-                  composer require --dev symfony/browser-kit:${{ matrix.symfony }} --no-update --no-scripts
-                  composer require --dev symfony/framework-bundle:${{ matrix.symfony }} --no-update --no-scripts
-                  composer require --dev symfony/process:${{ matrix.symfony }} --no-update --no-scripts
-                  composer require --dev symfony/yaml:${{ matrix.symfony }} --no-update --no-scripts
+                  composer require --dev symfony/browser-kit:${{ matrix.symfony-version }} --no-update --no-scripts
+                  composer require --dev symfony/framework-bundle:${{ matrix.symfony-version }} --no-update --no-scripts
+                  composer require --dev symfony/process:${{ matrix.symfony-version }} --no-update --no-scripts
+                  composer require --dev symfony/yaml:${{ matrix.symfony-version }} --no-update --no-scripts
 
             - name: Install dependencies
               run: composer update
