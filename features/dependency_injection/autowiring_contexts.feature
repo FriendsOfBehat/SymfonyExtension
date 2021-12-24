@@ -131,3 +131,50 @@ Feature: Autowiring contexts
             """
         When I run Behat
         Then it should pass
+
+    Scenario: Autowiring a context with test client
+        Given a working Symfony application with SymfonyExtension configured
+        And an environment variable "APP_ENV" set to "test"
+        And a feature file containing:
+        """
+        Feature:
+            Scenario:
+                Then the client should be passed
+        """
+        And a context file "tests/SomeContext.php" containing:
+        """
+        <?php
+
+        namespace App\Tests;
+
+        use Behat\Behat\Context\Context;
+        use Symfony\Component\BrowserKit\AbstractBrowser;
+
+        final class SomeContext implements Context
+        {
+            private $client;
+
+            public function __construct(AbstractBrowser $client) { $this->client = $client; }
+
+            /** @Then the client should be passed */
+            public function clientShouldBePassed(): void
+            {
+                assert(is_object($this->client));
+                assert($this->client instanceof AbstractBrowser);
+            }
+        }
+        """
+        And a YAML services file containing:
+            """
+            services:
+                _defaults:
+                    autowire: true
+                    autoconfigure: true
+                    bind:
+                        $client: '@test.client'
+
+                App\Tests\:
+                    resource: '../tests/*'
+            """
+        When I run Behat
+        Then it should pass
