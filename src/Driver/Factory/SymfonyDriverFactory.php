@@ -42,7 +42,7 @@ final class SymfonyDriverFactory implements DriverFactory
     public function buildDriver(array $config): Definition
     {
         if (!class_exists(BrowserKitDriver::class)) {
-            throw new \RuntimeException('Install "friends-of-behat/mink-browserkit-driver" (drop-in replacement for "behat/mink-browserkit-driver") in order to use the "symfony" driver.');
+            throw new \RuntimeException('Install "behat/mink-browserkit-driver" in order to use the "symfony" driver.');
         }
 
         return new Definition(SymfonyDriver::class, [
