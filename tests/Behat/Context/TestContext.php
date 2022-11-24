@@ -167,7 +167,7 @@ final class Controller
     {
         $this->counter->increase();
     
-        return new Response('Hello world!');
+        return new Response('Hello world! The counter value is ' . $this->counter->get());
     }
 }
 CON
