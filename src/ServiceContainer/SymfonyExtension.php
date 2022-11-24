@@ -222,7 +222,7 @@ final class SymfonyExtension implements Extension
         if ($autodiscovered !== 1) {
             throw new \RuntimeException(
                 'Could not autodiscover the application kernel. ' .
-                'Please define it manually with "FriendsOfBehat\SymfonyExtension.kernel" configuration option.'
+                'Please define it manually with "FriendsOfBehat\SymfonyExtension.kernel" configuration option.',
             );
         }
 
@@ -260,7 +260,7 @@ final class SymfonyExtension implements Extension
             throw new \RuntimeException(
                 'Could not autodiscover the bootstrap file. ' .
                 'Please define it manually with "FriendsOfBehat\SymfonyExtension.bootstrap" configuration option. ' .
-                'Setting that option to "false" disables autodiscovering.'
+                'Setting that option to "false" disables autodiscovering.',
             );
         }
 

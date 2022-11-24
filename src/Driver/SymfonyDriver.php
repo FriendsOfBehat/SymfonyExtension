@@ -19,7 +19,7 @@ final class SymfonyDriver extends BrowserKitDriver
                 'Please make sure the kernel is using "test" environment or have "framework.test" configuration option enabled.',
                 get_class($kernel),
                 $kernel->getEnvironment(),
-                $kernel->isDebug() ? 'enabled' : 'disabled'
+                $kernel->isDebug() ? 'enabled' : 'disabled',
             ));
         }
 
@@ -31,7 +31,7 @@ final class SymfonyDriver extends BrowserKitDriver
                 'Service "test.client" should be an instance of "%s" or "%s", "%s" given.',
                 Client::class,
                 AbstractBrowser::class,
-                get_class($testClient)
+                get_class($testClient),
             ));
         }
 
