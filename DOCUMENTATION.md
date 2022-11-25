@@ -8,7 +8,7 @@
 
 # Installation
 
-If you're starting a new project, we recommend to use Symfony 4 with Flex as it's the most straightforward way.
+If you're starting a new project, we recommend to use Symfony with Flex as it's the most straightforward way.
 If you're adding this extension to an existing project, pick the method that fits it the best. 
 
 ### Symfony 4/5 (with Flex)
@@ -349,22 +349,28 @@ This integration provides the following services to use inside Symfony container
  * **`behat.mink.parameters`** (autowired by `\FriendsOfBehat\SymfonyExtension\Mink\MinkParameters`) - an object 
  containing the configuration parameters of `MinkExtension` (implementing `\ArrayAccess` so that it can be treated as an array)
  
- * **`behat.driver.service_container`** - service container used by the `symfony` Mink driver, useful for assertions based on
-  application state after a request has been handled
+ * **`behat.driver.service_container`** - service container used by the `symfony` Mink driver, useful for assertions based on application state after a request has been handled. Alternatively, you can use a [named autowiring alias](https://symfony.com/doc/current/service_container/autowiring.html#dealing-with-multiple-implementations-of-the-same-type) by type-hinting for `\Symfony\Component\DependencyInjection\ContainerInterface` and using `$driverContainer` as the parameter name.
 
 # Differences from Behat/Symfony2Extension
 
 ### Contexts as services
 
-In _Behat/Symfony2Extension_ the dependencies of a context are defined in the Behat configuration file. In this extension,
-contexts are defined as services - this makes reusing suites effortless, also allowing to support autowiring and autoconfiguration.
+In _Behat/Symfony2Extension_, the dependencies of a context are defined in the Behat configuration file. With this extension here, the contexts listed in the Behat configuration file are defined as services in your Symfony container. This makes reusing suites effortless, also allowing to support autowiring and autoconfiguration.
 
-### Isolated driver
+### Isolated Kernel and Container for the Mink driver
 
-The Mink driver provided with this extension differs from the one provided with _Behat/Symfony2Extension_,
-as it uses an isolated application kernel instance, so that services state changes within your contexts does not affect 
-the driver results. With that limitation, changing the driver to a different one is seamless. For more information, look
-at [this issue](https://github.com/Behat/Symfony2Extension/issues/112).
+The Mink driver provided with this extension differs from the one provided with _Behat/Symfony2Extension_, as it uses an isolated application kernel instance.
+
+That means there is a first instance of your Symfony kernel with a corresponding container, and that instance is used to configure (and possibly autowire) your context classes. You will also get this container instance by using `@service_container` when configuring your contexts.
+
+The second instance of the Symfony kernel and its corresponding container is used when you make requests to your application with the `symfony` Mink driver. This has the benefit that your application will be run with a clean, isolated container for every single request made through Mink – just as if your application was tested through a real web server, where requests would be isolated as well.
+
+In your contexts, you can inject the `behat.driver.service_container` service (or type-hint `\Symfony\Component\DependencyInjection\ContainerInterface $driverContainer`) to access the second container instance. This allows you to bring services to a particular state before making a request, or even replace/mock them. Also, after a request to your application has been made through th Mink, you can use the container to inspect state. For example, you could use it to query the Symfony Profiler for data that was collected while the request was executed.
+
+*Beware*, however, of some lifecycle limitations:
+
+* Both kernels and containers will be shut down and rebooted after every single scenario and/or example (for scenario outlines), in order to provide a clean separation between scenarios.
+* When making multiple Mink requests within a single scenario, the second kernel and container (`behat.driver.service_container`) needs to be reset to provide a clean state for the second and every additional request. This reset will happen immediately before the second and any subsequent request is handed to the kernel. So, while in general it is possible to inspect the driver's container state _after_ requests, setting it up (bringing it into desired state) easily is only possible for the _first_ request.
 
 # Configuration reference
 
