@@ -310,7 +310,7 @@ YML
         }
 
         throw new \DomainException(
-            'Behat was expecting to pass, but failed with the following output:' . \PHP_EOL . \PHP_EOL . $this->getProcessOutput()
+            'Behat was expecting to pass, but failed with the following output:' . \PHP_EOL . \PHP_EOL . $this->getProcessOutput(),
         );
     }
 
@@ -333,7 +333,7 @@ YML
         }
 
         throw new \DomainException(
-            'Behat was expecting to fail, but passed with the following output:' . \PHP_EOL . \PHP_EOL . $this->getProcessOutput()
+            'Behat was expecting to fail, but passed with the following output:' . \PHP_EOL . \PHP_EOL . $this->getProcessOutput(),
         );
     }
 
@@ -371,7 +371,7 @@ YML
             throw new \DomainException(sprintf(
                 'Pattern "%s" does not match the following output:' . \PHP_EOL . \PHP_EOL . '%s',
                 $pattern,
-                $output
+                $output,
             ));
         }
     }

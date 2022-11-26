@@ -132,7 +132,7 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
             throw new SuiteConfigurationException(sprintf(
                 '"contexts" setting of the "%s" suite is expected to be an array, %s given.',
                 $suite->getName(),
-                gettype($contexts)
+                gettype($contexts),
             ), $suite->getName());
         }
 
@@ -147,7 +147,7 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
             throw new SuiteConfigurationException(sprintf(
                 '"contexts" setting of the "%s" suite is expected to be an array, %s given.',
                 $suite->getName(),
-                gettype($contexts)
+                gettype($contexts),
             ), $suite->getName());
         }
 
@@ -182,7 +182,7 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
             throw new EnvironmentIsolationException(sprintf(
                 '"%s" does not support isolation of "%s" environment.',
                 static::class,
-                get_class($uninitializedEnvironment)
+                get_class($uninitializedEnvironment),
             ), $uninitializedEnvironment);
         }
     }
@@ -197,7 +197,7 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
                 get_class($this->symfonyKernel),
                 $this->symfonyKernel->getEnvironment(),
                 $this->symfonyKernel->isDebug() ? 'enabled' : 'disabled',
-                FriendsOfBehatSymfonyExtensionBundle::class
+                FriendsOfBehatSymfonyExtensionBundle::class,
             ));
         }
 

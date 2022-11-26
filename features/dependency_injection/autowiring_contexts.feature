@@ -48,6 +48,10 @@ Feature: Autowiring contexts
 
                 App\Tests\SomeContext:
                     public: true
+
+                # https://github.com/symfony/symfony/pull/35879/
+                Psr\Container\ContainerInterface:
+                    alias: service_container
             """
         When I run Behat
         Then it should pass
@@ -128,6 +132,10 @@ Feature: Autowiring contexts
 
                 App\Tests\:
                     resource: '../tests/*'
+
+                # https://github.com/symfony/symfony/pull/35879/
+                Psr\Container\ContainerInterface:
+                    alias: service_container
             """
         When I run Behat
         Then it should pass

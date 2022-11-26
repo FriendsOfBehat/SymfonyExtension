@@ -13,8 +13,7 @@ on:
 jobs:
     test:
         name: PHP ${{ matrix.php-version }} + Symfony ${{ matrix.symfony-version }}
-        runs-on: ubuntu-20.04
-        continue-on-error: false
+        runs-on: ubuntu-22.04
         strategy:
             fail-fast: false
             matrix:
@@ -24,7 +23,6 @@ jobs:
                     - '8.1'
                 symfony-version:
                     - '4.4.*'
-                    - '5.3.*'
                     - '5.4.*'
                     - '6.0.*'
                 exclude:
@@ -32,29 +30,92 @@ jobs:
                       symfony-version: '6.0.*'
         steps:
             - name: Checkout
-              uses: actions/checkout@v2
+              uses: actions/checkout@v3
 
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
               with:
                   coverage: none
-                  ini-values: "memory_limit=-1"
+                  ini-values: "memory_limit=-1, zend.assertions=1"
                   php-version: ${{ matrix.php-version }}
+                  tools: composer:v2, flex
+
+            # This works around SYMFONY_REQUIRE currently not working (https://github.com/symfony/flex/issues/946):
+            - name: Lock Symfony version
+              run: VERSION=${{ matrix.symfony-version }} .github/workflows/lock-symfony-version.sh
+
+            - name: Install dependencies
+              run: |
+                  composer config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
+                  composer install --prefer-dist --no-progress --no-plugins
+              #env:
+              #    SYMFONY_REQUIRE: "${{ matrix.symfony-version }}"
+
+            - name: Run tests
+              run: composer test
+
+    psalm:
+        name: Run Psalm
+        runs-on: ubuntu-22.04
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  coverage: none
+                  ini-values: "memory_limit=-1, zend.assertions=1"
+                  php-version: 7.4
+                  tools: composer:v2, flex
+
+            - name: Install dependencies
+              run: |
+                  composer config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
+                  composer install --prefer-dist --no-progress --no-plugins
+
+            - name: Run Psalm
+              run: vendor/bin/psalm src --no-progress
+
+    validate-composer:
+        name: Validate composer.json
+        runs-on: ubuntu-22.04
+        continue-on-error: false
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  coverage: none
+                  ini-values: "memory_limit=-1, zend.assertions=1"
+                  php-version: 8.1
                   tools: composer:v2, flex
 
             - name: Validate composer.json
               run: composer validate --strict
 
+    coding-standards:
+        name: Validate Coding Standards
+        runs-on: ubuntu-22.04
+        continue-on-error: false
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  coverage: none
+                  ini-values: "memory_limit=-1, zend.assertions=1"
+                  php-version: 8.1
+                  tools: composer:v2, flex
+
             - name: Install dependencies
-              run: composer install --prefer-dist --no-progress
-              env:
-                  SYMFONY_REQUIRE: "${{ matrix.symfony-version }}"
+              run: |
+                  composer config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
+                  composer install --prefer-dist --no-progress
 
             - name: Run coding standard
               run: vendor/bin/ecs check --ansi --no-progress-bar src tests
-
-            - name: Run Psalm
-              run: vendor/bin/psalm src --no-progress --php-version="${{ matrix.php-version }}"
-
-            - name: Run tests
-              run: composer test

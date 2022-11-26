@@ -81,7 +81,7 @@ final class InitializedSymfonyExtensionEnvironment implements SymfonyExtensionEn
         if (!isset($this->contexts[$class])) {
             throw new ContextNotFoundException(sprintf(
                 '`%s` context is not found in the suite environment. Have you registered it?',
-                $class
+                $class,
             ), $class);
         }
 
