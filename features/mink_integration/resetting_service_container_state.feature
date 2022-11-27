@@ -163,11 +163,21 @@ Feature: Resetting the driver's service container in the right places
         Feature:
             Scenario:
                 Given the counter service is zeroed
+                # Increment the counter before the first step, so that we can
+                # really observe a difference (i. e. the container being reset
+                # and the answer being "1" instead of "2") after the second request.
+                And I increment the counter
+                When I visit the page "/hello-world"
+                Then the counter service should return 2
+                # This will reset the driver's container:
                 When I visit the page "/hello-world"
                 Then the counter service should return 1
-                # This will reset the driver's container, so we will see "1" again
-                When I visit the page "/hello-world"
-                Then the counter service should return 1
+                # Remark: Our context had the driver's container constructor-injected
+                # and thus that container instance cannot/did not change (!). However,
+                # due to the way things work internally in Symfony (related to lazy
+                # loading? using the test container?), after the Kernel reboot we
+                # still get the _current_ service instances from that container, at least
+                # as long as we get() the services again.
         """
         When I run Behat
         Then it should pass
