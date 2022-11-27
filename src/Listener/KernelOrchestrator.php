@@ -15,12 +15,16 @@ final class KernelOrchestrator implements EventSubscriberInterface
     /** @var KernelInterface */
     private $symfonyKernel;
 
+    /** @var KernelInterface */
+    private $driverKernel;
+
     /** @var ContainerInterface */
     private $behatContainer;
 
-    public function __construct(KernelInterface $symfonyKernel, ContainerInterface $behatContainer)
+    public function __construct(KernelInterface $symfonyKernel, KernelInterface $driverKernel, ContainerInterface $behatContainer)
     {
         $this->symfonyKernel = $symfonyKernel;
+        $this->driverKernel = $driverKernel;
         $this->behatContainer = $behatContainer;
     }
 
@@ -42,8 +46,25 @@ final class KernelOrchestrator implements EventSubscriberInterface
 
     public function tearDown(): void
     {
+        $this->driverKernel->shutdown();
+
+        /*
+         * Reset both Kernel instances after a scenario has been run: The Kernel (and thus Container)
+         * used in Behat to configure Contexts; and the Kernel used by the SymfonyDriver to which
+         * requests are dispatched (through Mink).
+         *
+         * Since the "symfony" container is needed in a few other places (where and why exactly?) and
+         * has to be in a booted/usable state most of the time, we do not shut it down here in tearDown()
+         * and boot it in setUp().
+         *
+         * Instead, the definitions in \FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension
+         * make sure both kernels are booted immediately after being created, and we also initiate the
+         * re-boot() here right away.
+         */
         $this->symfonyKernel->getContainer()->set('behat.service_container', null);
         $this->symfonyKernel->shutdown();
         $this->symfonyKernel->boot();
+
+        $this->driverKernel->boot();
     }
 }

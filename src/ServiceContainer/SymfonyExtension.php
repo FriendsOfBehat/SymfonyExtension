@@ -134,7 +134,7 @@ final class SymfonyExtension implements Extension
 
     private function loadKernelRebooter(ContainerBuilder $container): void
     {
-        $definition = new Definition(KernelOrchestrator::class, [new Reference(self::KERNEL_ID), $container]);
+        $definition = new Definition(KernelOrchestrator::class, [new Reference(self::KERNEL_ID), new Reference(self::DRIVER_KERNEL_ID), $container]);
         $definition->addTag(EventDispatcherExtension::SUBSCRIBER_TAG);
 
         $container->setDefinition('fob_symfony.kernel_orchestrator', $definition);

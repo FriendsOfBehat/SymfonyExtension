@@ -372,6 +372,8 @@ In your contexts, you can inject the `behat.driver.service_container` service (o
 * Both kernels and containers will be shut down and rebooted after every single scenario and/or example (for scenario outlines), in order to provide a clean separation between scenarios.
 * When making multiple Mink requests within a single scenario, the second kernel and container (`behat.driver.service_container`) needs to be reset to provide a clean state for the second and every additional request. This reset will happen immediately before the second and any subsequent request is handed to the kernel. So, while in general it is possible to inspect the driver's container state _after_ requests, setting it up (bringing it into desired state) easily is only possible for the _first_ request.
 
+In order to get the right (current) instances of services after such a reset has happened, make sure you call `ContainerInterface::get()` and related methods again after the request. Do not fetch services from the driver's container e. g. in your context constructors, since that will not give you the latest instances of those services.
+
 # Configuration reference
 
 By default, if no confguration is passed, _SymfonyExtension_ will try its best to guess it.
