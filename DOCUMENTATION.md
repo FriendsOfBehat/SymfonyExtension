@@ -365,7 +365,7 @@ That means there is a first instance of your Symfony kernel with a corresponding
 
 The second instance of the Symfony kernel and its corresponding container is used when you make requests to your application with the `symfony` Mink driver. This has the benefit that your application will be run with a clean, isolated container for every single request made through Mink – just as if your application was tested through a real web server, where requests would be isolated as well.
 
-In your contexts, you can inject the `behat.driver.service_container` service (or type-hint `\Symfony\Component\DependencyInjection\ContainerInterface $driverContainer`) to access the second container instance. This allows you to bring services to a particular state before making a request, or even replace/mock them. Also, after a request to your application has been made through th Mink, you can use the container to inspect state. For example, you could use it to query the Symfony Profiler for data that was collected while the request was executed.
+In your contexts, you can inject the `behat.driver.service_container` service (or type-hint `\Symfony\Component\DependencyInjection\ContainerInterface $driverContainer`) to access the second container instance. This allows you to bring services to a particular state before making a request, or even replace/mock them. Also, after a request to your application has been made through Mink, you can use the container to inspect state. For example, you could use it to query the Symfony Profiler for data that was collected while the request was executed.
 
 *Beware*, however, of some lifecycle limitations:
 
