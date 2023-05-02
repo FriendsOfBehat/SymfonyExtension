@@ -27,7 +27,10 @@ final class InitializedSymfonyExtensionEnvironment implements SymfonyExtensionEn
     /** @var Suite */
     private $suite;
 
-    /** @var Context[] */
+    /**
+     * @var array<class-string<Context>, Context>
+     * @psalm-var class-string-map<T as Context, T>
+     */
     private $contexts = [];
 
     public function __construct(Suite $suite)
@@ -73,6 +76,12 @@ final class InitializedSymfonyExtensionEnvironment implements SymfonyExtensionEn
 
     /**
      * @see http://behat.org/en/latest/cookbooks/accessing_contexts_from_each_other.html
+     *
+     * @template T of Context
+     *
+     * @param class-string<T> $class
+     *
+     * @return T
      *
      * @throws ContextNotFoundException
      */
