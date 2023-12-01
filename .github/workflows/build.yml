@@ -32,6 +32,9 @@ jobs:
                       symfony-version: '6.1.*'
                     - php-version: '8.0'
                       symfony-version: '6.1.*'
+                include:
+                  - php-version: '8.2'
+                    symfony-version: '7.0.*'
         steps:
             - name: Checkout
               uses: actions/checkout@v3
