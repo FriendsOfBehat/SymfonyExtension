@@ -37,10 +37,7 @@
         "friends-of-behat/mink-extension": "^2.5"
     },
     "config": {
-        "sort-packages": true,
-        "allow-plugins": {
-            "dealerdirect/phpcodesniffer-composer-installer": true
-        }
+        "sort-packages": true
     },
     "extra": {
         "branch-alias": {
