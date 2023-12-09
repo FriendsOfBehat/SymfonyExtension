@@ -15,7 +15,7 @@
         "behat/behat": "dev-master",
         "symfony/dependency-injection": "^5.4 || ^6.4 || ^7.0",
         "symfony/http-kernel": "^5.4 || ^6.4 || ^7.0",
-        "symfony/proxy-manager-bridge": "^5.4 || ^6.4 || ^7.0"
+        "symfony/proxy-manager-bridge": "^5.4 || ^6.4"
     },
     "require-dev": {
         "behat/mink-browserkit-driver": "^2.0",

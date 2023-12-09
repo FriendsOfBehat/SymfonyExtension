@@ -43,6 +43,12 @@ jobs:
             - name: Lock Symfony version
               run: VERSION=${{ matrix.symfony-version }} .github/workflows/lock-symfony-version.sh
 
+            - name: Remove Symfony proxy-manager-bridge
+              run: |
+                  composer config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
+                  composer remove "symfony/proxy-manager-bridge" --no-update
+              if: matrix.symfony-version == '7.0.*'
+
             - name: Install dependencies
               run: |
                   composer config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
