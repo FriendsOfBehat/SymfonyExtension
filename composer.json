@@ -15,7 +15,7 @@
         "behat/behat": "^3.6.1",
         "symfony/dependency-injection": "^4.4 || ^5.3 || ^6.0 || ^7.0",
         "symfony/http-kernel": "^4.4 || ^5.3 || ^6.0 || ^7.0",
-        "symfony/proxy-manager-bridge": "^4.4 || ^5.3 || ^6.0 || ^7.0"
+        "symfony/proxy-manager-bridge": "^4.4 || ^5.3 || ^6.0"
     },
     "require-dev": {
         "behat/mink-selenium2-driver": "^1.3",
