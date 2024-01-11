@@ -64,7 +64,7 @@ jobs:
               with:
                   coverage: none
                   ini-values: "memory_limit=-1, zend.assertions=1"
-                  php-version: 8.2
+                  php-version: 8.1
                   tools: composer:v2, flex
 
             - name: Install dependencies
