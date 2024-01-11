@@ -1,3 +1,7 @@
+# Migrating from SymfonyExtension `2.x` to SymfonyExtension `2.4.2`
+
+If you were having "friends-of-behat/mink-browserkit-driver" or "friends-of-behat/mink" in your composer.json, you should remove them and add "behat/mink-browserkit-driver" and "behat/mink" accordingly.
+
 # Migrating from SymfonyExtension `1.x` to SymfonyExtension `2.0`
 
 ## Upgrade checklist
