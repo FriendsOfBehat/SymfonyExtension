@@ -21,6 +21,7 @@ jobs:
                     - '8.2'
                 symfony-version:
                     - '6.2.*'
+                    - '6.4.*'
                     - '7.0.*'
                 exclude:
                     - php-version: '8.1'
