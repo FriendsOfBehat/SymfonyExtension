@@ -21,6 +21,7 @@ use Symfony\Component\DependencyInjection\Alias;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Parameter;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\DependencyInjection\Reference;
 
 final class SymfonyExtension implements Extension
@@ -73,7 +74,7 @@ final class SymfonyExtension implements Extension
     {
         $this->setupTestEnvironment($config['kernel']['environment'] ?? 'test');
 
-        $this->loadBootstrap($this->autodiscoverBootstrap($config['bootstrap']));
+        $this->loadBootstrap($this->autodiscoverBootstrap($config['bootstrap'], $container->getParameterBag()));
 
         $this->loadKernel($container, $this->autodiscoverKernelConfiguration($config['kernel']));
         $this->loadDriverKernel($container);
@@ -232,10 +233,10 @@ final class SymfonyExtension implements Extension
     /**
      * @param string|bool|null $bootstrap
      */
-    private function autodiscoverBootstrap($bootstrap): ?string
+    private function autodiscoverBootstrap($bootstrap, ParameterBag $parameterBag): ?string
     {
         if (is_string($bootstrap)) {
-            return $bootstrap;
+            return $parameterBag->resolveString($bootstrap);
         }
 
         if ($bootstrap === false) {
@@ -243,15 +244,16 @@ final class SymfonyExtension implements Extension
         }
 
         $autodiscovered = 0;
+        $basePath = $parameterBag->get('paths.base');
 
-        if (file_exists('config/bootstrap.php')) {
-            $bootstrap = 'config/bootstrap.php';
+        if (file_exists($basePath . '/config/bootstrap.php')) {
+            $bootstrap = $basePath . '/config/bootstrap.php';
 
             ++$autodiscovered;
         }
 
-        if (file_exists('app/autoload.php')) {
-            $bootstrap = 'app/autoload.php';
+        if (file_exists($basePath . '/app/autoload.php')) {
+            $bootstrap = $basePath . '/app/autoload.php';
 
             ++$autodiscovered;
         }
