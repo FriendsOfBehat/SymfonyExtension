@@ -14,7 +14,6 @@ use Behat\Testwork\ServiceContainer\ExtensionManager;
 use FriendsOfBehat\SymfonyExtension\Context\Environment\Handler\ContextServiceEnvironmentHandler;
 use FriendsOfBehat\SymfonyExtension\Driver\Factory\SymfonyDriverFactory;
 use FriendsOfBehat\SymfonyExtension\Listener\KernelOrchestrator;
-use FriendsOfBehat\SymfonyExtension\Mink\Mink;
 use FriendsOfBehat\SymfonyExtension\Mink\MinkParameters;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\DependencyInjection\Alias;
@@ -93,10 +92,6 @@ final class SymfonyExtension implements Extension
     public function process(ContainerBuilder $container): void
     {
         $this->processEnvironmentHandler($container);
-
-        if ($this->minkExtensionFound) {
-            $container->getDefinition(MinkExtension::MINK_ID)->setClass(Mink::class);
-        }
     }
 
     private function registerMinkDriver(ExtensionManager $extensionManager): void
