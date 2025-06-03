@@ -17,11 +17,13 @@ class MinkParameters implements \Countable, \IteratorAggregate, \ArrayAccess
         $this->minkParameters = $minkParameters;
     }
 
+    #[\Override]
     public function getIterator(): \Traversable
     {
         return new \ArrayIterator($this->minkParameters);
     }
 
+    #[\Override]
     public function offsetExists($offset): bool
     {
         return array_key_exists($offset, $this->minkParameters);
@@ -30,22 +32,26 @@ class MinkParameters implements \Countable, \IteratorAggregate, \ArrayAccess
     /**
      * @return mixed
      */
+    #[\Override]
     #[ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         return $this->minkParameters[$offset] ?? null;
     }
 
+    #[\Override]
     public function offsetSet($offset, $value): void
     {
         throw new \BadMethodCallException(sprintf('"%s" is immutable.', self::class));
     }
 
+    #[\Override]
     public function offsetUnset($offset): void
     {
         throw new \BadMethodCallException(sprintf('"%s" is immutable.', self::class));
     }
 
+    #[\Override]
     public function count(): int
     {
         return count($this->minkParameters);

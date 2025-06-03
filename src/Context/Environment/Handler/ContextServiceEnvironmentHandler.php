@@ -51,11 +51,13 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
         $this->contextInitializers[] = $contextInitializer;
     }
 
+    #[\Override]
     public function supportsSuite(Suite $suite): bool
     {
         return $suite->hasSetting('contexts');
     }
 
+    #[\Override]
     public function buildEnvironment(Suite $suite): Environment
     {
         $symfonyContexts = [];
@@ -65,7 +67,6 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
                 continue;
             }
 
-            /** @var object $service */
             $service = $this->getContainer()->get($serviceId);
 
             $symfonyContexts[$serviceId] = get_class($service);
@@ -79,6 +80,7 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
         return new UninitializedSymfonyExtensionEnvironment($suite, $symfonyContexts, $delegatedEnvironment);
     }
 
+    #[\Override]
     public function supportsEnvironmentAndSubject(Environment $environment, $testSubject = null): bool
     {
         return $environment instanceof UninitializedSymfonyExtensionEnvironment;
@@ -87,6 +89,7 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
     /**
      * @throws EnvironmentIsolationException
      */
+    #[\Override]
     public function isolateEnvironment(Environment $environment, $testSubject = null): Environment
     {
         $this->assertEnvironmentCanBeIsolated($environment, $testSubject);
@@ -158,7 +161,12 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
         return new GenericSuite($suite->getName(), array_merge($suite->getSettings(), ['contexts' => $contexts]));
     }
 
-    private function normalizeContext($context): string
+    /**
+     * @return (int|string)|false
+     *
+     * @psalm-return array-key|false
+     */
+    private function normalizeContext($context)
     {
         if (is_array($context)) {
             return current(array_keys($context));

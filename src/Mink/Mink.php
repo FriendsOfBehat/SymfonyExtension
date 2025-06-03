@@ -6,6 +6,9 @@ namespace FriendsOfBehat\SymfonyExtension\Mink;
 
 use Behat\Mink\Mink as BaseMink;
 
+/**
+ * @deprecated use Behat\Mink\Mink instead, it will be removed on 3.0.
+ */
 class Mink extends BaseMink
 {
     /**
@@ -15,6 +18,7 @@ class Mink extends BaseMink
      * in an invalid state. Therefore, not stopping all the sessions while destructing Mink
      * saves our sanity.
      */
+    #[\Override]
     public function __destruct()
     {
         // Intentionally left empty

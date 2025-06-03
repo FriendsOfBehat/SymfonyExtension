@@ -12,9 +12,9 @@
     ],
     "require": {
         "php": "^8.1",
-        "behat/behat": "^3.6.1",
-        "symfony/dependency-injection": "^6.2 || ^7.0",
-        "symfony/http-kernel": "^6.2 || ^7.0"
+        "behat/behat": "^3.22",
+        "symfony/dependency-injection": "^6.4 || ^7.0",
+        "symfony/http-kernel": "^6.4 || ^7.0"
     },
     "require-dev": {
         "behat/mink-browserkit-driver": "^2.0",
@@ -24,11 +24,11 @@
         "friends-of-behat/page-object-extension": "^0.3.2",
         "friends-of-behat/service-container-extension": "^1.1",
         "sylius-labs/coding-standard": ">=4.1.1, <=4.2.1",
-        "symfony/browser-kit": "^6.2 || ^7.0",
-        "symfony/framework-bundle": "^6.2 || ^7.0",
-        "symfony/process": "^6.2 || ^7.0",
-        "symfony/yaml": "^6.2 || ^7.0",
-        "vimeo/psalm": "4.30.0"
+        "symfony/browser-kit": "^6.4 || ^7.0",
+        "symfony/framework-bundle": "^6.4 || ^7.0",
+        "symfony/process": "^6.4 || ^7.0",
+        "symfony/yaml": "^6.4 || ^7.0",
+        "vimeo/psalm": "^6.0"
     },
     "suggest": {
         "behat/mink-browserkit-driver": "^2.0",

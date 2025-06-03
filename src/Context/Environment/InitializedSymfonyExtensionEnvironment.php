@@ -43,11 +43,13 @@ final class InitializedSymfonyExtensionEnvironment implements SymfonyExtensionEn
         $this->contexts[get_class($context)] = $context;
     }
 
+    #[\Override]
     public function getSuite(): Suite
     {
         return $this->suite;
     }
 
+    #[\Override]
     public function bindCallee(Callee $callee): callable
     {
         $callable = $callee->getCallable();
@@ -59,16 +61,24 @@ final class InitializedSymfonyExtensionEnvironment implements SymfonyExtensionEn
         return $callable;
     }
 
+    #[\Override]
     public function hasContexts(): bool
     {
         return count($this->contexts) > 0;
     }
 
+    #[\Override]
+    /**
+     * @return key-of<TArray>[]
+     *
+     * @psalm-return list<key-of<class-string-map<T as Behat\Behat\Context\Context, T:class-string-map as Behat\Behat\Context\Context>>>
+     */
     public function getContextClasses(): array
     {
         return array_keys($this->contexts);
     }
 
+    #[\Override]
     public function hasContextClass($class): bool
     {
         return isset($this->contexts[$class]);

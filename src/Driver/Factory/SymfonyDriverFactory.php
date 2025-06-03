@@ -25,20 +25,24 @@ final class SymfonyDriverFactory implements DriverFactory
         $this->kernel = $kernel;
     }
 
+    #[\Override]
     public function getDriverName(): string
     {
         return $this->name;
     }
 
+    #[\Override]
     public function supportsJavascript(): bool
     {
         return false;
     }
 
+    #[\Override]
     public function configure(ArrayNodeDefinition $builder): void
     {
     }
 
+    #[\Override]
     public function buildDriver(array $config): Definition
     {
         if (!class_exists(BrowserKitDriver::class)) {
