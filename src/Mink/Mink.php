@@ -6,6 +6,9 @@ namespace FriendsOfBehat\SymfonyExtension\Mink;
 
 use Behat\Mink\Mink as BaseMink;
 
+/**
+ * @deprecated use Behat\Mink\Mink instead, it will be removed on 3.0.
+ */
 class Mink extends BaseMink
 {
     /**
