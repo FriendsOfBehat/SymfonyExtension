@@ -18,6 +18,7 @@ class Mink extends BaseMink
      * in an invalid state. Therefore, not stopping all the sessions while destructing Mink
      * saves our sanity.
      */
+    #[\Override]
     public function __destruct()
     {
         // Intentionally left empty

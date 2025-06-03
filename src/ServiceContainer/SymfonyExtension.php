@@ -40,16 +40,19 @@ final class SymfonyExtension implements Extension
     /** @var bool */
     private $minkExtensionFound = false;
 
+    #[\Override]
     public function getConfigKey(): string
     {
         return 'fob_symfony';
     }
 
+    #[\Override]
     public function initialize(ExtensionManager $extensionManager): void
     {
         $this->registerMinkDriver($extensionManager);
     }
 
+    #[\Override]
     public function configure(ArrayNodeDefinition $builder): void
     {
         $builder
@@ -69,6 +72,7 @@ final class SymfonyExtension implements Extension
         ;
     }
 
+    #[\Override]
     public function load(ContainerBuilder $container, array $config): void
     {
         $this->setupTestEnvironment($config['kernel']['environment'] ?? 'test');
@@ -89,6 +93,7 @@ final class SymfonyExtension implements Extension
         }
     }
 
+    #[\Override]
     public function process(ContainerBuilder $container): void
     {
         $this->processEnvironmentHandler($container);

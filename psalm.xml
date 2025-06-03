@@ -14,18 +14,35 @@
     </projectFiles>
 
     <issueHandlers>
-        <UndefinedClass>
-            <errorLevel type="suppress">
-                <referencedClass name="Symfony\Component\BrowserKit\AbstractBrowser" />
-                <referencedClass name="Symfony\Component\BrowserKit\Client" />
-                <referencedClass name="Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator" />
-            </errorLevel>
-        </UndefinedClass>
         <InvalidAttribute>
             <errorLevel type="suppress">
                 <file name="src/Mink/MinkParameters.php" />
             </errorLevel>
         </InvalidAttribute>
+
+        <InvalidOperand>
+            <errorLevel type="suppress">
+                <file name="src/ServiceContainer/SymfonyExtension.php" />
+            </errorLevel>
+        </InvalidOperand>
+
+        <InvalidReturnStatement>
+            <errorLevel type="suppress">
+                <file name="src/Context/Environment/InitializedSymfonyExtensionEnvironment.php" />
+            </errorLevel>
+        </InvalidReturnStatement>
+
+        <InvalidReturnType>
+            <errorLevel type="suppress">
+                <file name="src/Context/Environment/InitializedSymfonyExtensionEnvironment.php" />
+            </errorLevel>
+        </InvalidReturnType>
+
+        <MissingTemplateParam>
+            <errorLevel type="suppress">
+                <file name="src/Mink/MinkParameters.php" />
+            </errorLevel>
+        </MissingTemplateParam>
 
         <!-- Workaround for https://github.com/vimeo/psalm/issues/7026 -->
         <ReservedWord>
@@ -33,5 +50,26 @@
                 <directory name="src" />
             </errorLevel>
         </ReservedWord>
+
+        <UndefinedClass>
+            <errorLevel type="suppress">
+                <referencedClass name="Symfony\Component\BrowserKit\AbstractBrowser" />
+                <referencedClass name="Symfony\Component\BrowserKit\Client" />
+                <referencedClass name="Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator" />
+            </errorLevel>
+        </UndefinedClass>
+
+        <UndefinedInterfaceMethod>
+            <errorLevel type="suppress">
+                <file name="src/ServiceContainer/SymfonyExtension.php" />
+            </errorLevel>
+        </UndefinedInterfaceMethod>
+
+        <UnusedForeachValue>
+            <errorLevel type="suppress">
+                <file name="src/Bundle/DependencyInjection/FriendsOfBehatSymfonyExtensionExtension.php" />
+                <file name="src/ServiceContainer/SymfonyExtension.php" />
+            </errorLevel>
+        </UnusedForeachValue>
     </issueHandlers>
 </psalm>

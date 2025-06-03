@@ -28,6 +28,7 @@ final class KernelOrchestrator implements EventSubscriberInterface
         $this->behatContainer = $behatContainer;
     }
 
+    #[\Override]
     public static function getSubscribedEvents(): array
     {
         return [

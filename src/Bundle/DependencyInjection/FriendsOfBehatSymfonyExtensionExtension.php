@@ -22,6 +22,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 final class FriendsOfBehatSymfonyExtensionExtension extends Extension implements CompilerPassInterface
 {
+    #[\Override]
     public function load(array $configs, ContainerBuilder $container): void
     {
         $this->provideMinkIntegration($container);
@@ -31,6 +32,7 @@ final class FriendsOfBehatSymfonyExtensionExtension extends Extension implements
         $container->registerForAutoconfiguration(Context::class)->addTag('fob.context');
     }
 
+    #[\Override]
     public function process(ContainerBuilder $container): void
     {
         $this->provideBrowserKitIntegration($container);

@@ -42,16 +42,19 @@ final class UninitializedSymfonyExtensionEnvironment extends StaticEnvironment i
         return array_keys($this->contexts);
     }
 
+    #[\Override]
     public function hasContexts(): bool
     {
         return count($this->contexts) > 0 || $this->delegatedEnvironment->hasContexts();
     }
 
+    #[\Override]
     public function getContextClasses(): array
     {
         return array_merge(array_values($this->contexts), $this->delegatedEnvironment->getContextClasses());
     }
 
+    #[\Override]
     public function hasContextClass($class): bool
     {
         return in_array($class, $this->contexts, true) || $this->delegatedEnvironment->hasContextClass($class);

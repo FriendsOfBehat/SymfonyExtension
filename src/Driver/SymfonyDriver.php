@@ -34,6 +34,7 @@ final class SymfonyDriver extends BrowserKitDriver
         parent::__construct($this->createBrowser(), $this->baseUrl);
     }
 
+    #[\Override]
     public function reset()
     {
         parent::reset();
@@ -61,7 +62,6 @@ final class SymfonyDriver extends BrowserKitDriver
 
     private function createBrowser(): AbstractBrowser
     {
-        /** @var object $testClient */
         $testClient = $this->kernel->getContainer()->get('test.client');
 
         if (!$testClient instanceof AbstractBrowser) {
