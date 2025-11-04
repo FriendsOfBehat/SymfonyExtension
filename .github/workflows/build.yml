@@ -26,6 +26,9 @@ jobs:
                 include:
                     - php-version: '8.1'
                       symfony-version: '6.4.*'
+                    - php-version: '8.4'
+                      symfony-version: '^8.0.0-BETA-1'
+                      composer-minimum-stability: beta
         steps:
             - name: Checkout
               uses: actions/checkout@v3
@@ -41,6 +44,10 @@ jobs:
             # This works around SYMFONY_REQUIRE currently not working (https://github.com/symfony/flex/issues/946):
             - name: Lock Symfony version
               run: VERSION=${{ matrix.symfony-version }} .github/workflows/lock-symfony-version.sh
+
+            - name: Configure Composer minimum stability
+              if: matrix.composer-minimum-stability != ''
+              run: composer config minimum-stability ${{ matrix.composer-minimum-stability }}
 
             - name: Install dependencies
               run: |
