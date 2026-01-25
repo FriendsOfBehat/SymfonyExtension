@@ -20,6 +20,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 final class KernelManager
 {
     private KernelInterface $contextKernel;
+
     private ?KernelInterface $driverKernel = null;
 
     /** @var callable(): KernelInterface */
@@ -60,10 +61,10 @@ final class KernelManager
                         'Failed to create driver kernel: %s. ' .
                         'Ensure your kernel class is correctly configured in behat.yml under ' .
                         '"FriendsOfBehat\SymfonyExtension.kernel.class".',
-                        $e->getMessage()
+                        $e->getMessage(),
                     ),
                     0,
-                    $e
+                    $e,
                 );
             }
             $this->driverKernel->boot();
@@ -84,7 +85,7 @@ final class KernelManager
                 'Driver container is not available yet. The driver kernel is lazy-loaded ' .
                 'and only created when Mink makes its first HTTP request. ' .
                 'If you need to access the driver container before making requests, ' .
-                'call getDriverKernel() first to initialize it.'
+                'call getDriverKernel() first to initialize it.',
             );
         }
 

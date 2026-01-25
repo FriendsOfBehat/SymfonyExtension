@@ -150,6 +150,7 @@ final class SymfonyExtension implements Extension
                 if ($path !== null) {
                     require_once $path;
                 }
+
                 return new $kernelClass($env, $debug);
             },
         ]);
