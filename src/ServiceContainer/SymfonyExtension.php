@@ -13,6 +13,7 @@ use Behat\Testwork\ServiceContainer\Extension;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
 use FriendsOfBehat\SymfonyExtension\Context\Environment\Handler\ContextServiceEnvironmentHandler;
 use FriendsOfBehat\SymfonyExtension\Driver\Factory\SymfonyDriverFactory;
+use FriendsOfBehat\SymfonyExtension\Kernel\KernelManager;
 use FriendsOfBehat\SymfonyExtension\Listener\KernelOrchestrator;
 use FriendsOfBehat\SymfonyExtension\Mink\MinkParameters;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
@@ -34,11 +35,16 @@ final class SymfonyExtension implements Extension
     /**
      * Kernel used by Symfony driver to isolate web container from contexts' container.
      * Container is rebuilt before every request.
+     * Lazy-loaded: only created when Mink driver is actually used.
      */
     public const DRIVER_KERNEL_ID = 'fob_symfony.driver_kernel';
 
-    /** @var bool */
-    private $minkExtensionFound = false;
+    /**
+     * KernelManager service ID - manages both kernels with explicit lifecycle.
+     */
+    public const KERNEL_MANAGER_ID = 'fob_symfony.kernel_manager';
+
+    private bool $minkExtensionFound = false;
 
     #[\Override]
     public function getConfigKey(): string
@@ -79,10 +85,12 @@ final class SymfonyExtension implements Extension
 
         $this->loadBootstrap($this->autodiscoverBootstrap($config['bootstrap'], $container->getParameterBag()));
 
-        $this->loadKernel($container, $this->autodiscoverKernelConfiguration($config['kernel']));
+        $kernelConfig = $this->autodiscoverKernelConfiguration($config['kernel']);
+        $this->loadKernel($container, $kernelConfig);
+        $this->loadKernelManager($container, $kernelConfig);
         $this->loadDriverKernel($container);
 
-        $this->loadKernelRebooter($container);
+        $this->loadKernelOrchestrator($container);
 
         $this->loadEnvironmentHandler($container);
 
@@ -128,14 +136,44 @@ final class SymfonyExtension implements Extension
         $container->setDefinition(self::KERNEL_ID, $definition);
     }
 
-    private function loadDriverKernel(ContainerBuilder $container): void
+    private function loadKernelManager(ContainerBuilder $container, array $config): void
     {
-        $container->setDefinition(self::DRIVER_KERNEL_ID, $container->findDefinition(self::KERNEL_ID));
+        // Store kernel config for lazy factory
+        $kernelClass = $config['class'];
+        $env = $config['environment'] ?? $_SERVER['APP_ENV'] ?? $_ENV['APP_ENV'] ?? 'test';
+        $debug = (bool) ($config['debug'] ?? $_SERVER['APP_DEBUG'] ?? $_ENV['APP_DEBUG'] ?? true);
+        $path = $config['path'];
+
+        $definition = new Definition(KernelManager::class, [
+            new Reference(self::KERNEL_ID),
+            static function () use ($kernelClass, $env, $debug, $path): \Symfony\Component\HttpKernel\KernelInterface {
+                if ($path !== null) {
+                    require_once $path;
+                }
+                return new $kernelClass($env, $debug);
+            },
+        ]);
+        $definition->setPublic(true);
+        $definition->addMethodCall('setBehatContainer', [$container]);
+
+        $container->setDefinition(self::KERNEL_MANAGER_ID, $definition);
     }
 
-    private function loadKernelRebooter(ContainerBuilder $container): void
+    private function loadDriverKernel(ContainerBuilder $container): void
     {
-        $definition = new Definition(KernelOrchestrator::class, [new Reference(self::KERNEL_ID), new Reference(self::DRIVER_KERNEL_ID), $container]);
+        // Driver kernel is fetched lazily from KernelManager
+        $definition = new Definition(\Symfony\Component\HttpKernel\KernelInterface::class);
+        $definition->setFactory([new Reference(self::KERNEL_MANAGER_ID), 'getDriverKernel']);
+        $definition->setPublic(true);
+
+        $container->setDefinition(self::DRIVER_KERNEL_ID, $definition);
+    }
+
+    private function loadKernelOrchestrator(ContainerBuilder $container): void
+    {
+        $definition = new Definition(KernelOrchestrator::class, [
+            new Reference(self::KERNEL_MANAGER_ID),
+        ]);
         $definition->addTag(EventDispatcherExtension::SUBSCRIBER_TAG);
 
         $container->setDefinition('fob_symfony.kernel_orchestrator', $definition);

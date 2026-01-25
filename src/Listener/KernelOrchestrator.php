@@ -6,26 +6,23 @@ namespace FriendsOfBehat\SymfonyExtension\Listener;
 
 use Behat\Behat\EventDispatcher\Event\ExampleTested;
 use Behat\Behat\EventDispatcher\Event\ScenarioTested;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use FriendsOfBehat\SymfonyExtension\Kernel\KernelManager;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\KernelInterface;
 
+/**
+ * Orchestrates kernel lifecycle around Behat scenarios.
+ *
+ * Ensures proper isolation between scenarios by:
+ * - Setting up kernel state before each scenario
+ * - Tearing down and rebooting kernels after each scenario
+ */
 final class KernelOrchestrator implements EventSubscriberInterface
 {
-    /** @var KernelInterface */
-    private $symfonyKernel;
+    private KernelManager $kernelManager;
 
-    /** @var KernelInterface */
-    private $driverKernel;
-
-    /** @var ContainerInterface */
-    private $behatContainer;
-
-    public function __construct(KernelInterface $symfonyKernel, KernelInterface $driverKernel, ContainerInterface $behatContainer)
+    public function __construct(KernelManager $kernelManager)
     {
-        $this->symfonyKernel = $symfonyKernel;
-        $this->driverKernel = $driverKernel;
-        $this->behatContainer = $behatContainer;
+        $this->kernelManager = $kernelManager;
     }
 
     #[\Override]
@@ -41,31 +38,11 @@ final class KernelOrchestrator implements EventSubscriberInterface
 
     public function setUp(): void
     {
-        /** @psalm-suppress InvalidArgument Psalm complains that ContainerInterface does not match object|null */
-        $this->symfonyKernel->getContainer()->set('behat.service_container', $this->behatContainer);
+        $this->kernelManager->setUp();
     }
 
     public function tearDown(): void
     {
-        $this->driverKernel->shutdown();
-
-        /*
-         * Reset both Kernel instances after a scenario has been run: The Kernel (and thus Container)
-         * used in Behat to configure Contexts; and the Kernel used by the SymfonyDriver to which
-         * requests are dispatched (through Mink).
-         *
-         * Since the "symfony" container is needed in a few other places (where and why exactly?) and
-         * has to be in a booted/usable state most of the time, we do not shut it down here in tearDown()
-         * and boot it in setUp().
-         *
-         * Instead, the definitions in \FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension
-         * make sure both kernels are booted immediately after being created, and we also initiate the
-         * re-boot() here right away.
-         */
-        $this->symfonyKernel->getContainer()->set('behat.service_container', null);
-        $this->symfonyKernel->shutdown();
-        $this->symfonyKernel->boot();
-
-        $this->driverKernel->boot();
+        $this->kernelManager->tearDown();
     }
 }
