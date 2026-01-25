@@ -43,15 +43,52 @@ final class KernelManager
 
     /**
      * Get driver kernel, creating it lazily if needed.
+     *
+     * The driver kernel is only created when this method is first called,
+     * typically when Mink makes its first HTTP request.
+     *
+     * @throws \RuntimeException if the driver kernel factory fails
      */
     public function getDriverKernel(): KernelInterface
     {
         if ($this->driverKernel === null) {
-            $this->driverKernel = ($this->driverKernelFactory)();
+            try {
+                $this->driverKernel = ($this->driverKernelFactory)();
+            } catch (\Throwable $e) {
+                throw new \RuntimeException(
+                    sprintf(
+                        'Failed to create driver kernel: %s. ' .
+                        'Ensure your kernel class is correctly configured in behat.yml under ' .
+                        '"FriendsOfBehat\SymfonyExtension.kernel.class".',
+                        $e->getMessage()
+                    ),
+                    0,
+                    $e
+                );
+            }
             $this->driverKernel->boot();
         }
 
         return $this->driverKernel;
+    }
+
+    /**
+     * Get the driver kernel's container.
+     *
+     * @throws \RuntimeException if called before any Mink request has been made
+     */
+    public function getDriverContainer(): ContainerInterface
+    {
+        if ($this->driverKernel === null) {
+            throw new \RuntimeException(
+                'Driver container is not available yet. The driver kernel is lazy-loaded ' .
+                'and only created when Mink makes its first HTTP request. ' .
+                'If you need to access the driver container before making requests, ' .
+                'call getDriverKernel() first to initialize it.'
+            );
+        }
+
+        return $this->driverKernel->getContainer();
     }
 
     /**
