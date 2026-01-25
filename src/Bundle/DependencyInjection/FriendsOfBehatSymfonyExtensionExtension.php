@@ -22,6 +22,12 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 final class FriendsOfBehatSymfonyExtensionExtension extends Extension implements CompilerPassInterface
 {
+    /**
+     * Tag used to identify Behat context services for autoconfiguration.
+     * Services implementing Context::class are automatically tagged.
+     */
+    public const CONTEXT_TAG = 'fob.context';
+
     #[\Override]
     public function load(array $configs, ContainerBuilder $container): void
     {
@@ -29,7 +35,7 @@ final class FriendsOfBehatSymfonyExtensionExtension extends Extension implements
         $this->registerBehatContainer($container);
         $this->registerDriverBehatContainer($container);
 
-        $container->registerForAutoconfiguration(Context::class)->addTag('fob.context');
+        $container->registerForAutoconfiguration(Context::class)->addTag(self::CONTEXT_TAG);
     }
 
     #[\Override]
@@ -37,11 +43,11 @@ final class FriendsOfBehatSymfonyExtensionExtension extends Extension implements
     {
         $this->provideBrowserKitIntegration($container);
 
-        foreach ($container->findTaggedServiceIds('fob.context') as $serviceId => $attributes) {
+        foreach ($container->findTaggedServiceIds(self::CONTEXT_TAG) as $serviceId => $attributes) {
             $serviceDefinition = $container->findDefinition($serviceId);
 
             $serviceDefinition->setPublic(true);
-            $serviceDefinition->clearTag('fob.context');
+            $serviceDefinition->clearTag(self::CONTEXT_TAG);
         }
     }
 
