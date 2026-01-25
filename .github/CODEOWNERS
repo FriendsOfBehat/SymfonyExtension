@@ -1,0 +1,12 @@
+# Default owners for everything in the repo
+* @yannickgranger
+
+# Core extension code
+/src/ @yannickgranger
+
+# CI and GitHub configuration
+/.github/ @yannickgranger
+
+# Documentation
+/DOCUMENTATION.md @yannickgranger
+/README.md @yannickgranger

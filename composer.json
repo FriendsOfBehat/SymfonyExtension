@@ -1,15 +1,34 @@
 {
-    "name": "friends-of-behat/symfony-extension",
-    "type": "symfony-bundle",
-    "description": "Integrates Behat with Symfony.",
+    "name": "yannickgranger/symfony-extension",
+    "type": "behat-extension",
+    "description": "Integrates Behat with Symfony. Supports Symfony 6.4/7.x/8.x and Behat 3/4. Features lazy driver kernel and improved architecture.",
     "license": "MIT",
+    "keywords": [
+        "behat",
+        "symfony",
+        "testing",
+        "bdd",
+        "mink",
+        "functional-testing"
+    ],
+    "homepage": "https://github.com/yannickgranger/SymfonyExtension",
     "authors": [
         {
             "name": "Kamil Kokot",
             "email": "kamil@kokot.me",
-            "homepage": "https://kamilkokot.com"
+            "homepage": "https://kamilkokot.com",
+            "role": "Original author"
+        },
+        {
+            "name": "Yannick Granger",
+            "homepage": "https://github.com/yannickgranger",
+            "role": "Fork maintainer"
         }
     ],
+    "support": {
+        "issues": "https://github.com/yannickgranger/SymfonyExtension/issues",
+        "source": "https://github.com/yannickgranger/SymfonyExtension"
+    },
     "require": {
         "php": "^8.1",
         "behat/behat": "^3.22 || ^4.0",
@@ -43,7 +62,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "2.2-dev"
+            "dev-master": "3.0-dev"
         }
     },
     "autoload": {

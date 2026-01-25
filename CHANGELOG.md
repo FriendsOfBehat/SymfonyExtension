@@ -1,3 +1,74 @@
+# CHANGELOG FOR `3.x` (Fork)
+
+> This fork is maintained at [yannickgranger/SymfonyExtension](https://github.com/yannickgranger/SymfonyExtension).
+> Original project: [FriendsOfBehat/SymfonyExtension](https://github.com/FriendsOfBehat/SymfonyExtension)
+
+## v3.0.0 (2025-01-25)
+
+This is the first release of the maintained fork, featuring architectural improvements, extended version support, and fixes for multiple upstream issues.
+
+### Breaking Changes
+
+- **Minimum PHP version**: 8.1 (was 7.3)
+- **Minimum Symfony version**: 6.4 (dropped 4.x and 5.x support)
+- Package renamed to `yannickgranger/symfony-extension` on Packagist
+
+### New Features
+
+#### Architecture
+
+- **KernelManager**: Centralized lifecycle management for context and driver kernels ([Architecture docs](DOCUMENTATION.md))
+- **Lazy driver kernel**: Driver kernel is only instantiated when Mink makes its first HTTP request, reducing overhead for API-only tests
+- **Explicit lifecycle hooks**: Clear `setUp()`/`tearDown()` methods for kernel management
+
+#### Version Support
+
+- **Symfony 8.0**: Full support for Symfony 8.0 (in addition to 6.4 and 7.x)
+- **Behat 4**: Full support for Behat 4.x alongside Behat 3.22+
+
+#### Configuration Options
+
+- **`kernel.reboot`**: Control kernel reboot behavior between scenarios (Fixes [#208](https://github.com/FriendsOfBehat/SymfonyExtension/issues/208))
+  ```yaml
+  FriendsOfBehat\SymfonyExtension:
+      kernel:
+          reboot: true  # default, or false to disable
+  ```
+
+- **`kernel.environment`**: Override kernel environment independently of Symfony's default (Fixes [#215](https://github.com/FriendsOfBehat/SymfonyExtension/issues/215))
+  ```yaml
+  FriendsOfBehat\SymfonyExtension:
+      kernel:
+          environment: test
+  ```
+
+- **`debug_error_handler`**: Disable Symfony's error handler for strict testing (Fixes [#148](https://github.com/FriendsOfBehat/SymfonyExtension/issues/148))
+  ```yaml
+  FriendsOfBehat\SymfonyExtension:
+      debug_error_handler: false
+  ```
+
+### Bug Fixes (Upstream Issues)
+
+- **[#210](https://github.com/FriendsOfBehat/SymfonyExtension/issues/210)**: Added void return types for PHP 8.1+ compatibility
+- **[#215](https://github.com/FriendsOfBehat/SymfonyExtension/issues/215)**: Kernel environment can now be configured independently
+- **[#208](https://github.com/FriendsOfBehat/SymfonyExtension/issues/208)**: Added `kernel.reboot` option to control kernel reboot behavior
+- **[#148](https://github.com/FriendsOfBehat/SymfonyExtension/issues/148)**: Added `debug_error_handler` option for strict error testing
+- **[#89](https://github.com/FriendsOfBehat/SymfonyExtension/issues/89)**: Kernel autodiscovery now works from any directory, not just project root
+
+### Migration from FriendsOfBehat/SymfonyExtension
+
+This is a **drop-in replacement**. No configuration changes needed:
+
+```bash
+composer remove friends-of-behat/symfony-extension
+composer require yannickgranger/symfony-extension --dev
+```
+
+Your existing `behat.yml` configuration will work as-is.
+
+---
+
 # CHANGELOG FOR `2.1.x`
 
 ## v2.2.0 (2021-02-04)
