@@ -28,13 +28,17 @@ final class KernelManager
 
     private ?ContainerInterface $behatContainer = null;
 
+    private bool $rebootEnabled;
+
     /**
      * @param callable(): KernelInterface $driverKernelFactory Factory to create driver kernel on demand
+     * @param bool $rebootEnabled Whether to reboot kernels between scenarios (disable for DAMADoctrineTestBundle)
      */
-    public function __construct(KernelInterface $contextKernel, callable $driverKernelFactory)
+    public function __construct(KernelInterface $contextKernel, callable $driverKernelFactory, bool $rebootEnabled = true)
     {
         $this->contextKernel = $contextKernel;
         $this->driverKernelFactory = $driverKernelFactory;
+        $this->rebootEnabled = $rebootEnabled;
     }
 
     public function getContextKernel(): KernelInterface
@@ -125,16 +129,26 @@ final class KernelManager
 
     /**
      * Called after each scenario to reset kernel state for isolation.
+     *
+     * If reboot is disabled (kernel.reboot: false), only clears the behat container
+     * reference without rebooting. Useful for DAMADoctrineTestBundle users who manage
+     * their own transaction isolation.
      */
     public function tearDown(): void
     {
+        // Always clear behat container reference
+        $this->contextKernel->getContainer()->set('behat.service_container', null);
+
+        if (!$this->rebootEnabled) {
+            return;
+        }
+
         // Shutdown driver kernel if it was used
         if ($this->driverKernel !== null) {
             $this->driverKernel->shutdown();
         }
 
         // Reset context kernel
-        $this->contextKernel->getContainer()->set('behat.service_container', null);
         $this->contextKernel->shutdown();
         $this->contextKernel->boot();
 
@@ -142,5 +156,13 @@ final class KernelManager
         if ($this->driverKernel !== null) {
             $this->driverKernel->boot();
         }
+    }
+
+    /**
+     * Check if kernel reboot is enabled between scenarios.
+     */
+    public function isRebootEnabled(): bool
+    {
+        return $this->rebootEnabled;
     }
 }

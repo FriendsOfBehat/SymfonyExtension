@@ -72,6 +72,10 @@ final class SymfonyExtension implements Extension
                         ->scalarNode('class')->defaultNull()->end()
                         ->scalarNode('environment')->defaultNull()->end()
                         ->booleanNode('debug')->defaultNull()->end()
+                        ->booleanNode('reboot')
+                            ->defaultTrue()
+                            ->info('Reboot kernel between scenarios for isolation (disable for DAMADoctrineTestBundle)')
+                        ->end()
                     ->end()
                 ->end()
             ->end()
@@ -81,7 +85,8 @@ final class SymfonyExtension implements Extension
     #[\Override]
     public function load(ContainerBuilder $container, array $config): void
     {
-        $this->setupTestEnvironment($config['kernel']['environment'] ?? 'test');
+        $configuredEnv = $config['kernel']['environment'];
+        $this->setupTestEnvironment($configuredEnv ?? 'test', $configuredEnv !== null);
 
         $this->loadBootstrap($this->autodiscoverBootstrap($config['bootstrap'], $container->getParameterBag()));
 
@@ -144,6 +149,8 @@ final class SymfonyExtension implements Extension
         $debug = (bool) ($config['debug'] ?? $_SERVER['APP_DEBUG'] ?? $_ENV['APP_DEBUG'] ?? true);
         $path = $config['path'];
 
+        $reboot = $config['reboot'] ?? true;
+
         $definition = new Definition(KernelManager::class, [
             new Reference(self::KERNEL_ID),
             static function () use ($kernelClass, $env, $debug, $path): \Symfony\Component\HttpKernel\KernelInterface {
@@ -153,6 +160,7 @@ final class SymfonyExtension implements Extension
 
                 return new $kernelClass($env, $debug);
             },
+            $reboot,
         ]);
         $definition->setPublic(true);
         $definition->addMethodCall('setBehatContainer', [$container]);
@@ -222,11 +230,12 @@ final class SymfonyExtension implements Extension
         require_once $bootstrap;
     }
 
-    private function setupTestEnvironment(string $fallback): void
+    private function setupTestEnvironment(string $environment, bool $force = false): void
     {
-        // If there's no defined server / environment variable with an environment, default to configured fallback
-        if (($_SERVER['APP_ENV'] ?? $_ENV['APP_ENV'] ?? null) === null) {
-            putenv('APP_ENV=' . $_SERVER['APP_ENV'] = $_ENV['APP_ENV'] = $fallback);
+        // If environment is explicitly configured, force it (fixes #215)
+        // Otherwise, only set if APP_ENV is not already defined
+        if ($force || ($_SERVER['APP_ENV'] ?? $_ENV['APP_ENV'] ?? null) === null) {
+            putenv('APP_ENV=' . $_SERVER['APP_ENV'] = $_ENV['APP_ENV'] = $environment);
         }
     }
 

@@ -35,7 +35,7 @@ final class SymfonyDriver extends BrowserKitDriver
     }
 
     #[\Override]
-    public function reset()
+    public function reset(): void
     {
         parent::reset();
 
