@@ -65,6 +65,10 @@ final class SymfonyExtension implements Extension
             ->addDefaultsIfNotSet()
             ->children()
                 ->scalarNode('bootstrap')->defaultNull()->end()
+                ->booleanNode('debug_error_handler')
+                    ->defaultFalse()
+                    ->info('Enable Symfony ErrorHandler to catch notices/warnings (recommended for strict testing)')
+                ->end()
                 ->arrayNode('kernel')
                     ->addDefaultsIfNotSet()
                     ->children()
@@ -88,9 +92,13 @@ final class SymfonyExtension implements Extension
         $configuredEnv = $config['kernel']['environment'];
         $this->setupTestEnvironment($configuredEnv ?? 'test', $configuredEnv !== null);
 
+        if ($config['debug_error_handler']) {
+            $this->enableDebugErrorHandler();
+        }
+
         $this->loadBootstrap($this->autodiscoverBootstrap($config['bootstrap'], $container->getParameterBag()));
 
-        $kernelConfig = $this->autodiscoverKernelConfiguration($config['kernel']);
+        $kernelConfig = $this->autodiscoverKernelConfiguration($config['kernel'], $container->getParameterBag());
         $this->loadKernel($container, $kernelConfig);
         $this->loadKernelManager($container, $kernelConfig);
         $this->loadDriverKernel($container);
@@ -239,6 +247,22 @@ final class SymfonyExtension implements Extension
         }
     }
 
+    /**
+     * Enable Symfony's ErrorHandler to convert notices/warnings to exceptions.
+     *
+     * This makes tests stricter by catching issues that would cause problems
+     * in production (fixes #148).
+     */
+    private function enableDebugErrorHandler(): void
+    {
+        if (class_exists(\Symfony\Component\ErrorHandler\Debug::class)) {
+            \Symfony\Component\ErrorHandler\Debug::enable();
+        } elseif (class_exists(\Symfony\Component\Debug\Debug::class)) {
+            // Symfony 4.x compatibility
+            \Symfony\Component\Debug\Debug::enable();
+        }
+    }
+
     private function processEnvironmentHandler(ContainerBuilder $container): void
     {
         $definition = $container->findDefinition('fob_symfony.environment_handler.context_service');
@@ -247,13 +271,14 @@ final class SymfonyExtension implements Extension
         }
     }
 
-    private function autodiscoverKernelConfiguration(array $config): array
+    private function autodiscoverKernelConfiguration(array $config, ParameterBag $parameterBag): array
     {
         if ($config['class'] !== null) {
             return $config;
         }
 
         $autodiscovered = 0;
+        $basePath = $parameterBag->get('paths.base');
 
         if (class_exists('\App\Kernel')) {
             $config['class'] = '\App\Kernel';
@@ -261,9 +286,11 @@ final class SymfonyExtension implements Extension
             ++$autodiscovered;
         }
 
-        if (file_exists('app/AppKernel.php')) {
+        // Use base path for file_exists check (fixes #89 - works from any directory)
+        $legacyKernelPath = $basePath . '/app/AppKernel.php';
+        if (file_exists($legacyKernelPath)) {
             $config['class'] = '\AppKernel';
-            $config['path'] = 'app/AppKernel.php';
+            $config['path'] = $legacyKernelPath;
 
             ++$autodiscovered;
         }
