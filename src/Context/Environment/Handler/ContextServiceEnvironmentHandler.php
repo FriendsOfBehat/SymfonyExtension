@@ -63,13 +63,17 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
         $symfonyContexts = [];
 
         foreach ($this->getSuiteContextsServices($suite) as $serviceId) {
-            if (!$this->getContainer()->has($serviceId)) {
-                continue;
+            if ($this->getContainer()->has($serviceId)) {
+                $service = $this->getContainer()->get($serviceId);
+                $symfonyContexts[$serviceId] = get_class($service);
+            } elseif (class_exists($serviceId)) {
+                // Context class exists but is not registered as a service
+                // Instantiate it directly (will use default constructor or service injection if available)
+                $service = $this->instantiateContext($serviceId);
+                if ($service !== null) {
+                    $symfonyContexts[$serviceId] = $serviceId;
+                }
             }
-
-            $service = $this->getContainer()->get($serviceId);
-
-            $symfonyContexts[$serviceId] = get_class($service);
         }
 
         $delegatedSuite = $this->cloneSuiteWithoutContexts($suite, array_keys($symfonyContexts));
@@ -78,6 +82,15 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
         $delegatedEnvironment = $this->decoratedEnvironmentHandler->buildEnvironment($delegatedSuite);
 
         return new UninitializedSymfonyExtensionEnvironment($suite, $symfonyContexts, $delegatedEnvironment);
+    }
+
+    private function instantiateContext(string $contextClass): ?Context
+    {
+        try {
+            return new $contextClass();
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 
     #[\Override]
@@ -98,7 +111,17 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
 
         foreach ($environment->getServices() as $serviceId) {
             /** @var Context $context */
-            $context = $this->getContainer()->get($serviceId);
+            if ($this->getContainer()->has($serviceId)) {
+                $context = $this->getContainer()->get($serviceId);
+            } elseif (class_exists($serviceId)) {
+                // Context was instantiated directly, not as a service
+                $context = $this->instantiateContext($serviceId);
+                if ($context === null) {
+                    continue;
+                }
+            } else {
+                continue;
+            }
 
             $this->initializeContext($context);
 

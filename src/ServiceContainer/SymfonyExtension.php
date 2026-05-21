@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace FriendsOfBehat\SymfonyExtension\ServiceContainer;
 
 use Behat\Behat\Context\ServiceContainer\ContextExtension;
+use Behat\Config\ExtensionConfigInterface;
 use Behat\Mink\Session;
 use Behat\MinkExtension\ServiceContainer\MinkExtension;
 use Behat\Testwork\Environment\ServiceContainer\EnvironmentExtension;
@@ -23,7 +24,7 @@ use Symfony\Component\DependencyInjection\Parameter;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\DependencyInjection\Reference;
 
-final class SymfonyExtension implements Extension
+final class SymfonyExtension implements Extension, ExtensionConfigInterface
 {
     /**
      * Kernel used inside Behat contexts or to create services injected to them.
@@ -44,6 +45,23 @@ final class SymfonyExtension implements Extension
     public function getConfigKey(): string
     {
         return 'fob_symfony';
+    }
+
+    #[\Override]
+    public function name(): string
+    {
+        return 'fob_symfony';
+    }
+
+    #[\Override]
+    public function toArray(): array
+    {
+        return [
+            'bootstrap' => null,
+            'kernel' => [
+                'environment' => 'test',
+            ],
+        ];
     }
 
     #[\Override]

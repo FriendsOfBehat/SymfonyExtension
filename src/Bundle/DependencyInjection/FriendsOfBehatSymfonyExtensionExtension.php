@@ -29,7 +29,7 @@ final class FriendsOfBehatSymfonyExtensionExtension extends Extension implements
         $this->registerBehatContainer($container);
         $this->registerDriverBehatContainer($container);
 
-        $container->registerForAutoconfiguration(Context::class)->addTag('fob.context');
+        $container->registerForAutoconfiguration(Context::class)->addTag('context.initializer');
     }
 
     #[\Override]
@@ -37,11 +37,10 @@ final class FriendsOfBehatSymfonyExtensionExtension extends Extension implements
     {
         $this->provideBrowserKitIntegration($container);
 
-        foreach ($container->findTaggedServiceIds('fob.context') as $serviceId => $attributes) {
+        foreach ($container->findTaggedServiceIds('context.initializer') as $serviceId => $attributes) {
             $serviceDefinition = $container->findDefinition($serviceId);
 
             $serviceDefinition->setPublic(true);
-            $serviceDefinition->clearTag('fob.context');
         }
     }
 
