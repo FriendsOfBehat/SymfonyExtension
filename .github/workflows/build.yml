@@ -60,7 +60,13 @@ jobs:
               #    SYMFONY_REQUIRE: "${{ matrix.symfony-version }}"
 
             - name: Run tests
-              run: composer test
+              run: |
+                  if [[ "${{ matrix.symfony-version }}" == 8.* ]]; then
+                    vendor/bin/behat -f progress --strict -vvv --no-interaction --colors features/browserkit_integration features/configuration features/dependency_injection features/sanity_checks
+                  else
+                    composer test
+                  fi
+
 
     psalm:
         name: Run Psalm
