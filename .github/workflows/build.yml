@@ -47,7 +47,10 @@ jobs:
 
             - name: Require behat 4.x for Symfony 8+
               if: startsWith(matrix.symfony-version, '8.')
-              run: cat <<< $(jq --indent 4 '."require-dev"."behat/behat" = "4.x-dev@dev as 3.31.0"' < composer.json) > composer.json
+              run: |
+                  cat <<< $(jq --indent 4 '."require-dev"."behat/behat" = "4.x-dev as 3.31.0"' < composer.json) > composer.json
+                  composer config minimum-stability dev
+                  composer config prefer-stable true
 
             - name: Install dependencies
               run: |
