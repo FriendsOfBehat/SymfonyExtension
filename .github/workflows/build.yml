@@ -24,6 +24,8 @@ jobs:
                     - '8.5'
                 symfony-version:
                     - '7.4.*'
+                    - '8.0.*'
+                    - '8.1.*'
         steps:
             - name: Checkout
               uses: actions/checkout@v3
@@ -39,6 +41,10 @@ jobs:
             # This works around SYMFONY_REQUIRE currently not working (https://github.com/symfony/flex/issues/946):
             - name: Lock Symfony version
               run: VERSION=${{ matrix.symfony-version }} .github/workflows/lock-symfony-version.sh
+
+            - name: Require behat 4.x for Symfony 8+
+              if: startsWith(matrix.symfony-version, '8.')
+              run: cat <<< $(jq --indent 4 '."require-dev"."behat/behat" = "4.x-dev@dev"' < composer.json) > composer.json
 
             - name: Install dependencies
               run: |
