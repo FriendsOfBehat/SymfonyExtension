@@ -8,10 +8,7 @@
 
 # Installation
 
-If you're starting a new project, we recommend to use Symfony with Flex as it's the most straightforward way.
-If you're adding this extension to an existing project, pick the method that fits it the best. 
-
-### Symfony 6/7 (with Flex)
+### Symfony 7+ (with Flex)
 
 1. Require this extension using *Composer* and allow for using contrib recipes:
 
@@ -19,7 +16,7 @@ If you're adding this extension to an existing project, pick the method that fit
 composer require --dev friends-of-behat/symfony-extension:^2.0
 ```
 
-### Symfony 6/7 (new directory structure, without Flex)
+### Symfony 7+ (without Flex)
 
 1. Require this extension using *Composer*:
 
@@ -29,12 +26,18 @@ composer require --dev friends-of-behat/symfony-extension:^2.0
 
 2. Enable it within your Behat configuration:
 
-```yaml
-# behat.yaml.dist / behat.yaml
+```php
+# behat.dist.php / behat.php
 
-default:
-    extensions:
-        FriendsOfBehat\SymfonyExtension: ~
+use Behat\Config\Config;
+use Behat\Config\Extension;
+use Behat\Config\Profile;
+
+return (new Config())
+    ->withProfile(
+        (new Profile('default'))
+            ->withExtension(new Extension(\FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension::class))
+    );
 ```
 
 3. Register a helper bundle in your kernel:
@@ -68,63 +71,6 @@ services:
         resource: '../tests/Behat/*'
 ```
 
-### Symfony 3 (old directory structure)
-
-1. Require this extension using *Composer*:
-
-```bash
-composer require --dev friends-of-behat/symfony-extension:^2.0
-```
-
-2. Enable it within your Behat configuration:
-
-```yaml
-# behat.yml.dist / behat.yml
-
-default:
-    extensions:
-        FriendsOfBehat\SymfonyExtension: ~
-```
-
-3. Register a helper bundle in your kernel:
-
-```php
-# app/AppKernel.php
-
-public function registerBundles()
-{
-    $bundles = array(
-        // ...
-    );
-    
-    if ('test' === $this->getEnvironment()) {
-        $bundles[] = new \FriendsOfBehat\SymfonyExtension\Bundle\FriendsOfBehatSymfonyExtensionBundle();
-    }
-}
-```
-
-4. Create `tests/Behat` directory for Behat-related classes:
-
-```bash
-mkdir -p tests/Behat
-```
-
-5. Set up autowiring and autoconfiguration for Behat-related services you'll create later:
-
-```yaml
-# app/config/config_test.yml
-
-# ...
-
-services:
-    _defaults:
-        autowire: true
-        autoconfigure: true
-
-    Tests\Behat\:
-        resource: '../../tests/Behat/*'
-```
-
 # Usage
 
 This tutorial assumes you're using the new directory structure with autowiring and autoconfiguration enabled.
@@ -150,15 +96,12 @@ We'll need also a dummy context implementation:
 # tests/Behat/DemoContext.php
 
 namespace App\Tests\Behat;
-// If using Symfony 3, use namespace "Tests\Behat" instead
 
 use Behat\Behat\Context\Context;
 
 final class DemoContext implements Context
 {
-    /**
-     * @Then the application's kernel should use :expected environment 
-     */
+    #[\Behat\Step\Then("the application's kernel should use :expected environment")]
     public function kernelEnvironmentShouldBe(string $expected): void
     {
     }
@@ -167,15 +110,21 @@ final class DemoContext implements Context
 
 And also a suite defined in Behat configuration:
 
-```yaml
-# behat.yaml.dist / behat.yaml
+```php
+# behat.dist.php / behat.php
 
-default:
-    suites:
-        default:
-            contexts:
-                - App\Tests\Behat\DemoContext
+use Behat\Config\Config;
+use Behat\Config\Profile;
+use Behat\Config\Suite;
 
+return (new Config())
+    ->withProfile(
+        (new Profile('default'))
+            ->withSuite(
+                (new Suite('default'))
+                    ->withContexts(\App\Tests\Behat\DemoContext::class)
+            )
+    );
 ```
 
 After running Behat, the scenario should be passing.
@@ -193,17 +142,11 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 final class DemoContext implements Context
 {
-    /** @var KernelInterface */
-    private $kernel;
-    
-    public function __construct(KernelInterface $kernel) 
+    public function __construct(private readonly KernelInterface $kernel)
     {
-        $this->kernel = $kernel;
     }
 
-    /**
-     * @Then the application's kernel should use :expected environment 
-     */
+    #[\Behat\Step\Then("the application's kernel should use :expected environment")]
     public function kernelEnvironmentShouldBe(string $expected): void
     {
         if ($this->kernel->getEnvironment() !== $expected) {
@@ -218,8 +161,7 @@ If you're using autowiring and autoconfiguration, that's all you need! After run
 If you're not, you need to register your context as a public service and define its dependencies:
 
 ```yaml
-# config/services_test.yaml (Symfony 4/5)
-# app/config/config_test.yml (Symfony 3)
+# config/services_test.yaml
 
 services:
     App\Tests\Behat\DemoContext:
@@ -239,17 +181,11 @@ Modify the existing `DemoContext` to be able to inject a kernel environment as a
 
 final class DemoContext implements Context
 {
-    /** @var string */
-    private $environment;
-    
-    public function __construct(string $environment) 
+    public function __construct(private readonly string $environment)
     {
-        $this->environment = $environment;
     }
 
-    /**
-     * @Then the application's kernel should use :expected environment 
-     */
+    #[\Behat\Step\Then("the application's kernel should use :expected environment")]
     public function kernelEnvironmentShouldBe(string $expected): void
     {
         if ($this->environment !== $expected) {
@@ -264,8 +200,7 @@ If you're using autowiring and autoconfiguration, that's all you need! After run
 If you're not, you need to register your context as a public service and define its dependencies:
 
 ```yaml
-# config/services_test.yaml (Symfony 4/5)
-# app/config/config_test.yml (Symfony 3)
+# config/services_test.yaml
 
 services:
     App\Tests\Behat\DemoContext:
@@ -287,20 +222,24 @@ isolated driver to use for Symfony application testing.
 composer require --dev behat/mink friends-of-behat/mink-extension behat/mink-browserkit-driver
 ```
 
-_Those `friends-of-behat` packages are forks of the original ones, adding support for Symfony 5 and dropping support for Symfony <4.4._
-
 2. Enable the bundled driver:
 
-```yaml
-# behat.yaml.dist / behat.yaml
+```php
+# behat.dist.php / behat.php
 
-default:
-    extensions:
-        # ...
-        Behat\MinkExtension:
-            sessions:
-                symfony:
-                    symfony: ~
+use Behat\Config\Config;
+use Behat\Config\Extension;
+use Behat\Config\Profile;
+
+return (new Config())
+    ->withProfile(
+        (new Profile('default'))
+            ->withExtension(new Extension(\FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension::class))
+            ->withExtension(
+                (new Extension(\Behat\MinkExtension\ServiceContainer\MinkExtension::class))
+                    ->withConfig(['sessions' => ['symfony' => ['symfony' => null]]])
+            )
+    );
 ```
 
 ### Usage
@@ -314,21 +253,13 @@ use Symfony\Component\Routing\RouterInterface;
 
 final class DemoContext implements Context
 {
-    /** @var Session */
-    private $session;
-    
-    /** @var RouterInterface */
-    private $router;
-
-    public function __construct(Session $session, RouterInterface $router)
-    {
-        $this->session = $session;
-        $this->router = $router;
+    public function __construct(
+        private readonly Session $session,
+        private readonly RouterInterface $router,
+    ) {
     }
 
-    /**
-     * @Then I visit some page 
-     */
+    #[\Behat\Step\Then('I visit some page')]
     public function visitSomePage(): void
     {
         $this->session->visit($this->router->generate('some_route'));
@@ -371,47 +302,57 @@ In your contexts, you can inject the `behat.driver.service_container` service (o
 
 * Both kernels and containers will be shut down and rebooted after every single scenario and/or example (for scenario outlines), in order to provide a clean separation between scenarios.
 * When making multiple Mink requests within a single scenario, the second kernel and container (`behat.driver.service_container`) needs to be reset to provide a clean state for the second and every additional request. This reset will happen immediately before the second and any subsequent request is handed to the kernel. So, while in general it is possible to inspect the driver's container state _after_ requests, setting it up (bringing it into desired state) easily is only possible for the _first_ request.
-* The `behat.driver.service_container` cannot be fully initialized unless the execution of a specific scenario starts; however, context instances need to be created (and the driver's container be injected in the constructor) _before_ that. So, avoid using the driver's container from context constructor methods. Using it from step defintions or from `@BeforeStep` or `@BeforeScenario` hooks should probably be safe 🤞🏻
+* The `behat.driver.service_container` cannot be fully initialized unless the execution of a specific scenario starts; however, context instances need to be created (and the driver's container be injected in the constructor) _before_ that. So, avoid using the driver's container from context constructor methods. Using it from step definitions or from `#[\Behat\Hook\BeforeStep]` or `#[\Behat\Hook\BeforeScenario]` hooks should probably be safe 🤞🏻
 
 In order to get the right (current) instances of services after such a reset has happened, make sure you call `ContainerInterface::get()` and related methods again after the request. Do not fetch services from the driver's container e. g. in your context constructors, since that will not give you the latest instances of those services.
 
 # Configuration reference
 
-By default, if no confguration is passed, _SymfonyExtension_ will try its best to guess it.
+By default, if no configuration is passed, _SymfonyExtension_ will try its best to guess it.
 The full configuration tree looks like that:
 
-```yaml
-# behat.yaml.dist / behat.yaml
+```php
+# behat.dist.php / behat.php
 
-default:
-    extensions:
-        FriendsOfBehat\SymfonyExtension:
-            bootstrap: ~
-            kernel:
-                class: ~
-                path: ~
-                environment: ~
-                debug: ~
+use Behat\Config\Config;
+use Behat\Config\Extension;
+use Behat\Config\Profile;
+
+return (new Config())
+    ->withProfile(
+        (new Profile('default'))
+            ->withExtension(
+                (new Extension(\FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension::class))
+                    ->withConfig([
+                        'bootstrap' => null,
+                        'kernel' => [
+                            'class' => null,
+                            'path' => null,
+                            'environment' => null,
+                            'debug' => null,
+                        ],
+                    ])
+            )
+    );
 ```
 
  * **`bootstrap`**: 
  
-    It is a path to the file requried once while the extension is loaded. You can use this file to set up your testing 
-    environment - set some enviornment variables or preload an external file.
-    If you do not pass any, it would look for either `config/bootstrap.php` (Symfony 4/5) or `app/autoload.php` (Symfony 3). 
+    It is a path to the file required once while the extension is loaded. You can use this file to set up your testing 
+    environment - set some environment variables or preload an external file.
+    If you do not pass any, it would look for `config/bootstrap.php`. 
     If none are found, no file would be loaded.
     
  * **`kernel.class`**:
  
     It is a fully qualified class name of the application kernel class.
-    If you do not pass any, it would look for either `App\Kernel` (Symfony 4/5) or `AppKernel` (Symfony 3).
+    If you do not pass any, it would look for `App\Kernel`.
     If none are found, an exception would be thrown and you would be required to specify it explicitly.
     
  * **`kernel.path`**:
  
     It is a path to the file containing the application kernel class. You might want to set it if your kernel is not
-    autoloaded by Composer's autoloaded.
-    If `kernel.class` is not defined, it would automatically use `app/AppKernel.php` if `AppKernel` class was autoconfigured.
+    autoloaded by Composer's autoloader.
     
  * **`kernel.environment`**:
  
@@ -427,13 +368,22 @@ default:
 
 To configure the environment used by the kernel (`APP_ENV`) while running scenarios, configure the extension:
 
-```yaml
-# behat.yaml.dist / behat.yaml
+```php
+# behat.dist.php / behat.php
 
-default:
-    extensions:
-        FriendsOfBehat\SymfonyExtension:
-            kernel:
-                environment: test
-            bootstrap: tests/bootstrap.php
+use Behat\Config\Config;
+use Behat\Config\Extension;
+use Behat\Config\Profile;
+
+return (new Config())
+    ->withProfile(
+        (new Profile('default'))
+            ->withExtension(
+                (new Extension(\FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension::class))
+                    ->withConfig([
+                        'bootstrap' => 'tests/bootstrap.php',
+                        'kernel' => ['environment' => 'test'],
+                    ])
+            )
+    );
 ```

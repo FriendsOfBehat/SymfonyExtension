@@ -12,20 +12,15 @@ use Symfony\Component\Yaml\Yaml;
 
 final class TestContext implements Context
 {
-    /** @var string */
-    private static $workingDir;
+    private static string $workingDir;
 
-    /** @var Filesystem */
-    private static $filesystem;
+    private static Filesystem $filesystem;
 
-    /** @var string */
-    private static $phpBin;
+    private static string $phpBin;
 
-    /** @var Process */
-    private $process;
+    private ?Process $process = null;
 
-    /** @var array */
-    private $variables = [];
+    private array $variables = [];
 
     private array $mergedConfig = [];
 
@@ -121,16 +116,12 @@ class Kernel extends HttpKernel
         $loader->load(__DIR__ . '/../config/services.yaml');
     }
 
-    protected function configureRoutes($routes): void
+    protected function configureRoutes(RoutingConfigurator $routes): void
     {
-        if ($routes instanceof RoutingConfigurator) { // available since Symfony 5.1
-            $routes
-                ->add('app_hello', '/hello-world')
-                ->controller('App\Controller::helloWorld')
-            ;
-        } else { // support Symfony 4.4
-            $routes->add('/hello-world', 'App\Controller:helloWorld');
-        }
+        $routes
+            ->add('app_hello', '/hello-world')
+            ->controller('App\Controller::helloWorld')
+        ;
     }
 }
 CON
@@ -216,15 +207,15 @@ YML
     }
 
     #[\Behat\Step\Given('/^a YAML services file containing:$/')]
-    public function yamlServicesFile($content): void
+    public function yamlServicesFile(string $content): void
     {
-        $this->thereIsFile('config/services.yaml', (string) $content);
+        $this->thereIsFile('config/services.yaml', $content);
     }
 
     #[\Behat\Step\Given('/^a Behat configuration containing(?: "([^"]+)"|:)$/')]
-    public function thereIsConfiguration($content): void
+    public function thereIsConfiguration(string $content): void
     {
-        $this->mergedConfig = array_replace_recursive($this->mergedConfig, Yaml::parse((string) $content));
+        $this->mergedConfig = array_replace_recursive($this->mergedConfig, Yaml::parse($content));
 
         self::$filesystem->dumpFile(
             sprintf('%s/behat.dist.php', self::$workingDir),
@@ -236,12 +227,11 @@ YML
     }
 
     #[\Behat\Step\Given('/^a (?:.+ |)file "([^"]+)" containing(?: "([^"]+)"|:)$/')]
-    public function thereIsFile($file, $content): string
+    public function thereIsFile(string $file, string $content): string
     {
         $path = self::$workingDir . '/' . $file;
-        $content = (string) $content;
 
-        if (str_ends_with($file, '.php')) {
+        if (str_ends_with($file, '.php') && str_contains($content, '* @')) {
             $content = $this->replaceAnnotationsWithAttributes($content);
         }
 
@@ -251,9 +241,9 @@ YML
     }
 
     #[\Behat\Step\Given('/^a feature file containing(?: "([^"]+)"|:)$/')]
-    public function thereIsFeatureFile($content): void
+    public function thereIsFeatureFile(string $content): void
     {
-        $this->thereIsFile(sprintf('features/%s.feature', md5(uniqid('', true))), $content);
+        $this->thereIsFile(sprintf('features/%s.feature', uniqid('', true)), $content);
     }
 
     #[\Behat\Step\When('/^I run Behat$/')]
@@ -277,7 +267,10 @@ YML
             $executablePath = $this->thereIsFile('__executable.php', $content);
         }
 
-        $this->process = new Process([self::$phpBin, $executablePath, '--strict', '-vvv', '--no-interaction', '--lang=en'], self::$workingDir);
+        $this->process = new Process(
+            [self::$phpBin, $executablePath, '--strict', '-vvv', '--no-interaction', '--lang=en'],
+            self::$workingDir,
+        );
         $this->process->start();
         $this->process->wait();
     }
@@ -295,10 +288,10 @@ YML
     }
 
     #[\Behat\Step\Then('/^it should pass with(?: "([^"]+)"|:)$/')]
-    public function itShouldPassWith($expectedOutput): void
+    public function itShouldPassWith(string $expectedOutput): void
     {
         $this->itShouldPass();
-        $this->assertOutputMatches((string) $expectedOutput);
+        $this->assertOutputMatches($expectedOutput);
     }
 
     #[\Behat\Step\Then('/^it should fail$/')]
@@ -314,32 +307,26 @@ YML
     }
 
     #[\Behat\Step\Then('/^it should fail with(?: "([^"]+)"|:)$/')]
-    public function itShouldFailWith($expectedOutput): void
+    public function itShouldFailWith(string $expectedOutput): void
     {
         $this->itShouldFail();
-        $this->assertOutputMatches((string) $expectedOutput);
+        $this->assertOutputMatches($expectedOutput);
     }
 
     #[\Behat\Step\Then('/^it should end with(?: "([^"]+)"|:)$/')]
-    public function itShouldEndWith($expectedOutput): void
+    public function itShouldEndWith(string $expectedOutput): void
     {
-        $this->assertOutputMatches((string) $expectedOutput);
+        $this->assertOutputMatches($expectedOutput);
     }
 
     private function assertOutputMatches(string $expectedOutput): void
     {
-        $pattern = '/' . preg_quote($expectedOutput, '/') . '/sm';
         $output = $this->getProcessOutput();
 
-        $result = preg_match($pattern, $output);
-        if (false === $result) {
-            throw new \InvalidArgumentException('Invalid pattern given:' . $pattern);
-        }
-
-        if (0 === $result) {
+        if (!preg_match('/' . preg_quote($expectedOutput, '/') . '/sm', $output)) {
             throw new \DomainException(sprintf(
-                'Pattern "%s" does not match the following output:' . \PHP_EOL . \PHP_EOL . '%s',
-                $pattern,
+                'Expected output to contain "%s", got:' . \PHP_EOL . \PHP_EOL . '%s',
+                $expectedOutput,
                 $output,
             ));
         }
@@ -362,7 +349,7 @@ YML
     private function assertProcessIsAvailable(): void
     {
         if (null === $this->process) {
-            throw new \BadMethodCallException('Behat proccess cannot be found. Did you run it before making assertions?');
+            throw new \BadMethodCallException('Behat process cannot be found. Did you run it before making assertions?');
         }
     }
 
