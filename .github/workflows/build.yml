@@ -14,7 +14,7 @@ on:
 jobs:
     test:
         name: PHP ${{ matrix.php-version }} + Symfony ${{ matrix.symfony-version }}
-        runs-on: ubuntu-22.04
+        runs-on: ubuntu-latest
         strategy:
             fail-fast: false
             matrix:
@@ -77,7 +77,7 @@ jobs:
 
     psalm:
         name: Run Psalm
-        runs-on: ubuntu-22.04
+        runs-on: ubuntu-latest
         steps:
             - name: Checkout
               uses: actions/checkout@v3
@@ -100,7 +100,7 @@ jobs:
 
     validate-composer:
         name: Validate composer.json
-        runs-on: ubuntu-22.04
+        runs-on: ubuntu-latest
         continue-on-error: false
         steps:
             - name: Checkout
@@ -119,7 +119,7 @@ jobs:
 
     coding-standards:
         name: Validate Coding Standards
-        runs-on: ubuntu-22.04
+        runs-on: ubuntu-latest
         continue-on-error: false
         steps:
             - name: Checkout
