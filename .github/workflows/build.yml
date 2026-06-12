@@ -64,7 +64,12 @@ jobs:
             - name: Run tests
               run: |
                   if [[ "${{ matrix.symfony-version }}" == 8.* ]]; then
-                    vendor/bin/behat -f progress --strict -vvv --no-interaction --colors features/browserkit_integration features/configuration features/dependency_injection features/sanity_checks
+                    vendor/bin/behat -f progress --strict -vvv --no-interaction --colors \
+                      features/browserkit_integration features/configuration features/dependency_injection \
+                      features/sanity_checks/accessing_a_context_in_another_context.feature \
+                      features/sanity_checks/context_constructor_dependency_injection_compatibility.feature \
+                      features/sanity_checks/isolating_contexts.feature \
+                      features/sanity_checks/running_bare_behat_scenarios.feature
                   else
                     composer test
                   fi
