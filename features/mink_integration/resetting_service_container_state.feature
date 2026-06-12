@@ -6,7 +6,7 @@ Feature: Resetting the driver's service container in the right places
         """
         default:
             extensions:
-                Behat\MinkExtension:
+                Behat\MinkExtension\ServiceContainer\MinkExtension:
                     base_url: "http://localhost:8080/"
                     default_session: symfony
                     sessions:

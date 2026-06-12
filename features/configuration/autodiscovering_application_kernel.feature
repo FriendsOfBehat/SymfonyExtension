@@ -12,7 +12,7 @@ Feature: Autodiscovering the application kernel
         """
         default:
             extensions:
-                FriendsOfBehat\SymfonyExtension: ~
+                FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension: ~
 
             suites:
                 default:

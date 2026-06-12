@@ -6,7 +6,7 @@ Feature: Context initializer compatibility
         """
         default:
             extensions:
-                FriendsOfBehat\ServiceContainerExtension:
+                FriendsOfBehat\ServiceContainerExtension\ServiceContainer\ServiceContainerExtension:
                     imports:
                         - "tests/context_initializer.yml"
 

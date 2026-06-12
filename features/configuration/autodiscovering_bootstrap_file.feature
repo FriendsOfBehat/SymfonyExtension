@@ -94,7 +94,7 @@ Feature: Autodiscovering bootstrap file
         """
         default:
             extensions:
-                FriendsOfBehat\SymfonyExtension:
+                FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension:
                     bootstrap: false
         """
         When I run Behat

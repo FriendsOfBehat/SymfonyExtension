@@ -6,7 +6,7 @@ Feature: Accessing driver's service container
         """
         default:
             extensions:
-                Behat\MinkExtension:
+                Behat\MinkExtension\ServiceContainer\MinkExtension:
                     base_url: "http://localhost:8080/"
                     default_session: symfony
                     sessions:

@@ -51,7 +51,7 @@ Feature: Loading configured application kernel
         """
         default:
             extensions:
-                FriendsOfBehat\SymfonyExtension:
+                FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension:
                     kernel:
                         class: App\Custom\Kernel
         """
@@ -100,7 +100,7 @@ Feature: Loading configured application kernel
         """
         default:
             extensions:
-                FriendsOfBehat\SymfonyExtension:
+                FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension:
                     kernel:
                         path: app/Nested/Kernel.php
                         class: AppKernel

@@ -27,12 +27,8 @@ final class TestContext implements Context
     /** @var array */
     private $variables = [];
 
-    /** @var array Running merge of all config fragments, written to behat.dist.php for behat 4.x */
-    private array $mergedPhpConfig = [];
+    private array $mergedConfig = [];
 
-    /**
-     * @BeforeFeature
-     */
     #[\Behat\Hook\BeforeFeature]
     public static function beforeFeature(): void
     {
@@ -41,29 +37,20 @@ final class TestContext implements Context
         self::$phpBin = self::findPhpBinary();
     }
 
-    /**
-     * @BeforeScenario
-     */
     #[\Behat\Hook\BeforeScenario]
     public function beforeScenario(): void
     {
         self::$filesystem->remove(self::$workingDir);
         self::$filesystem->mkdir(self::$workingDir, 0777);
-        $this->mergedPhpConfig = [];
+        $this->mergedConfig = [];
     }
 
-    /**
-     * @AfterScenario
-     */
     #[\Behat\Hook\AfterScenario]
     public function afterScenario(): void
     {
         self::$filesystem->remove(self::$workingDir);
     }
 
-    /**
-     * @Given a standard Symfony autoloader configured
-     */
     #[\Behat\Step\Given('a standard Symfony autoloader configured')]
     public function standardSymfonyAutoloaderConfigured(): void
     {
@@ -81,9 +68,6 @@ CON
             , __DIR__ . '/../../../vendor/autoload.php'));
     }
 
-    /**
-     * @Given a working Symfony application with SymfonyExtension configured
-     */
     #[\Behat\Step\Given('a working Symfony application with SymfonyExtension configured')]
     public function workingSymfonyApplicationWithExtension(): void
     {
@@ -91,7 +75,7 @@ CON
             <<<'CON'
 default:
     extensions:
-        FriendsOfBehat\SymfonyExtension:
+        FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension:
             kernel:
                 class: App\Kernel
 CON
@@ -225,68 +209,40 @@ YML
         $this->thereIsFile('config/services.yaml', '');
     }
 
-    /**
-     * @Given /^an? (server|environment) variable "([^"]++)" set to "([^"]++)"$/
-     */
     #[\Behat\Step\Given('/^an? (server|environment) variable "([^"]++)" set to "([^"]++)"$/')]
     public function variableSetTo(string $type, string $name, string $value): void
     {
         $this->variables[$type][$name] = $value;
     }
 
-    /**
-     * @Given /^a YAML services file containing:$/
-     */
     #[\Behat\Step\Given('/^a YAML services file containing:$/')]
     public function yamlServicesFile($content): void
     {
         $this->thereIsFile('config/services.yaml', (string) $content);
     }
 
-    /**
-     * @Given /^a Behat configuration containing(?: "([^"]+)"|:)$/
-     */
     #[\Behat\Step\Given('/^a Behat configuration containing(?: "([^"]+)"|:)$/')]
     public function thereIsConfiguration($content): void
     {
-        // Behat 3.x: YAML config files with imports
-        $mainConfigFile = sprintf('%s/behat.yml', self::$workingDir);
-        $newConfigFile = sprintf('%s/behat-%s.yml', self::$workingDir, md5((string) $content));
-
-        self::$filesystem->dumpFile($newConfigFile, (string) $content);
-
-        if (!file_exists($mainConfigFile)) {
-            self::$filesystem->dumpFile($mainConfigFile, Yaml::dump(['imports' => []]));
-        }
-
-        $mainBehatConfiguration = Yaml::parseFile($mainConfigFile);
-        $mainBehatConfiguration['imports'][] = $newConfigFile;
-
-        self::$filesystem->dumpFile($mainConfigFile, Yaml::dump($mainBehatConfiguration));
-
-        // Behat 4.x: PHP config file, updated incrementally as a running merge
-        $this->mergedPhpConfig = array_replace_recursive($this->mergedPhpConfig, Yaml::parse((string) $content));
+        $this->mergedConfig = array_replace_recursive($this->mergedConfig, Yaml::parse((string) $content));
 
         self::$filesystem->dumpFile(
             sprintf('%s/behat.dist.php', self::$workingDir),
             sprintf(
                 "<?php\nreturn new \\Tests\\Behat\\Config\\ArrayConfig(%s);\n",
-                var_export($this->resolveExtensionClassNames($this->mergedPhpConfig), true),
+                var_export($this->mergedConfig, true),
             ),
         );
     }
 
-    /**
-     * @Given /^a (?:.+ |)file "([^"]+)" containing(?: "([^"]+)"|:)$/
-     */
     #[\Behat\Step\Given('/^a (?:.+ |)file "([^"]+)" containing(?: "([^"]+)"|:)$/')]
     public function thereIsFile($file, $content): string
     {
         $path = self::$workingDir . '/' . $file;
         $content = (string) $content;
 
-        if (interface_exists(\Behat\Config\ConfigInterface::class) && str_ends_with($file, '.php')) {
-            $content = $this->injectBehat4Attributes($content);
+        if (str_ends_with($file, '.php')) {
+            $content = $this->replaceAnnotationsWithAttributes($content);
         }
 
         self::$filesystem->dumpFile($path, $content);
@@ -294,18 +250,12 @@ YML
         return $path;
     }
 
-    /**
-     * @Given /^a feature file containing(?: "([^"]+)"|:)$/
-     */
     #[\Behat\Step\Given('/^a feature file containing(?: "([^"]+)"|:)$/')]
     public function thereIsFeatureFile($content): void
     {
         $this->thereIsFile(sprintf('features/%s.feature', md5(uniqid('', true))), $content);
     }
 
-    /**
-     * @When /^I run Behat$/
-     */
     #[\Behat\Step\When('/^I run Behat$/')]
     public function iRunBehat(): void
     {
@@ -332,9 +282,6 @@ YML
         $this->process->wait();
     }
 
-    /**
-     * @Then /^it should pass$/
-     */
     #[\Behat\Step\Then('/^it should pass$/')]
     public function itShouldPass(): void
     {
@@ -347,9 +294,6 @@ YML
         );
     }
 
-    /**
-     * @Then /^it should pass with(?: "([^"]+)"|:)$/
-     */
     #[\Behat\Step\Then('/^it should pass with(?: "([^"]+)"|:)$/')]
     public function itShouldPassWith($expectedOutput): void
     {
@@ -357,9 +301,6 @@ YML
         $this->assertOutputMatches((string) $expectedOutput);
     }
 
-    /**
-     * @Then /^it should fail$/
-     */
     #[\Behat\Step\Then('/^it should fail$/')]
     public function itShouldFail(): void
     {
@@ -372,9 +313,6 @@ YML
         );
     }
 
-    /**
-     * @Then /^it should fail with(?: "([^"]+)"|:)$/
-     */
     #[\Behat\Step\Then('/^it should fail with(?: "([^"]+)"|:)$/')]
     public function itShouldFailWith($expectedOutput): void
     {
@@ -382,19 +320,13 @@ YML
         $this->assertOutputMatches((string) $expectedOutput);
     }
 
-    /**
-     * @Then /^it should end with(?: "([^"]+)"|:)$/
-     */
     #[\Behat\Step\Then('/^it should end with(?: "([^"]+)"|:)$/')]
     public function itShouldEndWith($expectedOutput): void
     {
         $this->assertOutputMatches((string) $expectedOutput);
     }
 
-    /**
-     * @param string $expectedOutput
-     */
-    private function assertOutputMatches($expectedOutput): void
+    private function assertOutputMatches(string $expectedOutput): void
     {
         $pattern = '/' . preg_quote($expectedOutput, '/') . '/sm';
         $output = $this->getProcessOutput();
@@ -427,9 +359,6 @@ YML
         return $this->process->getExitCode();
     }
 
-    /**
-     * @throws \BadMethodCallException
-     */
     private function assertProcessIsAvailable(): void
     {
         if (null === $this->process) {
@@ -437,67 +366,20 @@ YML
         }
     }
 
-    /**
-     * @throws \RuntimeException
-     */
-    private function injectBehat4Attributes(string $code): string
+    private function replaceAnnotationsWithAttributes(string $code): string
     {
-        // Add PHP 8 step attributes alongside @Given/@When/@Then docblock annotations
-        $code = (string) preg_replace_callback(
-            '/^( *)\/\*\*\s*@(Given|When|Then)\s+(.+?)\s*\*\//m',
+        return (string) preg_replace_callback(
+            '/^( *)\/\*\*\s*@(Given|When|Then|BeforeScenario|AfterScenario|BeforeFeature|AfterFeature)(?:\s+(.+?))?\s*\*\/$/m',
             static function (array $m): string {
                 $indent = $m[1];
-                $keyword = ucfirst(strtolower($m[2]));
-                $pattern = str_replace("'", "\\'", $m[3]);
+                $name = $m[2];
+                $arg = isset($m[3]) && $m[3] !== '' ? "('" . str_replace("'", "\\'", $m[3]) . "')" : '';
+                $ns = in_array($name, ['Given', 'When', 'Then'], true) ? 'Step' : 'Hook';
 
-                return "{$m[0]}\n{$indent}#[\\Behat\\Step\\{$keyword}('{$pattern}')]";
+                return "{$indent}#[\\Behat\\{$ns}\\{$name}{$arg}]";
             },
             $code,
         );
-
-        // Add PHP 8 hook attributes alongside @BeforeScenario/@AfterScenario etc.
-        $code = (string) preg_replace_callback(
-            '/^( *)\/\*\*\s*@(BeforeScenario|AfterScenario|BeforeFeature|AfterFeature)\s*\*\//m',
-            static function (array $m): string {
-                $indent = $m[1];
-                $hook = $m[2];
-
-                return "{$m[0]}\n{$indent}#[\\Behat\\Hook\\{$hook}]";
-            },
-            $code,
-        );
-
-        return $code;
-    }
-
-    private function resolveExtensionClassNames(array $config): array
-    {
-        foreach ($config as &$profileConfig) {
-            if (!is_array($profileConfig) || !isset($profileConfig['extensions'])) {
-                continue;
-            }
-            $resolved = [];
-            foreach ($profileConfig['extensions'] as $name => $settings) {
-                $resolved[$this->resolveExtensionClass((string) $name)] = $settings;
-            }
-            $profileConfig['extensions'] = $resolved;
-        }
-
-        return $config;
-    }
-
-    private function resolveExtensionClass(string $name): string
-    {
-        // Map of behat 3.x short names → behat 4.x full class names
-        $map = [
-            'FriendsOfBehat\SymfonyExtension' => 'FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension',
-            'FriendsOfBehat\ServiceContainerExtension' => 'FriendsOfBehat\ServiceContainerExtension\ServiceContainer\ServiceContainerExtension',
-            'FriendsOfBehat\MinkExtension' => 'FriendsOfBehat\MinkExtension\ServiceContainer\MinkExtension',
-            'Behat\MinkExtension' => 'Behat\MinkExtension\ServiceContainer\MinkExtension',
-            'FriendsOfBehat\PageObjectExtension' => 'FriendsOfBehat\PageObjectExtension\ServiceContainer\PageObjectExtension',
-        ];
-
-        return $map[$name] ?? $name;
     }
 
     private static function findPhpBinary(): string
