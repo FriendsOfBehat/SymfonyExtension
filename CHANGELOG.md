@@ -1,3 +1,17 @@
+# CHANGELOG FOR `2.3.x`
+
+## v2.3.0 (unreleased)
+
+#### TL;DR
+
+- **Added installability support for Symfony 8 and PHP 8.5**.
+
+#### Details
+
+- Allow `symfony/dependency-injection` and `symfony/http-kernel` `^8.0`.
+- Allow Behat `^4.0`, which is required by Symfony 8 because Behat 3.x only supports Symfony components up to 7.x.
+- Keep Symfony 7.4 / Behat 3.31 compatibility and add a CI consumer-install probe for Symfony 8 on PHP 8.5.
+
 # CHANGELOG FOR `2.1.x`
 
 ## v2.2.0 (2021-02-04)

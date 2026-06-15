@@ -50,6 +50,46 @@ jobs:
             - name: Run tests
               run: composer test
 
+    symfony8-php85-consumer-install:
+        name: Symfony 8 + PHP 8.5 consumer install
+        runs-on: ubuntu-22.04
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  coverage: none
+                  ini-values: "memory_limit=-1"
+                  php-version: '8.5'
+                  tools: composer:v2
+
+            - name: Verify installability in a Symfony 8 consumer project
+              run: |
+                  mkdir /tmp/fob-symfony8-consumer
+                  cat > /tmp/fob-symfony8-consumer/composer.json <<'JSON'
+                  {
+                      "name": "friends-of-behat/symfony8-consumer-probe",
+                      "type": "project",
+                      "minimum-stability": "dev",
+                      "prefer-stable": true,
+                      "repositories": [
+                          {"type": "path", "url": "${{ github.workspace }}", "options": {"symlink": false}}
+                      ],
+                      "require-dev": {
+                          "behat/behat": "4.x-dev",
+                          "friends-of-behat/symfony-extension": "*",
+                          "symfony/framework-bundle": "^8.0",
+                          "symfony/yaml": "^8.0"
+                      },
+                      "config": {
+                          "sort-packages": true
+                      }
+                  }
+                  JSON
+                  composer update --working-dir=/tmp/fob-symfony8-consumer --no-interaction --no-plugins --prefer-dist --no-progress
+
     psalm:
         name: Run Psalm
         runs-on: ubuntu-22.04
