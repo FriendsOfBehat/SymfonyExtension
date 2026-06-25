@@ -4,11 +4,16 @@ Feature: Configuring application kernel
         Given a working Symfony application with SymfonyExtension configured
         And a Behat configuration containing:
         """
-        default:
-            suites:
-                default:
-                    contexts:
-                        - App\Tests\SomeContext
+        <?php
+
+        return (new \Behat\Config\Config())
+            ->withProfile(
+                (new \Behat\Config\Profile('default'))
+                    ->withSuite(
+                        (new \Behat\Config\Suite('default'))
+                            ->withContexts('App\Tests\SomeContext')
+                    )
+            );
         """
         And a context file "tests/SomeContext.php" containing:
         """
@@ -17,6 +22,7 @@ Feature: Configuring application kernel
         namespace App\Tests;
 
         use Behat\Behat\Context\Context;
+        use Behat\Step\Then;
         use Symfony\Component\HttpKernel\KernelInterface;
 
         final class SomeContext implements Context {
@@ -24,10 +30,10 @@ Feature: Configuring application kernel
 
             public function __construct(KernelInterface $kernel) { $this->kernel = $kernel; }
 
-            /** @Then the application kernel should have environment :environment */
+            #[Then('the application kernel should have environment :environment')]
             public function kernelEnvironmentShouldBe(string $environment): void { assert($this->kernel->getEnvironment() === $environment); }
 
-            /** @Then the application kernel should have debug :state*/
+            #[Then('the application kernel should have debug :state')]
             public function kernelDebugShouldBe(string $state): void
             {
                 $map = ['enabled' => true, 'disabled' => false];
@@ -37,7 +43,7 @@ Feature: Configuring application kernel
                 assert($this->kernel->isDebug() === $map[$state]);
             }
 
-            /** @Then the server and environment variable :variable is :value */
+            #[Then('the server and environment variable :variable is :value')]
             public function environmentVariableIs(string $variable, string $value): void
             {
                 assert($_SERVER[$variable] === $value);
@@ -70,11 +76,22 @@ Feature: Configuring application kernel
     Scenario: Using environment based on Behat configuration
         Given a Behat configuration containing:
         """
-        default:
-            extensions:
-                FriendsOfBehat\SymfonyExtension:
-                    kernel:
-                        environment: custom
+        <?php
+
+        return (new \Behat\Config\Config())
+            ->withProfile(
+                (new \Behat\Config\Profile('default'))
+                    ->withExtension(
+                        (new \Behat\Config\Extension(
+                            'FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension',
+                            [
+                                'kernel' => [
+                                    'environment' => 'custom'
+                                ]
+                            ]
+                        ))
+                    )
+            );
         """
         And a feature file containing:
         """
@@ -129,11 +146,22 @@ Feature: Configuring application kernel
         """
         And a Behat configuration containing:
         """
-        default:
-            extensions:
-                FriendsOfBehat\SymfonyExtension:
-                    kernel:
-                        environment: custom_conf
+        <?php
+
+        return (new \Behat\Config\Config())
+            ->withProfile(
+                (new \Behat\Config\Profile('default'))
+                    ->withExtension(
+                        (new \Behat\Config\Extension(
+                            'FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension',
+                            [
+                                'kernel' => [
+                                    'environment' => 'custom_conf'
+                                ]
+                            ]
+                        ))
+                    )
+            );
         """
         And a server variable "APP_ENV" set to "custom_ser"
         And an environment variable "APP_ENV" set to "custom_env"
@@ -149,10 +177,20 @@ Feature: Configuring application kernel
         """
         And a Behat configuration containing:
         """
-        default:
-            extensions:
-                FriendsOfBehat\SymfonyExtension:
-                    bootstrap: config/bootstrap.php
+        <?php
+
+        return (new \Behat\Config\Config())
+            ->withProfile(
+                (new \Behat\Config\Profile('default'))
+                    ->withExtension(
+                        (new \Behat\Config\Extension(
+                            'FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension',
+                            [
+                                'bootstrap' => 'config/bootstrap.php'
+                            ]
+                        ))
+                    )
+            );
         """
         And a bootstrap file "config/bootstrap.php" containing:
         """
@@ -166,11 +204,22 @@ Feature: Configuring application kernel
     Scenario: Using debug based on Behat configuration
         Given a Behat configuration containing:
         """
-        default:
-            extensions:
-                FriendsOfBehat\SymfonyExtension:
-                    kernel:
-                        debug: false
+        <?php
+
+        return (new \Behat\Config\Config())
+            ->withProfile(
+                (new \Behat\Config\Profile('default'))
+                    ->withExtension(
+                        (new \Behat\Config\Extension(
+                            'FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension',
+                            [
+                                'kernel' => [
+                                    'debug' => false
+                                ]
+                            ]
+                        ))
+                    )
+            );
         """
         And a feature file containing:
         """
@@ -224,11 +273,22 @@ Feature: Configuring application kernel
         """
         And a Behat configuration containing:
         """
-        default:
-            extensions:
-                FriendsOfBehat\SymfonyExtension:
-                    kernel:
-                        debug: false
+        <?php
+
+        return (new \Behat\Config\Config())
+            ->withProfile(
+                (new \Behat\Config\Profile('default'))
+                    ->withExtension(
+                        (new \Behat\Config\Extension(
+                            'FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension',
+                            [
+                                'kernel' => [
+                                    'debug' => false
+                                ]
+                            ]
+                        ))
+                    )
+            );
         """
         And a server variable "APP_DEBUG" set to "1"
         And an environment variable "APP_DEBUG" set to "1"
@@ -244,10 +304,20 @@ Feature: Configuring application kernel
         """
         And a Behat configuration containing:
         """
-        default:
-            extensions:
-                FriendsOfBehat\SymfonyExtension:
-                    bootstrap: config/bootstrap.php
+        <?php
+
+        return (new \Behat\Config\Config())
+            ->withProfile(
+                (new \Behat\Config\Profile('default'))
+                    ->withExtension(
+                        (new \Behat\Config\Extension(
+                            'FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension',
+                            [
+                                'bootstrap' => 'config/bootstrap.php'
+                            ]
+                        ))
+                    )
+            );
         """
         And a bootstrap file "config/bootstrap.php" containing:
         """

@@ -10,14 +10,21 @@ Feature: Autodiscovering the application kernel
         """
         And a Behat configuration containing:
         """
-        default:
-            extensions:
-                FriendsOfBehat\SymfonyExtension: ~
+        <?php
 
-            suites:
-                default:
-                    contexts:
-                        - App\Tests\SomeContext
+        return (new \Behat\Config\Config())
+            ->withProfile(
+                (new \Behat\Config\Profile('default'))
+                    ->withExtension(
+                      new \Behat\Config\Extension(
+                        \FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension::class
+                      )
+                    )
+                    ->withSuite(
+                        (new \Behat\Config\Suite('default'))
+                            ->withContexts('App\Tests\SomeContext')
+                    )
+            );
         """
         And a context file "tests/SomeContext.php" containing:
         """
@@ -26,13 +33,14 @@ Feature: Autodiscovering the application kernel
         namespace App\Tests;
 
         use Behat\Behat\Context\Context;
+        use Behat\Step\Then;
 
         final class SomeContext implements Context {
             private $service;
 
             public function __construct($service = null) { $this->service = $service; }
 
-            /** @Then the passed service should be an instance of :expected */
+            #[Then('the passed service should be an instance of :expected')]
             public function serviceShouldBe(string $expected): void
             {
                 assert(is_object($this->service));

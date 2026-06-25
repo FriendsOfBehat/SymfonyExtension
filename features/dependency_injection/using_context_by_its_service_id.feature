@@ -4,11 +4,16 @@ Feature: Using context by its service ID
         Given a working Symfony application with SymfonyExtension configured
         And a Behat configuration containing:
         """
-        default:
-            suites:
-                default:
-                    contexts:
-                        - behat.context.some_context
+        <?php
+
+        return (new \Behat\Config\Config())
+            ->withProfile(
+                (new \Behat\Config\Profile('default'))
+                    ->withSuite(
+                        (new \Behat\Config\Suite('default'))
+                            ->withContexts('behat.context.some_context')
+                    )
+            );
         """
         And a feature file containing:
         """
@@ -23,9 +28,10 @@ Feature: Using context by its service ID
         namespace App\Tests;
 
         use Behat\Behat\Context\Context;
+        use Behat\Step\Then;
 
         final class SomeContext implements Context {
-            /** @Then it should pass */
+            #[Then('it should pass')]
             public function shouldPass(): void
             {
             }

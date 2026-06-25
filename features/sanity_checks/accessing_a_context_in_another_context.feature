@@ -4,12 +4,16 @@ Feature: Accessing a context in another context
         Given a working Symfony application with SymfonyExtension configured
         And a Behat configuration containing:
         """
-        default:
-            suites:
-                default:
-                    contexts:
-                        - App\Tests\SomeContext
-                        - App\Tests\AnotherContext
+        <?php
+
+        return (new \Behat\Config\Config())
+            ->withProfile(
+                (new \Behat\Config\Profile('default'))
+                    ->withSuite(
+                        (new \Behat\Config\Suite('default'))
+                            ->withContexts('App\Tests\SomeContext', 'App\Tests\AnotherContext')
+                    )
+            );
         """
         And a feature file containing:
         """
@@ -37,12 +41,14 @@ Feature: Accessing a context in another context
 
         use Behat\Behat\Context\Context;
         use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+        use Behat\Hook\BeforeScenario;
+        use Behat\Step\Then;
 
         final class AnotherContext implements Context {
             /** @var SomeContext */
             private $someContext;
 
-            /** @BeforeScenario */
+            #[BeforeScenario()]
             public function gatherContexts(BeforeScenarioScope $scope)
             {
                 $environment = $scope->getEnvironment();
@@ -50,7 +56,7 @@ Feature: Accessing a context in another context
                 $this->someContext = $environment->getContext('App\Tests\SomeContext');
             }
 
-            /** @Then it should pass */
+            #[Then('it should pass')]
             public function itShouldPass(): void
             {
                 $this->someContext->someMethod();

@@ -4,11 +4,16 @@ Feature: Isolating contexts
         Given a working Symfony application with SymfonyExtension configured
         And a Behat configuration containing:
         """
-        default:
-            suites:
-                default:
-                    contexts:
-                        - App\Tests\SomeContext
+        <?php
+
+        return (new \Behat\Config\Config())
+            ->withProfile(
+                (new \Behat\Config\Profile('default'))
+                    ->withSuite(
+                        (new \Behat\Config\Suite('default'))
+                            ->withContexts('App\Tests\SomeContext')
+                    )
+            );
         """
         And a feature file containing:
         """
@@ -30,6 +35,8 @@ Feature: Isolating contexts
         namespace App\Tests;
 
         use Behat\Behat\Context\Context;
+        use Behat\Step\Then;
+        use Behat\Step\When;
         use Psr\Container\ContainerInterface;
 
         final class SomeContext implements Context {
@@ -37,10 +44,10 @@ Feature: Isolating contexts
 
             public function __construct(?ContainerInterface $container = null) { $this->container = $container; }
 
-            /** @When I change the property to :value */
+            #[When('I change the property to :value')]
             public function changeProperty(string $value): void { $this->property = $value; }
 
-            /** @Then the property should be :expected*/
+            #[Then('the property should be :expected')]
             public function propertyShouldBe(string $expected): void { assert($this->property === $expected); }
         }
         """

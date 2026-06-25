@@ -4,18 +4,28 @@ Feature: Mink service integration
         Given a working Symfony application with SymfonyExtension configured
         And a Behat configuration containing:
         """
-        default:
-            extensions:
-                Behat\MinkExtension:
-                    base_url: "http://localhost:8080/"
-                    default_session: symfony
-                    sessions:
-                        symfony:
-                            symfony: ~
-            suites:
-                default:
-                    contexts:
-                        - App\Tests\SomeContext
+        <?php
+
+        return (new \Behat\Config\Config())
+            ->withProfile(
+                (new \Behat\Config\Profile('default'))
+                    ->withExtension(
+                      new \Behat\Config\Extension(
+                        \Behat\MinkExtension\ServiceContainer\MinkExtension::class,
+                        [
+                            'base_url' => 'http://localhost:8080/',
+                            'default_session' => 'symfony',
+                            'sessions' => [
+                                ['name' => 'symfony', 'symfony' => []]
+                            ]
+                        ]
+                      )
+                    )
+                    ->withSuite(
+                        (new \Behat\Config\Suite('default'))
+                            ->withContexts('App\Tests\SomeContext')
+                    )
+            );
         """
         And a feature file containing:
         """
@@ -37,6 +47,8 @@ Feature: Mink service integration
 
         use Behat\Behat\Context\Context;
         use Behat\Mink\Mink;
+        use Behat\Step\Then;
+        use Behat\Step\When;
         use Psr\Container\ContainerInterface;
 
         final class SomeContext implements Context {
@@ -47,13 +59,13 @@ Feature: Mink service integration
                 $this->mink = $mink;
             }
 
-            /** @When I visit the page :page */
+            #[When('I visit the page :page')]
             public function visitPage(string $page): void
             {
                 $this->mink->getSession()->visit($page);
             }
 
-            /** @Then I should see :content on the page */
+            #[Then('I should see :content on the page')]
             public function shouldSeeContentOnPage(string $content): void
             {
                 assert(false !== strpos($this->mink->getSession()->getPage()->getContent(), $content));

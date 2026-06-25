@@ -4,16 +4,22 @@ Feature: Context initializer compatibility
         Given a working Symfony application with SymfonyExtension configured
         And a Behat configuration containing:
         """
-        default:
-            extensions:
-                FriendsOfBehat\ServiceContainerExtension:
-                    imports:
-                        - "tests/context_initializer.yml"
+        <?php
 
-            suites:
-                default:
-                    contexts:
-                        - App\Tests\SomeContext
+        return (new \Behat\Config\Config())
+            ->withProfile(
+                (new \Behat\Config\Profile('default'))
+                    ->withExtension(
+                      new \Behat\Config\Extension(
+                        \FriendsOfBehat\ServiceContainerExtension\ServiceContainer\ServiceContainerExtension::class,
+                        ['imports' => ['tests/context_initializer.yml']]
+                      )
+                    )
+                    ->withSuite(
+                        (new \Behat\Config\Suite('default'))
+                            ->withContexts('App\Tests\SomeContext')
+                    )
+            );
         """
         And a Behat services definition file "tests/context_initializer.yml" containing:
         """
@@ -51,6 +57,7 @@ Feature: Context initializer compatibility
         namespace App\Tests;
 
         use Behat\Behat\Context\Context;
+        use Behat\Step\Then;
 
         final class SomeContext implements Context {
             private $shouldPass = false;
@@ -60,7 +67,7 @@ Feature: Context initializer compatibility
                 $this->shouldPass = $shouldPass;
             }
 
-            /** @Then it should pass */
+            #[Then('it should pass')]
             public function itShouldPass(): void
             {
                 assert($this->shouldPass === true);

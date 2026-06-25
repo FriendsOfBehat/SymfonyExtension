@@ -4,18 +4,28 @@ Feature: Accessing driver's service container
         Given a working Symfony application with SymfonyExtension configured
         And a Behat configuration containing:
         """
-        default:
-            extensions:
-                Behat\MinkExtension:
-                    base_url: "http://localhost:8080/"
-                    default_session: symfony
-                    sessions:
-                        symfony:
-                            symfony: ~
-            suites:
-                default:
-                    contexts:
-                        - App\Tests\SomeContext
+        <?php
+
+        return (new \Behat\Config\Config())
+            ->withProfile(
+                (new \Behat\Config\Profile('default'))
+                    ->withExtension(
+                      new \Behat\Config\Extension(
+                        \Behat\MinkExtension\ServiceContainer\MinkExtension::class,
+                        [
+                            'base_url' => 'http://localhost:8080/',
+                            'default_session' => 'symfony',
+                            'sessions' => [
+                                ['name' => 'symfony', 'symfony' => []]
+                            ]
+                        ]
+                      )
+                    )
+                    ->withSuite(
+                        (new \Behat\Config\Suite('default'))
+                            ->withContexts('App\Tests\SomeContext')
+                    )
+            );
         """
         And a feature file containing:
         """
@@ -33,6 +43,9 @@ Feature: Accessing driver's service container
 
         use App\Counter;
         use Behat\Behat\Context\Context;
+        use Behat\Step\Given;
+        use Behat\Step\Then;
+        use Behat\Step\When;
         use Behat\Mink\Mink;
         use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -46,19 +59,19 @@ Feature: Accessing driver's service container
                 $this->driverContainer = $driverContainer;
             }
 
-            /** @Given the counter service is zeroed */
+            #[Given('the counter service is zeroed')]
             public function counterServiceIsZeroed(): void
             {
                 assert(0 === $this->getCounterService()->get());
             }
 
-            /** @When I visit the page :page */
+            #[When('I visit the page :page')]
             public function visitPage(string $page): void
             {
                 $this->mink->getSession()->visit($page);
             }
 
-            /** @Then the counter service should return :number */
+            #[Then('the counter service should return :number')]
             public function counterServiceShouldReturn(int $number): void
             {
                 assert($number === $this->getCounterService()->get());

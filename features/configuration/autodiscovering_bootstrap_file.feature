@@ -4,11 +4,16 @@ Feature: Autodiscovering bootstrap file
         Given a working Symfony application with SymfonyExtension configured
         And a Behat configuration containing:
         """
-        default:
-            suites:
-                default:
-                    contexts:
-                        - App\Tests\SomeContext
+        <?php
+
+        return (new \Behat\Config\Config())
+            ->withProfile(
+                (new \Behat\Config\Profile('default'))
+                    ->withSuite(
+                        (new \Behat\Config\Suite('default'))
+                            ->withContexts('App\Tests\SomeContext')
+                    )
+            );
         """
         And a context file "tests/SomeContext.php" containing:
         """
@@ -17,13 +22,14 @@ Feature: Autodiscovering bootstrap file
         namespace App\Tests;
 
         use Behat\Behat\Context\Context;
+        use Behat\Step\Then;
 
         final class SomeContext implements Context {
             private $parameter;
 
             public function __construct(?string $parameter = null) { $this->parameter = $parameter; }
 
-            /** @Then the passed parameter should be :expected */
+            #[Then('the passed parameter should be :expected')]
             public function parameterShouldBe(string $expected): void { assert($this->parameter === $expected); }
         }
         """
@@ -92,10 +98,20 @@ Feature: Autodiscovering bootstrap file
         """
         And a Behat configuration containing:
         """
-        default:
-            extensions:
-                FriendsOfBehat\SymfonyExtension:
-                    bootstrap: false
+        <?php
+
+        return (new \Behat\Config\Config())
+            ->withProfile(
+                (new \Behat\Config\Profile('default'))
+                    ->withExtension(
+                        (new \Behat\Config\Extension(
+                            'FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension',
+                            [
+                                'bootstrap' => false
+                            ]
+                        ))
+                    )
+            );
         """
         When I run Behat
         Then it should fail with "Symfony\Component\DependencyInjection\Exception\EnvNotFoundException"

@@ -4,19 +4,28 @@ Feature: FriendsOfBehat/PageObjectExtension integration
         Given a working Symfony application with SymfonyExtension configured
         And a Behat configuration containing:
         """
-        default:
-            extensions:
-                Behat\MinkExtension:
-                    base_url: "http://localhost:8080/"
-                    default_session: symfony
-                    sessions:
-                        symfony:
-                            symfony: ~
+        <?php
 
-            suites:
-                default:
-                    contexts:
-                        - App\Tests\SomeContext
+        return (new \Behat\Config\Config())
+            ->withProfile(
+                (new \Behat\Config\Profile('default'))
+                    ->withExtension(
+                      new \Behat\Config\Extension(
+                        \Behat\MinkExtension\ServiceContainer\MinkExtension::class,
+                        [
+                            'base_url' => 'http://localhost:8080/',
+                            'default_session' => 'symfony',
+                            'sessions' => [
+                                ['name' => 'symfony', 'symfony' => []]
+                            ]
+                        ]
+                      )
+                    )
+                    ->withSuite(
+                        (new \Behat\Config\Suite('default'))
+                            ->withContexts('App\Tests\SomeContext')
+                    )
+            );
         """
         And a feature file containing:
         """
@@ -32,6 +41,8 @@ Feature: FriendsOfBehat/PageObjectExtension integration
         namespace App\Tests;
 
         use Behat\Behat\Context\Context;
+        use Behat\Step\Then;
+        use Behat\Step\When;
 
         final class SomeContext implements Context {
             private $homepage;
@@ -41,13 +52,13 @@ Feature: FriendsOfBehat/PageObjectExtension integration
                 $this->homepage = $homepage;
             }
 
-            /** @When I visit the homepage */
+            #[When('I visit the homepage')]
             public function visitPage(): void
             {
                 $this->homepage->open();
             }
 
-            /** @Then I should see :content on the page */
+            #[Then('I should see :content on the page')]
             public function shouldSeeContentOnPage(string $content): void
             {
                 assert(false !== strpos($this->homepage->getContent(), $content));

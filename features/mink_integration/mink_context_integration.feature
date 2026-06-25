@@ -4,19 +4,28 @@ Feature: Mink context integration
         Given a working Symfony application with SymfonyExtension configured
         And a Behat configuration containing:
         """
-        default:
-            extensions:
-                Behat\MinkExtension:
-                    base_url: "http://localhost:8080/"
-                    default_session: symfony
-                    sessions:
-                        symfony:
-                            symfony: ~
+        <?php
 
-            suites:
-                default:
-                    contexts:
-                        - App\Tests\SomeContext
+        return (new \Behat\Config\Config())
+            ->withProfile(
+                (new \Behat\Config\Profile('default'))
+                    ->withExtension(
+                      new \Behat\Config\Extension(
+                        \Behat\MinkExtension\ServiceContainer\MinkExtension::class,
+                        [
+                            'base_url' => 'http://localhost:8080/',
+                            'default_session' => 'symfony',
+                            'sessions' => [
+                                ['name' => 'symfony', 'symfony' => []]
+                            ]
+                        ]
+                      )
+                    )
+                    ->withSuite(
+                        (new \Behat\Config\Suite('default'))
+                            ->withContexts('App\Tests\SomeContext')
+                    )
+            );
         """
         And a feature file containing:
         """
@@ -31,12 +40,13 @@ Feature: Mink context integration
         namespace App\Tests;
 
         use Behat\Behat\Context\Context;
+        use Behat\Step\Then;
         use Behat\Mink\Mink;
         use Behat\Mink\Session;
         use Behat\MinkExtension\Context\MinkContext;
 
         final class SomeContext extends MinkContext implements Context {
-            /** @Then I should have Mink injected */
+            #[Then('I should have Mink injected')]
             public function shouldHaveMinkInjected(): void
             {
                 assert($this->getMink() instanceof Mink);

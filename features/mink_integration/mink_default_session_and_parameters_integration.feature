@@ -4,18 +4,28 @@ Feature: Mink default session and parameters integration
         Given a working Symfony application with SymfonyExtension configured
         And a Behat configuration containing:
         """
-        default:
-            extensions:
-                Behat\MinkExtension:
-                    base_url: "http://localhost:8080/"
-                    default_session: symfony
-                    sessions:
-                        symfony:
-                            symfony: ~
-            suites:
-                default:
-                    contexts:
-                        - App\Tests\SomeContext
+        <?php
+
+        return (new \Behat\Config\Config())
+            ->withProfile(
+                (new \Behat\Config\Profile('default'))
+                    ->withExtension(
+                      new \Behat\Config\Extension(
+                        \Behat\MinkExtension\ServiceContainer\MinkExtension::class,
+                        [
+                            'base_url' => 'http://localhost:8080/',
+                            'default_session' => 'symfony',
+                            'sessions' => [
+                                ['name' => 'symfony', 'symfony' => []]
+                            ]
+                        ]
+                      )
+                    )
+                    ->withSuite(
+                        (new \Behat\Config\Suite('default'))
+                            ->withContexts('App\Tests\SomeContext')
+                    )
+            );
         """
         And a feature file containing:
         """
@@ -39,6 +49,8 @@ Feature: Mink default session and parameters integration
 
         use Behat\Behat\Context\Context;
         use Behat\Mink\Session;
+        use Behat\Step\Then;
+        use Behat\Step\When;
         use FriendsOfBehat\SymfonyExtension\Mink\MinkParameters;
         use Psr\Container\ContainerInterface;
 
@@ -52,19 +64,19 @@ Feature: Mink default session and parameters integration
                 $this->parameters = $minkParameters;
             }
 
-            /** @When I visit the page :page */
+            #[When('I visit the page :page')]
             public function visitPage(string $page): void
             {
                 $this->session->visit($page);
             }
 
-            /** @Then I should see :content on the page */
+            #[Then('I should see :content on the page')]
             public function shouldSeeContentOnPage(string $content): void
             {
                 assert(false !== strpos($this->session->getPage()->getContent(), $content));
             }
 
-            /** @Then the base url from Mink parameters should be :expected */
+            #[Then('the base url from Mink parameters should be :expected')]
             public function baseUrlShouldBe(string $expected): void
             {
                 assert(isset($this->parameters['base_url']));

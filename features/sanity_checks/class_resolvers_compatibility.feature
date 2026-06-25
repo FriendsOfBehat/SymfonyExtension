@@ -4,16 +4,22 @@ Feature: Class resolvers compatibility
         Given a working Symfony application with SymfonyExtension configured
         And a Behat configuration containing:
         """
-        default:
-            extensions:
-                FriendsOfBehat\ServiceContainerExtension:
-                    imports:
-                        - "tests/class_resolver.yml"
+        <?php
 
-            suites:
-                default:
-                    contexts:
-                        - class:resolved:context
+        return (new \Behat\Config\Config())
+            ->withProfile(
+                (new \Behat\Config\Profile('default'))
+                    ->withExtension(
+                      new \Behat\Config\Extension(
+                        \FriendsOfBehat\ServiceContainerExtension\ServiceContainer\ServiceContainerExtension::class,
+                        ['imports' => ['tests/class_resolver.yml']]
+                      )
+                    )
+                    ->withSuite(
+                        (new \Behat\Config\Suite('default'))
+                            ->withContexts('class:resolved:context')
+                    )
+            );
         """
         And a Behat services definition file "tests/class_resolver.yml" containing:
         """
@@ -55,9 +61,10 @@ Feature: Class resolvers compatibility
         namespace App\Tests;
 
         use Behat\Behat\Context\Context;
+        use Behat\Step\Then;
 
         final class SomeContext implements Context {
-            /** @Then it should pass */
+            #[Then('it should pass')]
             public function itShouldPass(): void {}
         }
         """

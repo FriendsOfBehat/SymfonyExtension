@@ -4,23 +4,30 @@ Feature: Switching Mink sessions
         Given a working Symfony application with SymfonyExtension configured
         And a Behat configuration containing:
         """
-        default:
-            extensions:
-                Behat\MinkExtension:
-                    base_url: "http://localhost:8080/"
-                    default_session: symfony
-                    javascript_session: selenium2
-                    sessions:
-                        symfony:
-                            symfony: ~
-                        selenium2:
-                            selenium2: ~
+        <?php
 
-
-            suites:
-                default:
-                    contexts:
-                        - App\Tests\SomeContext
+        return (new \Behat\Config\Config())
+            ->withProfile(
+                (new \Behat\Config\Profile('default'))
+                    ->withExtension(
+                      new \Behat\Config\Extension(
+                        \Behat\MinkExtension\ServiceContainer\MinkExtension::class,
+                        [
+                            'base_url' => 'http://localhost:8080/',
+                            'default_session' => 'symfony',
+                            'javascript_session' => 'selenium2',
+                            'sessions' => [
+                                ['name' => 'symfony', 'symfony' => []],
+                                ['name' =>'selenium2', 'selenium2' => []],
+                            ]
+                        ]
+                      )
+                    )
+                    ->withSuite(
+                        (new \Behat\Config\Suite('default'))
+                            ->withContexts('App\Tests\SomeContext')
+                    )
+            );
         """
         And a feature file containing:
         """
@@ -40,6 +47,7 @@ Feature: Switching Mink sessions
 
         use Behat\Behat\Context\Context;
         use Behat\Mink\Session;
+        use Behat\Step\Then;
 
         final class SomeContext implements Context {
             private $session;
@@ -49,7 +57,7 @@ Feature: Switching Mink sessions
                 $this->session = $session;
             }
 
-            /** @Then I should use Mink session with :driver as a driver*/
+            #[Then('I should use Mink session with :driver as a driver')]
             public function shouldUseDriver(string $driverClass): void
             {
                 assert($this->session->getDriver() instanceof $driverClass);

@@ -4,11 +4,16 @@ Feature: BrowserKit integration
         Given a working Symfony application with SymfonyExtension configured
         And a Behat configuration containing:
         """
-        default:
-            suites:
-                default:
-                    contexts:
-                        - App\Tests\SomeContext
+        <?php
+
+        return (new \Behat\Config\Config())
+            ->withProfile(
+                (new \Behat\Config\Profile('default'))
+                    ->withSuite(
+                        (new \Behat\Config\Suite('default'))
+                            ->withContexts('App\Tests\SomeContext')
+                    )
+            );
         """
         And a feature file containing:
         """
@@ -39,6 +44,8 @@ Feature: BrowserKit integration
         namespace App\Tests;
 
         use Behat\Behat\Context\Context;
+        use Behat\Step\Then;
+        use Behat\Step\When;
         use FriendsOfBehat\SymfonyExtension\Mink\MinkParameters;
         use Psr\Container\ContainerInterface;
         use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -52,13 +59,13 @@ Feature: BrowserKit integration
                 $this->client = $client;
             }
 
-            /** @When I visit the page :page */
+            #[When('I visit the page :page')]
             public function visitPage(string $page): void
             {
                 $this->client->request('GET', $page);
             }
 
-            /** @Then I should see :content on the page */
+            #[Then('I should see :content on the page')]
             public function shouldSeeContentOnPage(string $content): void
             {
                 assert(false !== strpos($this->client->getResponse()->getContent(), $content));
@@ -85,6 +92,8 @@ Feature: BrowserKit integration
         namespace App\Tests;
 
         use Behat\Behat\Context\Context;
+        use Behat\Step\Then;
+        use Behat\Step\When;
         use FriendsOfBehat\SymfonyExtension\Mink\MinkParameters;
         use Psr\Container\ContainerInterface;
         use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -98,13 +107,13 @@ Feature: BrowserKit integration
                 $this->client = $client;
             }
 
-            /** @When I visit the page :page */
+            #[When('I visit the page :page')]
             public function visitPage(string $page): void
             {
                 $this->client->request('GET', $page);
             }
 
-            /** @Then I should see :content on the page */
+            #[Then('I should see :content on the page')]
             public function shouldSeeContentOnPage(string $content): void
             {
                 assert(false !== strpos($this->client->getResponse()->getContent(), $content));
@@ -131,6 +140,8 @@ Feature: BrowserKit integration
         namespace App\Tests;
 
         use Behat\Behat\Context\Context;
+        use Behat\Step\Then;
+        use Behat\Step\When;
         use FriendsOfBehat\SymfonyExtension\Mink\MinkParameters;
         use Psr\Container\ContainerInterface;
         use Symfony\Component\HttpKernel\HttpKernelBrowser;
@@ -144,13 +155,13 @@ Feature: BrowserKit integration
                 $this->client = $client;
             }
 
-            /** @When I visit the page :page */
+            #[When('I visit the page :page')]
             public function visitPage(string $page): void
             {
                 $this->client->request('GET', $page);
             }
 
-            /** @Then I should see :content on the page */
+            #[Then('I should see :content on the page')]
             public function shouldSeeContentOnPage(string $content): void
             {
                 assert(false !== strpos($this->client->getResponse()->getContent(), $content));
