@@ -5,6 +5,12 @@ declare(strict_types=1);
 namespace Tests\Behat\Context;
 
 use Behat\Behat\Context\Context;
+use Behat\Hook\AfterScenario;
+use Behat\Hook\BeforeFeature;
+use Behat\Hook\BeforeScenario;
+use Behat\Step\Given;
+use Behat\Step\Then;
+use Behat\Step\When;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
@@ -29,7 +35,7 @@ final class TestContext implements Context
 
     private array $mergedConfig = [];
 
-    #[\Behat\Hook\BeforeFeature]
+    #[BeforeFeature]
     public static function beforeFeature(): void
     {
         self::$workingDir = sprintf('%s/%s/', sys_get_temp_dir(), uniqid('', true));
@@ -37,7 +43,7 @@ final class TestContext implements Context
         self::$phpBin = self::findPhpBinary();
     }
 
-    #[\Behat\Hook\BeforeScenario]
+    #[BeforeScenario]
     public function beforeScenario(): void
     {
         self::$filesystem->remove(self::$workingDir);
@@ -45,13 +51,13 @@ final class TestContext implements Context
         $this->mergedConfig = [];
     }
 
-    #[\Behat\Hook\AfterScenario]
+    #[AfterScenario]
     public function afterScenario(): void
     {
         self::$filesystem->remove(self::$workingDir);
     }
 
-    #[\Behat\Step\Given('a standard Symfony autoloader configured')]
+    #[Given('a standard Symfony autoloader configured')]
     public function standardSymfonyAutoloaderConfigured(): void
     {
         $this->thereIsFile('vendor/autoload.php', sprintf(<<<'CON'
@@ -68,7 +74,7 @@ CON
             , __DIR__ . '/../../../vendor/autoload.php'));
     }
 
-    #[\Behat\Step\Given('a working Symfony application with SymfonyExtension configured')]
+    #[Given('a working Symfony application with SymfonyExtension configured')]
     public function workingSymfonyApplicationWithExtension(): void
     {
         $this->thereIsConfiguration(
@@ -209,19 +215,19 @@ YML
         $this->thereIsFile('config/services.yaml', '');
     }
 
-    #[\Behat\Step\Given('/^an? (server|environment) variable "([^"]++)" set to "([^"]++)"$/')]
+    #[Given('/^an? (server|environment) variable "([^"]++)" set to "([^"]++)"$/')]
     public function variableSetTo(string $type, string $name, string $value): void
     {
         $this->variables[$type][$name] = $value;
     }
 
-    #[\Behat\Step\Given('/^a YAML services file containing:$/')]
+    #[Given('/^a YAML services file containing:$/')]
     public function yamlServicesFile($content): void
     {
         $this->thereIsFile('config/services.yaml', (string) $content);
     }
 
-    #[\Behat\Step\Given('/^a Behat configuration containing(?: "([^"]+)"|:)$/')]
+    #[Given('/^a Behat configuration containing(?: "([^"]+)"|:)$/')]
     public function thereIsConfiguration($content): void
     {
         $this->mergedConfig = array_replace_recursive($this->mergedConfig, Yaml::parse((string) $content));
@@ -235,7 +241,7 @@ YML
         );
     }
 
-    #[\Behat\Step\Given('/^a (?:.+ |)file "([^"]+)" containing(?: "([^"]+)"|:)$/')]
+    #[Given('/^a (?:.+ |)file "([^"]+)" containing(?: "([^"]+)"|:)$/')]
     public function thereIsFile($file, $content): string
     {
         $path = self::$workingDir . '/' . $file;
@@ -250,13 +256,13 @@ YML
         return $path;
     }
 
-    #[\Behat\Step\Given('/^a feature file containing(?: "([^"]+)"|:)$/')]
+    #[Given('/^a feature file containing(?: "([^"]+)"|:)$/')]
     public function thereIsFeatureFile($content): void
     {
         $this->thereIsFile(sprintf('features/%s.feature', md5(uniqid('', true))), $content);
     }
 
-    #[\Behat\Step\When('/^I run Behat$/')]
+    #[When('/^I run Behat$/')]
     public function iRunBehat(): void
     {
         $executablePath = BEHAT_BIN_PATH;
@@ -282,7 +288,7 @@ YML
         $this->process->wait();
     }
 
-    #[\Behat\Step\Then('/^it should pass$/')]
+    #[Then('/^it should pass$/')]
     public function itShouldPass(): void
     {
         if (0 === $this->getProcessExitCode()) {
@@ -294,14 +300,14 @@ YML
         );
     }
 
-    #[\Behat\Step\Then('/^it should pass with(?: "([^"]+)"|:)$/')]
+    #[Then('/^it should pass with(?: "([^"]+)"|:)$/')]
     public function itShouldPassWith($expectedOutput): void
     {
         $this->itShouldPass();
         $this->assertOutputMatches((string) $expectedOutput);
     }
 
-    #[\Behat\Step\Then('/^it should fail$/')]
+    #[Then('/^it should fail$/')]
     public function itShouldFail(): void
     {
         if (0 !== $this->getProcessExitCode()) {
@@ -313,14 +319,14 @@ YML
         );
     }
 
-    #[\Behat\Step\Then('/^it should fail with(?: "([^"]+)"|:)$/')]
+    #[Then('/^it should fail with(?: "([^"]+)"|:)$/')]
     public function itShouldFailWith($expectedOutput): void
     {
         $this->itShouldFail();
         $this->assertOutputMatches((string) $expectedOutput);
     }
 
-    #[\Behat\Step\Then('/^it should end with(?: "([^"]+)"|:)$/')]
+    #[Then('/^it should end with(?: "([^"]+)"|:)$/')]
     public function itShouldEndWith($expectedOutput): void
     {
         $this->assertOutputMatches((string) $expectedOutput);
