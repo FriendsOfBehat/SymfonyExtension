@@ -6,7 +6,7 @@ Feature: Loading configured bootstrap file
         """
         default:
             extensions:
-                FriendsOfBehat\SymfonyExtension:
+                FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension:
                     bootstrap: custom/bootstrap.php
 
             suites:
@@ -61,7 +61,7 @@ Feature: Loading configured bootstrap file
         """
         default:
             extensions:
-                FriendsOfBehat\SymfonyExtension:
+                FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension:
                     bootstrap: '%paths.base%/custom/bootstrap.php'
 
             suites:

@@ -8,7 +8,7 @@ Feature: instantiation of a context initializer
         """
         default:
             extensions:
-                FriendsOfBehat\ServiceContainerExtension:
+                FriendsOfBehat\ServiceContainerExtension\ServiceContainer\ServiceContainerExtension:
                     imports:
                         - "tests/context_initializer.yml"
 

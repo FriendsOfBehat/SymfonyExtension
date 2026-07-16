@@ -5,6 +5,12 @@ declare(strict_types=1);
 namespace Tests\Behat\Context;
 
 use Behat\Behat\Context\Context;
+use Behat\Hook\AfterScenario;
+use Behat\Hook\BeforeFeature;
+use Behat\Hook\BeforeScenario;
+use Behat\Step\Given;
+use Behat\Step\Then;
+use Behat\Step\When;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
@@ -27,9 +33,9 @@ final class TestContext implements Context
     /** @var array */
     private $variables = [];
 
-    /**
-     * @BeforeFeature
-     */
+    private array $mergedConfig = [];
+
+    #[BeforeFeature]
     public static function beforeFeature(): void
     {
         self::$workingDir = sprintf('%s/%s/', sys_get_temp_dir(), uniqid('', true));
@@ -37,26 +43,21 @@ final class TestContext implements Context
         self::$phpBin = self::findPhpBinary();
     }
 
-    /**
-     * @BeforeScenario
-     */
+    #[BeforeScenario]
     public function beforeScenario(): void
     {
         self::$filesystem->remove(self::$workingDir);
         self::$filesystem->mkdir(self::$workingDir, 0777);
+        $this->mergedConfig = [];
     }
 
-    /**
-     * @AfterScenario
-     */
+    #[AfterScenario]
     public function afterScenario(): void
     {
         self::$filesystem->remove(self::$workingDir);
     }
 
-    /**
-     * @Given a standard Symfony autoloader configured
-     */
+    #[Given('a standard Symfony autoloader configured')]
     public function standardSymfonyAutoloaderConfigured(): void
     {
         $this->thereIsFile('vendor/autoload.php', sprintf(<<<'CON'
@@ -68,21 +69,19 @@ $loader = require '%s';
 $loader->addPsr4('App\\', __DIR__ . '/../src/');
 $loader->addPsr4('App\\Tests\\', __DIR__ . '/../tests/');
 
-return $loader; 
+return $loader;
 CON
             , __DIR__ . '/../../../vendor/autoload.php'));
     }
 
-    /**
-     * @Given a working Symfony application with SymfonyExtension configured
-     */
+    #[Given('a working Symfony application with SymfonyExtension configured')]
     public function workingSymfonyApplicationWithExtension(): void
     {
         $this->thereIsConfiguration(
             <<<'CON'
 default:
     extensions:
-        FriendsOfBehat\SymfonyExtension:
+        FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension:
             kernel:
                 class: App\Kernel
 CON
@@ -123,11 +122,11 @@ class Kernel extends HttpKernel
             'test' => $this->getEnvironment() === 'test',
             'secret' => 'Pigeon',
         ]);
-        
+
         $loader->load(__DIR__ . '/../config/default.yaml');
         $loader->load(__DIR__ . '/../config/services.yaml');
     }
-    
+
     protected function configureRoutes($routes): void
     {
         if ($routes instanceof RoutingConfigurator) { // available since Symfony 5.1
@@ -135,7 +134,7 @@ class Kernel extends HttpKernel
                 ->add('app_hello', '/hello-world')
                 ->controller('App\Controller::helloWorld')
             ;
-        } else { // support Symfony 4.4  
+        } else { // support Symfony 4.4
             $routes->add('/hello-world', 'App\Controller:helloWorld');
         }
     }
@@ -166,7 +165,7 @@ final class Controller
     public function helloWorld(): Response
     {
         $this->counter->increase();
-    
+
         return new Response('Hello world! The counter value is ' . $this->counter->get());
     }
 }
@@ -185,12 +184,12 @@ namespace App;
 final class Counter
 {
     private $counter = 0;
-    
+
     public function increase(): void
     {
         $this->counter++;
     }
-    
+
     public function get(): int
     {
         return $this->counter;
@@ -216,65 +215,54 @@ YML
         $this->thereIsFile('config/services.yaml', '');
     }
 
-    /**
-     * @Given /^an? (server|environment) variable "([^"]++)" set to "([^"]++)"$/
-     */
+    #[Given('/^an? (server|environment) variable "([^"]++)" set to "([^"]++)"$/')]
     public function variableSetTo(string $type, string $name, string $value): void
     {
         $this->variables[$type][$name] = $value;
     }
 
-    /**
-     * @Given /^a YAML services file containing:$/
-     */
+    #[Given('/^a YAML services file containing:$/')]
     public function yamlServicesFile($content): void
     {
         $this->thereIsFile('config/services.yaml', (string) $content);
     }
 
-    /**
-     * @Given /^a Behat configuration containing(?: "([^"]+)"|:)$/
-     */
+    #[Given('/^a Behat configuration containing(?: "([^"]+)"|:)$/')]
     public function thereIsConfiguration($content): void
     {
-        $mainConfigFile = sprintf('%s/behat.yml', self::$workingDir);
-        $newConfigFile = sprintf('%s/behat-%s.yml', self::$workingDir, md5((string) $content));
+        $this->mergedConfig = array_replace_recursive($this->mergedConfig, Yaml::parse((string) $content));
 
-        self::$filesystem->dumpFile($newConfigFile, (string) $content);
-
-        if (!file_exists($mainConfigFile)) {
-            self::$filesystem->dumpFile($mainConfigFile, Yaml::dump(['imports' => []]));
-        }
-
-        $mainBehatConfiguration = Yaml::parseFile($mainConfigFile);
-        $mainBehatConfiguration['imports'][] = $newConfigFile;
-
-        self::$filesystem->dumpFile($mainConfigFile, Yaml::dump($mainBehatConfiguration));
+        self::$filesystem->dumpFile(
+            sprintf('%s/behat.dist.php', self::$workingDir),
+            sprintf(
+                "<?php\nreturn new \\Tests\\Behat\\Config\\ArrayConfig(%s);\n",
+                var_export($this->mergedConfig, true),
+            ),
+        );
     }
 
-    /**
-     * @Given /^a (?:.+ |)file "([^"]+)" containing(?: "([^"]+)"|:)$/
-     */
+    #[Given('/^a (?:.+ |)file "([^"]+)" containing(?: "([^"]+)"|:)$/')]
     public function thereIsFile($file, $content): string
     {
         $path = self::$workingDir . '/' . $file;
+        $content = (string) $content;
 
-        self::$filesystem->dumpFile($path, (string) $content);
+        if (str_ends_with($file, '.php')) {
+            $content = $this->replaceAnnotationsWithAttributes($content);
+        }
+
+        self::$filesystem->dumpFile($path, $content);
 
         return $path;
     }
 
-    /**
-     * @Given /^a feature file containing(?: "([^"]+)"|:)$/
-     */
+    #[Given('/^a feature file containing(?: "([^"]+)"|:)$/')]
     public function thereIsFeatureFile($content): void
     {
         $this->thereIsFile(sprintf('features/%s.feature', md5(uniqid('', true))), $content);
     }
 
-    /**
-     * @When /^I run Behat$/
-     */
+    #[When('/^I run Behat$/')]
     public function iRunBehat(): void
     {
         $executablePath = BEHAT_BIN_PATH;
@@ -300,9 +288,7 @@ YML
         $this->process->wait();
     }
 
-    /**
-     * @Then /^it should pass$/
-     */
+    #[Then('/^it should pass$/')]
     public function itShouldPass(): void
     {
         if (0 === $this->getProcessExitCode()) {
@@ -314,18 +300,14 @@ YML
         );
     }
 
-    /**
-     * @Then /^it should pass with(?: "([^"]+)"|:)$/
-     */
+    #[Then('/^it should pass with(?: "([^"]+)"|:)$/')]
     public function itShouldPassWith($expectedOutput): void
     {
         $this->itShouldPass();
         $this->assertOutputMatches((string) $expectedOutput);
     }
 
-    /**
-     * @Then /^it should fail$/
-     */
+    #[Then('/^it should fail$/')]
     public function itShouldFail(): void
     {
         if (0 !== $this->getProcessExitCode()) {
@@ -337,27 +319,20 @@ YML
         );
     }
 
-    /**
-     * @Then /^it should fail with(?: "([^"]+)"|:)$/
-     */
+    #[Then('/^it should fail with(?: "([^"]+)"|:)$/')]
     public function itShouldFailWith($expectedOutput): void
     {
         $this->itShouldFail();
         $this->assertOutputMatches((string) $expectedOutput);
     }
 
-    /**
-     * @Then /^it should end with(?: "([^"]+)"|:)$/
-     */
+    #[Then('/^it should end with(?: "([^"]+)"|:)$/')]
     public function itShouldEndWith($expectedOutput): void
     {
         $this->assertOutputMatches((string) $expectedOutput);
     }
 
-    /**
-     * @param string $expectedOutput
-     */
-    private function assertOutputMatches($expectedOutput): void
+    private function assertOutputMatches(string $expectedOutput): void
     {
         $pattern = '/' . preg_quote($expectedOutput, '/') . '/sm';
         $output = $this->getProcessOutput();
@@ -390,9 +365,6 @@ YML
         return $this->process->getExitCode();
     }
 
-    /**
-     * @throws \BadMethodCallException
-     */
     private function assertProcessIsAvailable(): void
     {
         if (null === $this->process) {
@@ -400,9 +372,22 @@ YML
         }
     }
 
-    /**
-     * @throws \RuntimeException
-     */
+    private function replaceAnnotationsWithAttributes(string $code): string
+    {
+        return (string) preg_replace_callback(
+            '/^( *)\/\*\*\s*@(Given|When|Then|BeforeScenario|AfterScenario|BeforeFeature|AfterFeature)(?:\s+(.+?))?\s*\*\/$/m',
+            static function (array $m): string {
+                $indent = $m[1];
+                $name = $m[2];
+                $arg = isset($m[3]) && $m[3] !== '' ? "('" . str_replace("'", "\\'", $m[3]) . "')" : '';
+                $ns = in_array($name, ['Given', 'When', 'Then'], true) ? 'Step' : 'Hook';
+
+                return "{$indent}#[\\Behat\\{$ns}\\{$name}{$arg}]";
+            },
+            $code,
+        );
+    }
+
     private static function findPhpBinary(): string
     {
         $phpBinary = (new PhpExecutableFinder())->find();

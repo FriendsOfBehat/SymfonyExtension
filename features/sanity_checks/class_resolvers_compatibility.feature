@@ -6,7 +6,7 @@ Feature: Class resolvers compatibility
         """
         default:
             extensions:
-                FriendsOfBehat\ServiceContainerExtension:
+                FriendsOfBehat\ServiceContainerExtension\ServiceContainer\ServiceContainerExtension:
                     imports:
                         - "tests/class_resolver.yml"
 

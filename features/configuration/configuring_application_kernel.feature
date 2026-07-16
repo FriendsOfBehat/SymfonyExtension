@@ -72,7 +72,7 @@ Feature: Configuring application kernel
         """
         default:
             extensions:
-                FriendsOfBehat\SymfonyExtension:
+                FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension:
                     kernel:
                         environment: custom
         """
@@ -131,7 +131,7 @@ Feature: Configuring application kernel
         """
         default:
             extensions:
-                FriendsOfBehat\SymfonyExtension:
+                FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension:
                     kernel:
                         environment: custom_conf
         """
@@ -151,7 +151,7 @@ Feature: Configuring application kernel
         """
         default:
             extensions:
-                FriendsOfBehat\SymfonyExtension:
+                FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension:
                     bootstrap: config/bootstrap.php
         """
         And a bootstrap file "config/bootstrap.php" containing:
@@ -168,7 +168,7 @@ Feature: Configuring application kernel
         """
         default:
             extensions:
-                FriendsOfBehat\SymfonyExtension:
+                FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension:
                     kernel:
                         debug: false
         """
@@ -226,7 +226,7 @@ Feature: Configuring application kernel
         """
         default:
             extensions:
-                FriendsOfBehat\SymfonyExtension:
+                FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension:
                     kernel:
                         debug: false
         """
@@ -246,7 +246,7 @@ Feature: Configuring application kernel
         """
         default:
             extensions:
-                FriendsOfBehat\SymfonyExtension:
+                FriendsOfBehat\SymfonyExtension\ServiceContainer\SymfonyExtension:
                     bootstrap: config/bootstrap.php
         """
         And a bootstrap file "config/bootstrap.php" containing:

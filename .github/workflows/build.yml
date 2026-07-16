@@ -24,6 +24,13 @@ jobs:
                     - '8.5'
                 symfony-version:
                     - '7.4.*'
+                    - '8.0.*'
+                    - '8.1.*'
+                exclude:
+                    - php-version: '8.3'
+                      symfony-version: '8.0.*'
+                    - php-version: '8.3'
+                      symfony-version: '8.1.*'
         steps:
             - name: Checkout
               uses: actions/checkout@v3
@@ -40,6 +47,12 @@ jobs:
             - name: Lock Symfony version
               run: VERSION=${{ matrix.symfony-version }} .github/workflows/lock-symfony-version.sh
 
+            - name: Allow Behat 4 (dev) dependencies for Symfony 8+
+              if: startsWith(matrix.symfony-version, '8.')
+              run: |
+                  composer config minimum-stability dev
+                  composer config prefer-stable true
+
             - name: Install dependencies
               run: |
                   composer config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
@@ -48,7 +61,17 @@ jobs:
               #    SYMFONY_REQUIRE: "${{ matrix.symfony-version }}"
 
             - name: Run tests
-              run: composer test
+              run: |
+                  if [[ "${{ matrix.symfony-version }}" == 8.* ]]; then
+                    vendor/bin/behat -f progress --strict -vvv --no-interaction --colors \
+                      features/browserkit_integration features/configuration features/dependency_injection \
+                      features/sanity_checks/accessing_a_context_in_another_context.feature \
+                      features/sanity_checks/context_constructor_dependency_injection_compatibility.feature \
+                      features/sanity_checks/isolating_contexts.feature \
+                      features/sanity_checks/running_bare_behat_scenarios.feature
+                  else
+                    composer test
+                  fi
 
     psalm:
         name: Run Psalm
